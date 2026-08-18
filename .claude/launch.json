@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "kwanjeso",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["server.js"],
+      "port": 8282
+    },
+    {
+      "name": "static",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8788", "--directory", "D:/apps/idlegame"],
+      "port": 8788
+    }
+  ]
+}

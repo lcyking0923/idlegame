@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>조선거상</title>
+<style>
+/* ── 팔레트: 옻칠 나전함 속 한지 · 오방색 단청 (단일 테마) ── */
+:root{
+  --ink:#17120D; --ink2:#241B12; --ink3:#2E2317;
+  --paper:#F1E5C9; --paper2:#E6D5AD; --paper3:#DCC898;
+  --line:#C9B07C; --brown:#4A3823; --brown2:#7A6242;
+  --red:#B93A2B; --red2:#93291D;
+  --green:#3A6B52; --indigo:#31506E;
+  --gold:#D9A441; --gold2:#B8842C; --goldL:#F2CE7B;
+  --serif:'Gungsuh','GungsuhChe','Batang','BatangChe','AppleMyungjo','Noto Serif KR',serif;
+  --sans:'Malgun Gothic','Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:var(--ink);
+  background-image:radial-gradient(ellipse 90% 60% at 50% -10%, #2A2013 0%, var(--ink) 70%);
+  color:var(--paper); font-family:var(--sans); overflow:hidden;
+  user-select:none; -webkit-user-select:none; touch-action:manipulation;
+}
+button{font-family:var(--sans); border:none; cursor:pointer; background:none; color:inherit}
+button:focus-visible{outline:2px solid var(--gold); outline-offset:2px}
+#app{
+  max-width:430px; height:100dvh; margin:0 auto; display:flex; flex-direction:column;
+  background:var(--ink); box-shadow:0 0 60px rgba(0,0,0,.8);
+  position:relative;
+}
+/* ── 헤더: 현판 + 단청 띠 ── */
+header{flex:none; background:var(--ink2); border-bottom:2px solid var(--gold2); position:relative; z-index:5}
+.danchong{height:10px; background:
+  repeating-linear-gradient(90deg,
+    var(--red) 0 14px, var(--gold) 14px 18px,
+    var(--green) 18px 32px, var(--gold) 32px 36px,
+    var(--indigo) 36px 50px, var(--gold) 50px 54px);
+  border-bottom:2px solid #0e0a06;}
+.hrow1{display:flex; align-items:center; justify-content:space-between; padding:8px 12px 4px}
+.board{
+  font-family:var(--serif); font-size:22px; font-weight:700; letter-spacing:6px;
+  color:var(--goldL); background:linear-gradient(#3A2C1B,#241B12);
+  border:2px solid var(--gold2); border-radius:4px; padding:2px 14px 3px 20px;
+  text-shadow:0 2px 3px rgba(0,0,0,.6); box-shadow:0 2px 6px rgba(0,0,0,.5), inset 0 1px 0 rgba(242,206,123,.25);
+}
+.board small{font-size:10px; letter-spacing:2px; color:var(--gold2); display:block; line-height:1; margin-top:-2px}
+#fameBtn{
+  text-align:right; background:var(--ink3); border:1px solid var(--brown2); border-radius:8px;
+  padding:5px 10px; line-height:1.25;
+}
+#fameBtn .t1{font-size:12px; color:var(--goldL); font-weight:700}
+#fameBtn .t2{font-size:10px; color:#BFA77E}
+.hrow2{display:flex; gap:8px; padding:6px 12px}
+.cur{
+  flex:1; display:flex; align-items:center; gap:7px; background:var(--ink3);
+  border:1px solid var(--brown2); border-radius:10px; padding:5px 10px;
+}
+.cur b{font-family:var(--serif); font-variant-numeric:tabular-nums; font-size:16px; color:var(--paper); flex:1}
+.cur .plus{width:20px;height:20px;border-radius:50%;background:var(--green);color:#fff;font-size:14px;line-height:20px;text-align:center;flex:none}
+.coin{width:20px;height:20px;border-radius:50%;flex:none;
+  background:radial-gradient(circle at 35% 30%, var(--goldL), var(--gold) 55%, var(--gold2));
+  position:relative; box-shadow:0 1px 2px rgba(0,0,0,.6)}
+.coin::after{content:''; position:absolute; inset:6px; background:var(--ink3); border-radius:2px}
+.silkic{width:20px;height:14px;border-radius:3px;flex:none;
+  background:linear-gradient(135deg,#D96AA0 0%,#B23A78 50%,#8A2A5C 100%);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.35), 0 1px 2px rgba(0,0,0,.6)}
+.hrow3{display:flex; align-items:center; justify-content:space-between; padding:0 14px 7px; font-size:12px; color:#C8B693}
+#ipsV{color:#B6C9A8; font-variant-numeric:tabular-nums}
+#chips span{display:inline-block; margin-left:6px; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:700}
+.chip-boost{background:var(--red); color:#FFE9C2}
+.chip-royal{background:var(--indigo); color:#DCE9F5}
+/* ── 저잣거리 장면 ── */
+#scene{
+  flex:none; height:138px; position:relative; overflow:hidden; cursor:pointer;
+  background:linear-gradient(#241C25 0%, #38273a 34%, #4A3226 62%, #5B4530 63%, #4A3826 100%);
+  border-bottom:2px solid var(--gold2);
+}
+#scene svg.roof{position:absolute; top:0; left:0; width:100%; height:58px; pointer-events:none}
+.moon{position:absolute; top:9px; right:26px; width:26px; height:26px; border-radius:50%;
+  background:radial-gradient(circle at 40% 35%, #FFF6DC, #F0D9A0); box-shadow:0 0 18px 6px rgba(242,217,160,.35); pointer-events:none}
+.lantern{position:absolute; font-size:22px; pointer-events:none; filter:drop-shadow(0 0 8px rgba(255,120,60,.85)); animation:sway 3.2s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+.shopfront{position:absolute; bottom:12px; left:50%; transform:translateX(-50%);
+  font-family:var(--serif); text-align:center; pointer-events:none}
+.shopfront .sign{display:inline-block; background:#1E150C; border:1.5px solid var(--gold2); color:var(--goldL);
+  border-radius:3px; padding:1px 12px; font-size:14px; letter-spacing:5px}
+.shopfront .goods{font-size:24px; letter-spacing:4px; margin-top:3px; text-shadow:0 2px 2px rgba(0,0,0,.5)}
+.hint{position:absolute; bottom:4px; left:0; right:0; text-align:center; font-size:10px; color:rgba(241,229,201,.55); pointer-events:none}
+.walker{position:absolute; bottom:14px; font-size:20px; pointer-events:none; animation:walk linear forwards}
+@keyframes walk{from{transform:translateX(-40px)}to{transform:translateX(470px)}}
+.fly{position:absolute; font-family:var(--serif); font-weight:700; color:var(--goldL); text-shadow:0 1px 3px #000;
+  pointer-events:none; animation:flyup .85s ease-out forwards; font-size:15px; white-space:nowrap}
+@keyframes flyup{from{opacity:1; transform:translateY(0)}to{opacity:0; transform:translateY(-46px)}}
+#adBoostBtn{
+  position:absolute; right:8px; bottom:8px; width:52px; height:52px; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #E8543F, var(--red) 60%, var(--red2));
+  border:2px solid var(--goldL); color:#FFF3D9; font-size:10px; font-weight:700; line-height:1.15;
+  box-shadow:0 3px 8px rgba(0,0,0,.55); z-index:3;
+}
+#adBoostBtn.off{filter:grayscale(.85); opacity:.75}
+#adBoostBtn .big{font-size:14px; display:block}
+/* ── 어명 추적 칩 ── */
+#tracker{
+  flex:none; margin:8px 10px 0; padding:7px 12px; border-radius:10px;
+  background:var(--ink3); border:1px solid var(--brown2); display:flex; align-items:center; gap:8px;
+  font-size:12px; color:#E4D5B4; cursor:pointer;
+}
+#tracker.done{background:linear-gradient(90deg,#4A3512,#3A2A0E); border-color:var(--gold); color:var(--goldL)}
+#tracker .qico{flex:none}
+#tracker .qtxt{flex:1; line-height:1.3}
+#tracker .qprog{flex:none; font-variant-numeric:tabular-nums; color:#BFA77E; font-size:11px}
+/* ── 패널 공통 ── */
+main{flex:1; overflow:hidden; position:relative; margin-top:8px}
+.panel{position:absolute; inset:0; overflow-y:auto; padding:2px 10px 16px; display:none; scrollbar-width:thin}
+.panel.active{display:block}
+.card{
+  background:linear-gradient(var(--paper), var(--paper2)); color:var(--brown);
+  border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin-bottom:8px;
+  box-shadow:0 2px 5px rgba(0,0,0,.45);
+}
+.card h3{font-family:var(--serif); font-size:15px; color:#3A2A14; letter-spacing:1px; margin-bottom:6px}
+.sect{font-family:var(--serif); font-size:13px; letter-spacing:3px; color:var(--gold); margin:14px 4px 6px; display:flex; align-items:center; gap:8px}
+.sect::after{content:''; flex:1; height:1px; background:linear-gradient(90deg,var(--gold2),transparent)}
+.btn{
+  border-radius:9px; font-weight:700; text-align:center; padding:8px 10px;
+  background:linear-gradient(#F5D98A,var(--gold)); color:#4A3208; border:1px solid var(--gold2);
+  box-shadow:0 2px 0 var(--gold2); font-size:12px; line-height:1.3;
+}
+.btn:active{transform:translateY(1px); box-shadow:0 1px 0 var(--gold2)}
+.btn.off{background:#CBBFa6; color:#8B7f68; border-color:#B3A688; box-shadow:0 2px 0 #B3A688; pointer-events:none}
+.btn.red{background:linear-gradient(#E06450,var(--red)); color:#FFF0DC; border-color:var(--red2); box-shadow:0 2px 0 var(--red2)}
+.btn.green{background:linear-gradient(#5B8F72,var(--green)); color:#EDF5E8; border-color:#2C523F; box-shadow:0 2px 0 #2C523F}
+.btn.wide{display:block; width:100%}
+.small{font-size:11px; color:var(--brown2)}
+/* ── 사업 행 ── */
+.biz{display:flex; gap:10px; align-items:center}
+.biz .ico{
+  width:46px; height:46px; flex:none; border-radius:10px; font-size:26px; text-align:center; line-height:46px;
+  background:linear-gradient(#FBF3DC,#EFE0BC); border:1px solid var(--line); box-shadow:inset 0 -3px 0 rgba(0,0,0,.07);
+}
+.biz .mid{flex:1; min-width:0}
+.biz .nm{font-family:var(--serif); font-size:14px; font-weight:700; color:#33240F}
+.biz .nm .lv{color:var(--red); font-size:12px; margin-left:4px}
+.biz .inc{font-size:11px; color:var(--green); font-weight:700; font-variant-numeric:tabular-nums}
+.biz .ms{font-size:10px; color:var(--brown2)}
+.biz .col{display:flex; flex-direction:column; gap:4px; width:104px; flex:none}
+.biz .btn{padding:5px 6px; font-size:11px}
+.biz .btn b{font-size:12px; display:block; font-variant-numeric:tabular-nums}
+.mgrbtn{font-size:10px !important}
+.biz.locked{opacity:.85}
+.biz.locked .ico{filter:grayscale(1); background:#D8CBAA}
+.buybar{display:flex; gap:6px; margin:2px 0 8px}
+.buybar button{
+  flex:1; background:var(--ink3); border:1px solid var(--brown2); color:#CBB98F;
+  border-radius:8px; padding:5px 0; font-size:12px; font-weight:700;
+}
+.buybar button.on{background:var(--gold); color:#3A2A0E; border-color:var(--gold2)}
+/* 계승 카드 */
+.prest{background:linear-gradient(#2E2317,#241B12); border:1.5px solid var(--gold2); color:var(--paper)}
+.prest h3{color:var(--goldL)}
+.prest .small{color:#B8A47D}
+/* ── 강화 행 ── */
+.upg{display:flex; align-items:center; gap:10px}
+.upg .ico{width:38px;height:38px;flex:none;border-radius:9px;font-size:21px;text-align:center;line-height:38px;background:#FBF3DC;border:1px solid var(--line)}
+.upg .mid{flex:1;min-width:0}
+.upg .nm{font-weight:700;font-size:13px;color:#33240F}
+.upg .fx{font-size:11px;color:var(--indigo);font-weight:700}
+.upg .btn{width:96px;flex:none;font-variant-numeric:tabular-nums}
+.upg.done{opacity:.6}
+.badge-done{background:var(--green);color:#fff;border-radius:14px;font-size:11px;font-weight:700;padding:4px 12px}
+/* ── 유물 ── */
+.gachabox{text-align:center; background:linear-gradient(#3A2C1B,#241B12); border:1.5px solid var(--gold2); color:var(--paper)}
+.gachabox h3{color:var(--goldL)}
+.gachabox .chest{font-size:44px; margin:4px 0; filter:drop-shadow(0 4px 6px rgba(0,0,0,.5))}
+.gachabox .row{display:flex; gap:8px; margin-top:8px}
+.gachabox .btn{flex:1}
+.pity{font-size:11px; color:#B8A47D; margin-top:7px}
+.relgrid{display:grid; grid-template-columns:repeat(4,1fr); gap:7px}
+.rel{
+  border-radius:10px; padding:7px 3px 6px; text-align:center; background:linear-gradient(#FBF3DC,#EFE0BC);
+  border:2px solid var(--line); min-height:74px;
+}
+.rel .e{font-size:22px; line-height:1.2}
+.rel .n{font-size:10px; font-weight:700; color:#33240F; line-height:1.2; margin-top:2px}
+.rel .v{font-size:9px; color:var(--indigo); font-weight:700}
+.rel.r1{border-color:#5C87B5}.rel.r2{border-color:#B5722A; background:linear-gradient(#FDF3D8,#F3DFAE)}
+.rel.r3{border-color:var(--red); background:linear-gradient(#FFF0E2,#F7DDC2); box-shadow:0 0 8px rgba(185,58,43,.45)}
+.rel.no{filter:grayscale(1); opacity:.5}
+.rar0{color:#7A8A6E}.rar1{color:#5C87B5}.rar2{color:#B5722A}.rar3{color:var(--red)}
+/* ── 어명/업적 ── */
+.qcard .prog{height:14px; border-radius:8px; background:#D8C9A4; border:1px solid var(--line); overflow:hidden; margin:7px 0}
+.qcard .bar{height:100%; background:linear-gradient(90deg,var(--green),#5B8F72); border-radius:8px; transition:width .3s}
+.qcard .pv{font-size:11px; color:var(--brown2); font-variant-numeric:tabular-nums}
+.ach{display:flex; align-items:center; gap:10px}
+.ach .ico{width:36px;height:36px;flex:none;border-radius:50%;font-size:19px;text-align:center;line-height:36px;background:#FBF3DC;border:1px solid var(--line)}
+.ach .mid{flex:1;min-width:0}
+.ach .nm{font-weight:700;font-size:13px;color:#33240F}
+.ach .pv{font-size:11px;color:var(--brown2);font-variant-numeric:tabular-nums}
+.ach .btn{width:88px;flex:none}
+/* ── 상점 ── */
+.shoprow{display:flex; align-items:center; gap:10px}
+.shoprow .ico{width:40px;height:40px;flex:none;border-radius:10px;font-size:22px;text-align:center;line-height:40px;background:#FBF3DC;border:1px solid var(--line)}
+.shoprow .mid{flex:1;min-width:0}
+.shoprow .nm{font-weight:700;font-size:13px;color:#33240F}
+.shoprow .ds{font-size:11px;color:var(--brown2)}
+.shoprow .btn{min-width:92px;flex:none}
+.demo-note{font-size:10px; color:#9A8A68; text-align:center; margin:4px 0 2px}
+.statgrid{display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:12px}
+.statgrid .k{color:var(--brown2)}
+.statgrid .v{font-weight:700; text-align:right; font-variant-numeric:tabular-nums; color:#33240F}
+/* ── 하단 탭 ── */
+nav{flex:none; display:flex; background:#100C08; border-top:2px solid var(--gold2); padding-bottom:env(safe-area-inset-bottom)}
+nav button{
+  flex:1; padding:8px 0 9px; text-align:center; color:#8F7C5C; font-size:10px; font-weight:700; position:relative;
+}
+nav button .e{display:block; font-size:20px; line-height:1.25; filter:grayscale(1) opacity(.7)}
+nav button.on{color:var(--goldL)}
+nav button.on .e{filter:none}
+nav button.on::before{content:''; position:absolute; top:0; left:20%; right:20%; height:3px; background:var(--red); border-radius:0 0 3px 3px}
+nav button .dot{position:absolute; top:5px; right:22%; width:9px; height:9px; border-radius:50%; background:var(--red); border:1.5px solid #100C08; display:none}
+nav button .dot.on{display:block}
+/* ── 모달/토스트 ── */
+#overlay{position:fixed; inset:0; background:rgba(10,7,4,.78); z-index:50; display:flex; align-items:center; justify-content:center; padding:20px}
+#overlay[hidden]{display:none}
+#modal{
+  width:100%; max-width:360px; max-height:82dvh; overflow-y:auto; border-radius:14px;
+  background:linear-gradient(var(--paper),var(--paper2)); color:var(--brown);
+  border:2px solid var(--gold2); box-shadow:0 10px 40px rgba(0,0,0,.7); padding:18px 16px;
+}
+#modal h2{font-family:var(--serif); font-size:19px; color:#3A2A14; letter-spacing:2px; text-align:center; margin-bottom:10px}
+#modal p{font-size:13px; line-height:1.65; margin-bottom:10px}
+#modal .btn{margin-top:6px}
+.adbox{text-align:center}
+.adframe{background:#1E150C; color:var(--goldL); border-radius:10px; padding:26px 10px; margin:10px 0; font-family:var(--serif); font-size:15px; letter-spacing:1px}
+.adframe .cnt{font-size:30px; display:block; margin-top:6px; font-variant-numeric:tabular-nums}
+.pullres{display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin:10px 0}
+.pullres .rel{width:72px; animation:pop .4s ease both}
+@keyframes pop{from{transform:scale(.3); opacity:0}to{transform:scale(1); opacity:1}}
+#toasts{position:fixed; top:66px; left:50%; transform:translateX(-50%); z-index:60; width:min(92vw,400px); pointer-events:none}
+.toast{
+  background:rgba(30,21,12,.94); color:var(--goldL); border:1px solid var(--gold2); border-radius:10px;
+  padding:8px 14px; font-size:13px; font-weight:700; text-align:center; margin-bottom:6px;
+  animation:tst 2.6s ease forwards;
+}
+@keyframes tst{0%{opacity:0; transform:translateY(-8px)}10%,80%{opacity:1; transform:none}100%{opacity:0}}
+textarea.io{width:100%; height:90px; font-size:11px; border:1px solid var(--line); border-radius:8px; background:#FBF3DC; color:var(--brown); padding:6px; margin-bottom:8px}
+@media (prefers-reduced-motion: reduce){
+  .walker,.lantern,.fly{animation:none !important}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="danchong"></div>
+    <div class="hrow1">
+      <div class="board">조선거상<small>朝鮮巨商 · 팔도상단기</small></div>
+      <button id="fameBtn" data-a="prestModal">
+        <span class="t1" id="titleV">보부상</span><br><span class="t2" id="fameV">명성 0 · 계승</span>
+      </button>
+    </div>
+    <div class="hrow2">
+      <div class="cur"><span class="coin"></span><b id="yeopV">0</b></div>
+      <div class="cur" style="cursor:pointer" data-a="tab" data-i="shop"><span class="silkic"></span><b id="silkV">0</b><span class="plus">+</span></div>
+    </div>
+    <div class="hrow3"><span id="ipsV">초당 0냥</span><span id="chips"></span></div>
+  </header>
+
+  <div id="scene">
+    <div class="moon"></div>
+    <svg class="roof" viewBox="0 0 430 58" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0,54 C40,10 120,2 215,2 C310,2 390,10 430,54 L430,0 L0,0 Z" fill="#141017"></path>
+      <path d="M0,54 C40,10 120,2 215,2 C310,2 390,10 430,54" fill="none" stroke="#3A3244" stroke-width="3"></path>
+      <circle cx="70" cy="44" r="3" fill="#3A3244"></circle><circle cx="140" cy="35" r="3" fill="#3A3244"></circle>
+      <circle cx="215" cy="32" r="3" fill="#3A3244"></circle><circle cx="290" cy="35" r="3" fill="#3A3244"></circle>
+      <circle cx="360" cy="44" r="3" fill="#3A3244"></circle>
+    </svg>
+    <span class="lantern" style="left:18px; top:44px">🏮</span>
+    <span class="lantern" style="right:64px; top:44px; animation-delay:1.4s">🏮</span>
+    <div class="shopfront">
+      <span class="sign" id="shopSign">주먹밥 좌판</span>
+      <div class="goods" id="shopGoods">🍙</div>
+    </div>
+    <div class="hint">두드려서 엽전을 벌어보시오 👆</div>
+    <button id="adBoostBtn" data-a="rumor"><span class="big">📺</span>수입 ×4</button>
+  </div>
+
+  <div id="tracker" data-a="tab" data-i="que">
+    <span class="qico">👑</span><span class="qtxt" id="qTxt">어명을 기다리는 중…</span><span class="qprog" id="qProg"></span>
+  </div>
+
+  <main>
+    <section class="panel active" id="tab-biz"></section>
+    <section class="panel" id="tab-upg"></section>
+    <section class="panel" id="tab-rel"></section>
+    <section class="panel" id="tab-que"></section>
+    <section class="panel" id="tab-shop"></section>
+  </main>
+
+  <nav>
+    <button data-a="tab" data-i="biz" class="on"><span class="e">🏮</span>사업<span class="dot" id="dot-biz"></span></button>
+    <button data-a="tab" data-i="upg"><span class="e">📜</span>강화<span class="dot" id="dot-upg"></span></button>
+    <button data-a="tab" data-i="rel"><span class="e">🏺</span>유물<span class="dot" id="dot-rel"></span></button>
+    <button data-a="tab" data-i="que"><span class="e">👑</span>어명<span class="dot" id="dot-que"></span></button>
+    <button data-a="tab" data-i="shop"><span class="e">🎁</span>상점<span class="dot" id="dot-shop"></span></button>
+  </nav>
+</div>
+<div id="overlay" hidden><div id="modal"></div></div>
+<div id="toasts"></div>
+
+<script>
+'use strict';
+/* ══════════════ 데이터 ══════════════ */
+const BIZ=[
+ {n:'주먹밥 좌판', e:'🍙', c:4,      g:1.09, i:1},
+ {n:'국밥집',      e:'🍜', c:60,     g:1.13, i:8},
+ {n:'주막',        e:'🍶', c:720,    g:1.13, i:90},
+ {n:'포목점',      e:'👘', c:8640,   g:1.12, i:900},
+ {n:'도자기 가마', e:'🏺', c:1.04e5, g:1.12, i:8500},
+ {n:'대장간',      e:'⚒️', c:1.24e6, g:1.11, i:8e4},
+ {n:'인삼밭',      e:'🌿', c:1.5e7,  g:1.10, i:7.5e5},
+ {n:'한약방',      e:'🧪', c:1.8e8,  g:1.09, i:7e6},
+ {n:'서화방',      e:'🖌️', c:2.2e9,  g:1.08, i:6.5e7},
+ {n:'무역선',      e:'⛵', c:2.6e10, g:1.07, i:6e8},
+];
+const UPG=[
+ {n:'주판 도입',       e:'🧮', c:1500,  t:'tap', v:3,   d:'탭 수입 ×3'},
+ {n:'짚신 보급',       e:'🥿', c:12000, t:'all', v:1.3, d:'전체 수입 +30%'},
+ {n:'달구지 구매',     e:'🛒', c:1.5e5, t:'all', v:1.5, d:'전체 수입 +50%'},
+ {n:'황소 구입',       e:'🐂', c:2e6,   t:'all', v:2,   d:'전체 수입 ×2'},
+ {n:'복식부기 장부',   e:'📖', c:2.5e7, t:'tap', v:5,   d:'탭 수입 ×5'},
+ {n:'나루터 개설',     e:'🛶', c:3e8,   t:'all', v:2,   d:'전체 수입 ×2'},
+ {n:'보부상단 결성',   e:'🎒', c:4e9,   t:'all', v:2,   d:'전체 수입 ×2'},
+ {n:'시전 행랑 확장',  e:'🏘️', c:5e10,  t:'all', v:2.5, d:'전체 수입 ×2.5'},
+ {n:'송상 상술 전수',  e:'🤝', c:7e11,  t:'all', v:2.5, d:'전체 수입 ×2.5'},
+ {n:'의주 만상 무역로',e:'🐫', c:1e13,  t:'all', v:3,   d:'전체 수입 ×3'},
+ {n:'동래 왜관 교역',  e:'⚓', c:2e14,  t:'all', v:3,   d:'전체 수입 ×3'},
+ {n:'팔도 도고 장악',  e:'🗺️', c:5e15,  t:'all', v:4,   d:'전체 수입 ×4'},
+];
+const RAR=[{n:'민화',w:60,p:20},{n:'보물',w:30,p:60},{n:'국보',w:9,p:200},{n:'어보',w:1,p:800}];
+const RELICS=[
+ {n:'까치호랑이',   e:'🐅', r:0},{n:'하회탈',     e:'🎭', r:0},{n:'짚신 한 켤레', e:'🥾', r:0},
+ {n:'놋수저',       e:'🥄', r:0},{n:'갓',         e:'🎩', r:0},{n:'태극선 부채', e:'🪭', r:0},
+ {n:'청화백자',     e:'🏺', r:1},{n:'나전칠기함', e:'💼', r:1},{n:'상평통보 원판',e:'🪙', r:1},{n:'일월오봉도', e:'🌄', r:1},
+ {n:'고려청자 매병',e:'🍶', r:2},{n:'거북선 설계도',e:'📜', r:2},{n:'혼천의',     e:'🔭', r:2},{n:'훈민정음 해례',e:'📕', r:2},
+ {n:'임금의 옥새',  e:'🦄', r:3},{n:'금척(金尺)',  e:'📏', r:3},
+];
+const TITLES=[[0,'보부상'],[10,'행상'],[30,'객주'],[80,'상단주'],[200,'대행수'],[500,'거상'],[1200,'만상 대방'],[3000,'팔도 도고'],[8000,'천하제일상']];
+const QUESTS=[
+ {t:'주먹밥 좌판을 10단으로 키워라', f:()=>S.biz[0].lv, g:10, r:20},
+ {t:'국밥집을 개업하라', f:()=>S.biz[1].lv>0?1:0, g:1, r:25},
+ {t:'저잣거리를 두드려 엽전을 벌어라 (50회)', f:()=>S.taps, g:50, r:25},
+ {t:'주막을 개업하라', f:()=>S.biz[2].lv>0?1:0, g:1, r:30},
+ {t:'첫 일꾼을 고용하라', f:mgrCount, g:1, r:40},
+ {t:'상단 강화를 1종 사들여라', f:()=>S.upg.length, g:1, r:30},
+ {t:'보물상자에서 유물을 1점 얻어라', f:relicCount, g:1, r:50},
+ {t:'포목점을 개업하라', f:()=>S.biz[3].lv>0?1:0, g:1, r:30},
+ {t:'사업 총 100단을 달성하라', f:totalLv, g:100, r:40},
+ {t:'도자기 가마에 불을 지펴라 (개업)', f:()=>S.biz[4].lv>0?1:0, g:1, r:40},
+ {t:'누적 100만 냥을 벌어들여라', f:()=>S.lifetime, g:1e6, r:50},
+ {t:'일꾼 3명을 고용하라', f:mgrCount, g:3, r:50},
+ {t:'대장간을 개업하라', f:()=>S.biz[5].lv>0?1:0, g:1, r:50},
+ {t:'유물 3점을 수집하라', f:relicCount, g:3, r:60},
+ {t:'인삼밭을 일궈라 (개업)', f:()=>S.biz[6].lv>0?1:0, g:1, r:60},
+ {t:'사업 총 300단을 달성하라', f:totalLv, g:300, r:70},
+ {t:'누적 10억 냥을 벌어들여라', f:()=>S.lifetime, g:1e9, r:80},
+ {t:'한약방을 개업하라', f:()=>S.biz[7].lv>0?1:0, g:1, r:80},
+ {t:'가문을 계승하라 (계승 1회)', f:()=>S.prestiges, g:1, r:150},
+ {t:'서화방을 개업하라', f:()=>S.biz[8].lv>0?1:0, g:1, r:90},
+ {t:'무역선을 진수하라', f:()=>S.biz[9].lv>0?1:0, g:1, r:120},
+ {t:'명성 100을 쌓아라', f:()=>S.fame, g:100, r:200},
+ {t:'사업 총 1000단을 달성하라', f:totalLv, g:1000, r:200},
+ {t:'누적 1조 냥을 벌어들여라', f:()=>S.lifetime, g:1e12, r:300},
+];
+const ACH=[
+ {id:'tap', n:'두드림의 달인', e:'👆', u:'회', tiers:[100,1000,10000,100000], f:()=>S.taps},
+ {id:'earn',n:'재물의 산',     e:'💰', u:'냥', tiers:[1e4,1e6,1e8,1e10,1e13,1e16], f:()=>S.totalEarned},
+ {id:'lv',  n:'사업 확장왕',   e:'🏮', u:'단', tiers:[50,150,400,1000,2500], f:totalLv},
+ {id:'mgr', n:'사람 보는 눈',  e:'🧑‍🌾', u:'명', tiers:[3,6,10], f:mgrCount},
+ {id:'rel', n:'호고가(好古家)',e:'🏺', u:'점', tiers:[3,8,16], f:relicCount},
+ {id:'pre', n:'가문의 대들보', e:'🏯', u:'회', tiers:[1,3,10], f:()=>S.prestiges},
+ {id:'upg', n:'혁신 상인',     e:'📜', u:'종', tiers:[4,8,12], f:()=>S.upg.length},
+];
+const OFFLINE_TIERS=[4,8,24]; // 시간
+const VER=1;
+
+/* ══════════════ 상태 ══════════════ */
+let S=null;
+function freshState(){
+  return {
+    v:VER, yeop:15, silk:30, lifetime:0, totalEarned:0, taps:0,
+    biz:BIZ.map((b,i)=>({lv:i===0?1:0, mgr:false})),
+    upg:[], relics:{}, pity:0,
+    fame:0, prestiges:0, questIdx:0, achT:{},
+    offTier:0, boostEnd:0, rumorAt:0, silkAdAt:0, royalEnd:0, adFree:false,
+    daily:{last:'', streak:0},
+    sound:true, intro:false, buyMode:0,
+    lastSeen:Date.now(), started:Date.now(), playMs:0,
+  };
+}
+const KEY='joseon_geosang_v1';
+function save(){ try{ S.lastSeen=Date.now(); localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function load(){
+  try{
+    const raw=localStorage.getItem(KEY); if(!raw) return null;
+    const d=JSON.parse(raw); if(!d||!d.v) return null;
+    const s=freshState(); Object.assign(s,d);
+    // 배열 길이 보정(버전업 대비)
+    while(s.biz.length<BIZ.length) s.biz.push({lv:0,mgr:false});
+    return s;
+  }catch(e){ return null; }
+}
+
+/* ══════════════ 수치 계산 ══════════════ */
+function mgrCount(){ return S.biz.filter(b=>b.mgr).length; }
+function relicCount(){ return Object.keys(S.relics).length; }
+function totalLv(){ return S.biz.reduce((a,b)=>a+b.lv,0); }
+function msCount(lv){ let c=0; for(const t of [25,50,100,200]) if(lv>=t) c++; if(lv>=300) c+=Math.floor((lv-300)/100)+1; return c; }
+function nextMs(lv){ for(const t of [25,50,100,200]) if(lv<t) return t; if(lv<300) return 300; return (Math.floor((lv-300)/100)+1)*100+300; }
+function costOf(i){ const b=BIZ[i]; return b.c*Math.pow(b.g,S.biz[i].lv); }
+function bulkCost(i,k){ const b=BIZ[i]; return costOf(i)*(Math.pow(b.g,k)-1)/(b.g-1); }
+function maxBuy(i){ const b=BIZ[i]; const k=Math.floor(Math.log(S.yeop*(b.g-1)/costOf(i)+1)/Math.log(b.g)); return Math.max(k,0); }
+function upgMult(t){ let m=1; for(const id of S.upg){ if(UPG[id].t===t) m*=UPG[id].v; } return m; }
+function relicMult(){ let p=0; for(const id in S.relics){ p+=RAR[RELICS[id].r].p*S.relics[id]; } return 1+p/100; }
+function fameMult(){ return 1+S.fame*0.02; }
+function boostMult(now){ let m=1; if(S.boostEnd>now) m*=4; if(S.royalEnd>now) m*=2; return m; }
+function globalMult(now){ return upgMult('all')*relicMult()*fameMult()*boostMult(now||Date.now()); }
+function bizIncome(i){ const s=S.biz[i]; if(s.lv<=0) return 0; return BIZ[i].i*s.lv*Math.pow(2,msCount(s.lv))*(s.mgr?3:1); }
+function baseIps(){ let t=0; for(let i=0;i<BIZ.length;i++) t+=bizIncome(i); return t; }
+function ips(now){ return baseIps()*globalMult(now); }
+function tapVal(){ return (1+ips(Date.now())*0.05)*upgMult('tap'); }
+function titleFor(f){ let t=TITLES[0][1]; for(const [th,n] of TITLES) if(f>=th) t=n; return t; }
+function prestGain(){ return Math.floor(12*Math.pow(S.lifetime/1e8,0.35)); }
+function earn(n){ S.yeop+=n; S.lifetime+=n; S.totalEarned+=n; }
+
+const UNITS=[['극',1e48],['재',1e44],['정',1e40],['간',1e36],['구',1e32],['양',1e28],['자',1e24],['해',1e20],['경',1e16],['조',1e12],['억',1e8],['만',1e4]];
+function fmt(n){
+  if(!isFinite(n)) return '∞';
+  if(n<0) return '-'+fmt(-n);
+  if(n<1e4) return Math.floor(n).toLocaleString('ko-KR');
+  for(const [u,v] of UNITS){ if(n>=v){ const q=n/v; return (q>=100?Math.floor(q).toLocaleString('ko-KR'):q.toFixed(q>=10?1:2))+u; } }
+}
+function fmtTime(ms){
+  const s=Math.max(0,Math.ceil(ms/1000));
+  if(s<60) return s+'초';
+  const m=Math.floor(s/60), h=Math.floor(m/60);
+  if(h>0) return h+'시간 '+(m%60)+'분';
+  return m+'분 '+(s%60)+'초';
+}
+
+/* ══════════════ 효과음 ══════════════ */
+let AC=null;
+function snd(kind){
+  if(!S||!S.sound) return;
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state==='suspended') AC.resume();
+    const seq = kind==='tap' ? [[560+Math.random()*80,0,.05]]
+      : kind==='buy' ? [[440,0,.07],[660,.06,.08]]
+      : kind==='reward' ? [[523,0,.09],[659,.09,.09],[784,.18,.14]]
+      : [[300,0,.08]];
+    for(const [f,dl,du] of seq){
+      const o=AC.createOscillator(), g=AC.createGain();
+      o.type='triangle'; o.frequency.value=f;
+      g.gain.setValueAtTime(.06,AC.currentTime+dl);
+      g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+dl+du);
+      o.connect(g); g.connect(AC.destination);
+      o.start(AC.currentTime+dl); o.stop(AC.currentTime+dl+du+.02);
+    }
+  }catch(e){}
+}
+
+/* ══════════════ 공용 UI ══════════════ */
+const $=id=>document.getElementById(id);
+function toast(msg){
+  const t=document.createElement('div'); t.className='toast'; t.textContent=msg;
+  $('toasts').appendChild(t); setTimeout(()=>t.remove(),2700);
+}
+let modalQueue=[];
+function showModal(html){ $('modal').innerHTML=html; $('overlay').hidden=false; }
+function closeModal(){
+  $('overlay').hidden=true; $('modal').innerHTML='';
+  if(modalQueue.length){ const next=modalQueue.shift(); next(); }
+}
+function queueModal(fn){ if($('overlay').hidden && !modalQueue.length) fn(); else modalQueue.push(fn); }
+
+/* ══════════════ 사업 탭 ══════════════ */
+let bizRowsBuilt=-1;
+function unlockedCount(){
+  let n=1;
+  for(let i=1;i<BIZ.length;i++){ if(S.biz[i-1].lv>0||S.biz[i].lv>0) n=i+1; else break; }
+  return n;
+}
+function buildBiz(){
+  const n=unlockedCount(); bizRowsBuilt=n;
+  let h='<div class="buybar">'+['×1','×10','×50','최대'].map((m,i)=>
+    `<button data-a="buymode" data-i="${i}" class="${S.buyMode===i?'on':''}">${m}</button>`).join('')+'</div>';
+  for(let i=0;i<n;i++){
+    const b=BIZ[i];
+    h+=`<div class="card biz" id="bizrow${i}">
+      <div class="ico">${b.e}</div>
+      <div class="mid">
+        <div class="nm">${b.n}<span class="lv" id="blv${i}"></span></div>
+        <div class="inc" id="binc${i}"></div>
+        <div class="ms" id="bms${i}"></div>
+      </div>
+      <div class="col">
+        <button class="btn" data-a="buybiz" data-i="${i}" id="bbuy${i}"></button>
+        <button class="btn green mgrbtn" data-a="mgr" data-i="${i}" id="bmgr${i}"></button>
+      </div>
+    </div>`;
+  }
+  if(n<BIZ.length){
+    const b=BIZ[n];
+    h+=`<div class="card biz locked">
+      <div class="ico">${b.e}</div>
+      <div class="mid"><div class="nm">??? </div><div class="ms">이전 사업을 개업하면 해금 · 개업비 ${fmt(b.c)}냥</div></div>
+    </div>`;
+  }
+  h+=`<div class="card prest" id="prestCard">
+    <h3>🏯 가문 계승</h3>
+    <div class="small" id="prestTxt"></div>
+    <button class="btn red wide" data-a="prestModal" style="margin-top:8px">계승 살펴보기</button>
+  </div>`;
+  $('tab-biz').innerHTML=h;
+}
+function updateBiz(){
+  if(bizRowsBuilt!==unlockedCount()){ buildBiz(); }
+  const gm=globalMult();
+  for(let i=0;i<bizRowsBuilt;i++){
+    const st=S.biz[i]; const lvEl=$('blv'+i); if(!lvEl) continue;
+    lvEl.textContent=st.lv>0?st.lv+'단':'미개업';
+    $('binc'+i).textContent=st.lv>0?('+'+fmt(bizIncome(i)*gm)+'냥/초'+(st.mgr?' · 일꾼✓':'')):'개업 대기 중';
+    $('bms'+i).textContent=st.lv>0?('다음 ×2 승급: '+nextMs(st.lv)+'단'):'';
+    const k = S.buyMode===3 ? Math.max(maxBuy(i),1) : [1,10,50][S.buyMode];
+    const cost=bulkCost(i,k);
+    const btn=$('bbuy'+i);
+    btn.innerHTML=(st.lv>0?'승급':'개업')+' ×'+k+'<b>'+fmt(cost)+'냥</b>';
+    btn.classList.toggle('off', S.yeop<cost);
+    const mb=$('bmgr'+i);
+    if(st.lv<=0){ mb.style.display='none'; }
+    else if(st.mgr){ mb.style.display=''; mb.textContent='일꾼 근무 중 (×3)'; mb.classList.add('off'); }
+    else{
+      const mc=BIZ[i].c*150; mb.style.display='';
+      mb.textContent='일꾼 고용 '+fmt(mc)+'냥 (×3)';
+      mb.classList.toggle('off', S.yeop<mc);
+    }
+  }
+  const g=prestGain();
+  const el=$('prestTxt');
+  if(el) el.innerHTML = S.lifetime<1e8
+    ? '이번 대(代) 누적 1억 냥부터 계승 가능 · 현재 '+fmt(S.lifetime)+'냥'
+    : '지금 계승하면 <b style="color:var(--goldL)">명성 +'+fmt(g)+'</b> (영구 수입 +'+fmt(g*2)+'%)';
+}
+function buyBiz(i){
+  const k = S.buyMode===3 ? Math.max(maxBuy(i),1) : [1,10,50][S.buyMode];
+  const cost=bulkCost(i,k);
+  if(S.yeop<cost) return;
+  const before=msCount(S.biz[i].lv);
+  const wasOpen=S.biz[i].lv>0;
+  S.yeop-=cost; S.biz[i].lv+=k;
+  const after=msCount(S.biz[i].lv);
+  snd('buy');
+  if(!wasOpen) toast('🎉 '+BIZ[i].n+' 개업!');
+  if(after>before) toast('⚡ '+BIZ[i].n+' '+S.biz[i].lv+'단 — 수입 ×'+Math.pow(2,after-before)+'!');
+  updateScene(); updateBiz(); updateHeader();
+}
+function hireMgr(i){
+  const mc=BIZ[i].c*150;
+  if(S.biz[i].mgr||S.biz[i].lv<=0||S.yeop<mc) return;
+  S.yeop-=mc; S.biz[i].mgr=true; snd('buy');
+  toast('🧑‍🌾 '+BIZ[i].n+'에 일꾼 고용! 수입 ×3');
+  updateBiz(); updateHeader();
+}
+function updateScene(){
+  let top=0; for(let i=0;i<BIZ.length;i++) if(S.biz[i].lv>0) top=i;
+  $('shopSign').textContent=BIZ[top].n;
+  $('shopGoods').textContent=BIZ.slice(Math.max(0,top-2),top+1).map(b=>b.e).join(' ');
+}
+
+/* ══════════════ 강화 탭 ══════════════ */
+function buildUpg(){
+  let h='<div class="sect">상단 강화</div>';
+  UPG.forEach((u,i)=>{
+    const done=S.upg.includes(i);
+    h+=`<div class="card upg ${done?'done':''}">
+      <div class="ico">${u.e}</div>
+      <div class="mid"><div class="nm">${u.n}</div><div class="fx">${u.d}</div></div>
+      ${done?'<span class="badge-done">완료</span>':`<button class="btn" data-a="buyupg" data-i="${i}" id="ubtn${i}">${fmt(u.c)}냥</button>`}
+    </div>`;
+  });
+  $('tab-upg').innerHTML=h;
+}
+function updateUpg(){
+  UPG.forEach((u,i)=>{ const b=$('ubtn'+i); if(b) b.classList.toggle('off', S.yeop<u.c); });
+}
+function buyUpg(i){
+  if(S.upg.includes(i)||S.yeop<UPG[i].c) return;
+  S.yeop-=UPG[i].c; S.upg.push(i); snd('reward');
+  toast('📜 '+UPG[i].n+' — '+UPG[i].d+'!');
+  buildUpg(); updateHeader();
+}
+
+/* ══════════════ 유물 탭 ══════════════ */
+function buildRel(){
+  let h=`<div class="card gachabox">
+    <h3>💠 나전 보물상자</h3>
+    <div class="chest">🧰</div>
+    <div class="small" style="color:#B8A47D">전국 팔도의 유물을 수집하면 전체 수입이 영구히 오릅니다<br>민화 60% · 보물 30% · 국보 9% · 어보 1%</div>
+    <div class="row">
+      <button class="btn" data-a="pull" data-i="1" id="pull1">1회 뽑기<b style="display:block">비단 100</b></button>
+      <button class="btn red" data-a="pull" data-i="11" id="pull11">11연차 (+1 덤)<b style="display:block">비단 1000</b></button>
+    </div>
+    <div class="pity" id="pityV"></div>
+  </div>
+  <div class="sect">유물 도감 <span style="letter-spacing:0" id="relCntV"></span></div>
+  <div class="relgrid">`;
+  RELICS.forEach((r,i)=>{
+    const lv=S.relics[i]||0;
+    h+= lv>0
+      ? `<div class="rel r${r.r}"><div class="e">${r.e}</div><div class="n">${r.n}</div><div class="v">Lv.${lv} · +${RAR[r.r].p*lv}%</div></div>`
+      : `<div class="rel no r${r.r}"><div class="e">❓</div><div class="n">???</div><div class="v ${'rar'+r.r}">${RAR[r.r].n}</div></div>`;
+  });
+  h+='</div>';
+  $('tab-rel').innerHTML=h;
+  updateRel();
+}
+function updateRel(){
+  const p1=$('pull1'), p11=$('pull11');
+  if(!p1) return;
+  p1.classList.toggle('off', S.silk<100);
+  p11.classList.toggle('off', S.silk<1000);
+  $('pityV').textContent='국보급 확정까지 '+Math.max(0,30-S.pity)+'회';
+  $('relCntV').textContent='('+relicCount()+'/'+RELICS.length+') · 유물 배율 ×'+relicMult().toFixed(2);
+}
+function rollRarity(force){
+  if(force!==undefined) return force;
+  if(S.pity>=29) return 2;
+  const x=Math.random()*100;
+  if(x<RAR[3].w) return 3;
+  if(x<RAR[3].w+RAR[2].w) return 2;
+  if(x<RAR[3].w+RAR[2].w+RAR[1].w) return 1;
+  return 0;
+}
+function pull(times){
+  const cost=times>=11?1000:100;
+  if(S.silk<cost) return;
+  S.silk-=cost;
+  const results=[]; let gotR=false;
+  const cnt=times>=11?12:1;
+  for(let t=0;t<cnt;t++){
+    let rar=rollRarity(cnt>1&&t===cnt-1&&!gotR?1:undefined);
+    if(rar>=1) gotR=true;
+    if(rar>=2) S.pity=0; else S.pity++;
+    const pool=RELICS.map((r,i)=>({...r,i})).filter(r=>r.r===rar);
+    const pick=pool[Math.floor(Math.random()*pool.length)];
+    S.relics[pick.i]=(S.relics[pick.i]||0)+1;
+    results.push(pick);
+  }
+  snd('reward');
+  let h='<h2>보물상자 개봉!</h2><div class="pullres">';
+  results.forEach((r,idx)=>{
+    h+=`<div class="rel r${r.r}" style="animation-delay:${idx*0.08}s">
+      <div class="e">${r.e}</div><div class="n">${r.n}</div>
+      <div class="v ${'rar'+r.r}">${RAR[r.r].n} +${RAR[r.r].p}%</div></div>`;
+  });
+  h+=`</div><p style="text-align:center" class="small">유물 배율 ×${relicMult().toFixed(2)} 적용 중</p>
+  <button class="btn wide" data-a="close">거두기</button>`;
+  showModal(h);
+  buildRel(); updateHeader();
+}
+
+/* ══════════════ 어명/업적 탭 ══════════════ */
+function curQuest(){ return S.questIdx<QUESTS.length?QUESTS[S.questIdx]:null; }
+function buildQue(){
+  const q=curQuest();
+  let h='<div class="sect">전하의 어명</div>';
+  if(q){
+    h+=`<div class="card qcard">
+      <h3>👑 어명 ${S.questIdx+1}호</h3>
+      <p style="font-size:13px">"${q.t}"</p>
+      <div class="prog"><div class="bar" id="qBar" style="width:0%"></div></div>
+      <div class="pv" id="qPv"></div>
+      <button class="btn wide" data-a="claimq" id="qClaim" style="margin-top:6px">완수 보고 — 비단 ${q.r} 하사</button>
+    </div>`;
+  }else{
+    h+=`<div class="card qcard"><h3>👑 모든 어명 완수</h3>
+    <p>"과연 천하제일상이로다. 조선 팔도의 상권을 그대에게 맡기노라." — 전하 어필</p></div>`;
+  }
+  h+='<div class="sect">업적</div>';
+  ACH.forEach(a=>{
+    const claimed=S.achT[a.id]||0;
+    const done=claimed>=a.tiers.length;
+    const goal=done?a.tiers[a.tiers.length-1]:a.tiers[claimed];
+    h+=`<div class="card ach">
+      <div class="ico">${a.e}</div>
+      <div class="mid">
+        <div class="nm">${a.n} <span class="small">${claimed}/${a.tiers.length}단계</span></div>
+        <div class="pv" id="apv-${a.id}">${done?'모든 단계 달성!':''}</div>
+      </div>
+      ${done?'<span class="badge-done">완료</span>':`<button class="btn" data-a="claima" data-i="${a.id}" id="abtn-${a.id}">비단 ${(claimed+1)*20}</button>`}
+    </div>`;
+  });
+  $('tab-que').innerHTML=h;
+  updateQue();
+}
+function updateQue(){
+  const q=curQuest();
+  // 상단 추적 칩
+  if(q){
+    const cur=q.f(), pct=Math.min(100,cur/q.g*100);
+    const done=cur>=q.g;
+    $('qTxt').textContent=(done?'완수! 보고하러 가기 — ':'')+q.t;
+    $('qProg').textContent=fmt(Math.min(cur,q.g))+' / '+fmt(q.g);
+    $('tracker').classList.toggle('done',done);
+    $('dot-que').classList.toggle('on', done||achClaimable());
+    if($('qBar')){
+      $('qBar').style.width=pct+'%';
+      $('qPv').textContent='진행: '+fmt(Math.min(cur,q.g))+' / '+fmt(q.g);
+      $('qClaim').classList.toggle('off',!done);
+    }
+  }else{
+    $('qTxt').textContent='모든 어명 완수 — 천하제일상!';
+    $('qProg').textContent='';
+    $('tracker').classList.remove('done');
+    $('dot-que').classList.toggle('on', achClaimable());
+  }
+  ACH.forEach(a=>{
+    const claimed=S.achT[a.id]||0;
+    if(claimed>=a.tiers.length) return;
+    const el=$('apv-'+a.id), btn=$('abtn-'+a.id);
+    if(!el) return;
+    const cur=a.f(), goal=a.tiers[claimed];
+    el.textContent='다음 단계: '+fmt(Math.min(cur,goal))+' / '+fmt(goal)+a.u;
+    if(btn) btn.classList.toggle('off', cur<goal);
+  });
+}
+function achClaimable(){
+  return ACH.some(a=>{ const c=S.achT[a.id]||0; return c<a.tiers.length && a.f()>=a.tiers[c]; });
+}
+function claimQuest(){
+  const q=curQuest();
+  if(!q||q.f()<q.g) return;
+  S.silk+=q.r; S.questIdx++; snd('reward');
+  toast('👑 어명 완수! 비단 '+q.r+' 하사받음');
+  buildQue(); updateHeader();
+}
+function claimAch(id){
+  const a=ACH.find(x=>x.id===id); if(!a) return;
+  const c=S.achT[id]||0;
+  if(c>=a.tiers.length||a.f()<a.tiers[c]) return;
+  S.achT[id]=c+1; S.silk+=(c+1)*20; snd('reward');
+  toast('🏅 업적 「'+a.n+'」 '+(c+1)+'단계! 비단 '+((c+1)*20));
+  buildQue(); updateHeader();
+}
+
+/* ══════════════ 계승 ══════════════ */
+function prestModal(){
+  const g=prestGain(), ok=S.lifetime>=1e8&&g>0;
+  showModal(`<h2>🏯 가문 계승</h2>
+  <p>가업을 다음 대(代)에 물려줍니다. <b>엽전·사업·일꾼·강화는 초기화</b>되지만,
+  일생의 공적이 <b style="color:var(--red)">명성</b>으로 남아 대대로 <b>수입 +2%/명성</b> 배율을 줍니다.
+  유물·비단·업적·어명은 그대로 계승됩니다.</p>
+  <div class="card" style="background:#FBF3DC">
+    <div class="statgrid">
+      <span class="k">현재 칭호</span><span class="v">${titleFor(S.fame)}</span>
+      <span class="k">보유 명성</span><span class="v">${fmt(S.fame)} (수입 +${fmt(S.fame*2)}%)</span>
+      <span class="k">이번 대 누적</span><span class="v">${fmt(S.lifetime)}냥</span>
+      <span class="k">계승 시 획득</span><span class="v" style="color:var(--red)">명성 +${fmt(g)}</span>
+    </div>
+  </div>
+  <p class="small">계승 조건: 이번 대 누적 1억 냥 이상 (다음 칭호는 명성이 쌓이면 자동 승급)</p>
+  <button class="btn red wide ${ok?'':'off'}" data-a="prestGo">대를 잇는다 (명성 +${fmt(g)})</button>
+  <button class="btn wide" data-a="close">물러가기</button>`);
+}
+function doPrestige(){
+  const g=prestGain();
+  if(S.lifetime<1e8||g<=0) return;
+  S.fame+=g; S.prestiges++;
+  S.yeop=15; S.lifetime=0; S.upg=[];
+  S.biz=BIZ.map((b,i)=>({lv:i===0?1:0,mgr:false}));
+  S.buyMode=0;
+  snd('reward'); closeModal();
+  toast('🏯 제'+(S.prestiges+1)+'대 개막! 명성 +'+fmt(g)+' — 칭호: '+titleFor(S.fame));
+  bizRowsBuilt=-1; buildBiz(); buildUpg(); updateScene(); updateHeader(); updateQue(); save();
+}
+
+/* ══════════════ 광고(데모) & 부스트 ══════════════ */
+function adModal(title, onDone){
+  let cnt=3;
+  showModal(`<div class="adbox"><h2>📺 ${title}</h2>
+    <div class="adframe">보부상이 소문을 전하는 중…<span class="cnt" id="adCnt">3</span></div>
+    <p class="demo-note">데모 광고 — 실제 앱에서는 보상형 광고 SDK(AdMob 등)가 재생됩니다</p></div>`);
+  const iv=setInterval(()=>{
+    cnt--;
+    const el=$('adCnt');
+    if(!el){ clearInterval(iv); return; }
+    if(cnt<=0){ clearInterval(iv); closeModal(); onDone(); }
+    else el.textContent=cnt;
+  },1000);
+}
+function rumor(){
+  const now=Date.now();
+  if(now<S.rumorAt || S.boostEnd>now) return;
+  adModal('소문의 바람', ()=>{
+    S.boostEnd=Date.now()+120e3;
+    S.rumorAt=S.boostEnd+(S.adFree?0:480e3);
+    snd('reward'); toast('🔥 소문이 퍼진다! 2분간 전체 수입 ×4');
+    updateHeader();
+  });
+}
+function freeSilk(){
+  const now=Date.now();
+  if(now<S.silkAdAt) return;
+  adModal('무료 비단', ()=>{
+    S.silk+=20; S.silkAdAt=Date.now()+(S.adFree?60e3:300e3);
+    snd('reward'); toast('🎀 비단 +20!');
+    updateHeader(); buildShop();
+  });
+}
+
+/* ══════════════ 상점 탭 ══════════════ */
+function shopRow(ico,nm,ds,btnLabel,action,idx,btnId,cls){
+  return `<div class="card shoprow">
+    <div class="ico">${ico}</div>
+    <div class="mid"><div class="nm">${nm}</div><div class="ds">${ds}</div></div>
+    <button class="btn ${cls||''}" data-a="${action}" ${idx!==undefined?`data-i="${idx}"`:''} ${btnId?`id="${btnId}"`:''}>${btnLabel}</button>
+  </div>`;
+}
+function buildShop(){
+  let h='<div class="sect">광고 보상 (무료)</div>';
+  h+=shopRow('📺','소문의 바람','2분간 전체 수입 ×4 · 쿨타임 8분','광고 시청','rumor',undefined,'shopRumor','red');
+  h+=shopRow('🎀','무료 비단','비단 +20 · 쿨타임 5분','광고 시청','freesilk',undefined,'shopSilkAd','red');
+  h+='<div class="sect">소모품 (비단)</div>';
+  h+=shopRow('⏳','시간 도약','현재 수입 기준 2시간치 엽전 즉시 획득','비단 60','warp',undefined,'shopWarp');
+  h+=shopRow('👑','왕실 후원','24시간 동안 전체 수입 ×2','비단 250','royal',undefined,'shopRoyal');
+  h+='<div class="sect">확장</div>';
+  const t=S.offTier;
+  h+= t>=OFFLINE_TIERS.length-1
+    ? shopRow('🌙','방치 보상 상한','최대 24시간 (최대치)','완료','none',undefined,undefined,'off')
+    : shopRow('🌙','방치 보상 상한 확장',OFFLINE_TIERS[t]+'시간 → '+OFFLINE_TIERS[t+1]+'시간','비단 '+(t===0?100:300),'offup',undefined,'shopOff');
+  h+= S.adFree
+    ? shopRow('🚫','광고 제거','적용 중 — 광고 쿨타임 대폭 감소','적용됨','none',undefined,undefined,'off')
+    : shopRow('🚫','광고 제거 (데모)','₩12,000 · 광고 쿨타임 대폭 감소','구매','adfree');
+  h+='<div class="sect">비단 패키지 (데모 결제)</div>';
+  [[300,'₩5,900'],[1200,'₩19,000'],[3500,'₩49,000']].forEach((p,i)=>{
+    h+=shopRow('🧧','비단 '+p[0],'실제 앱에서는 Google Play 결제 연동 슬롯',p[1],'buysilk',i);
+  });
+  h+='<p class="demo-note">데모 버전 — 결제·광고는 시뮬레이션이며 실제 청구되지 않습니다</p>';
+  h+='<div class="sect">통계</div>';
+  const secs=Math.floor(S.playMs/1000);
+  h+=`<div class="card"><div class="statgrid">
+    <span class="k">전 생애 누적 엽전</span><span class="v">${fmt(S.totalEarned)}냥</span>
+    <span class="k">이번 대 누적</span><span class="v">${fmt(S.lifetime)}냥</span>
+    <span class="k">탭 횟수</span><span class="v">${S.taps.toLocaleString('ko-KR')}회</span>
+    <span class="k">계승 횟수</span><span class="v">${S.prestiges}대</span>
+    <span class="k">강화 배율</span><span class="v">×${upgMult('all')<100?upgMult('all').toFixed(1):fmt(upgMult('all'))}</span>
+    <span class="k">유물 배율</span><span class="v">×${relicMult().toFixed(2)}</span>
+    <span class="k">명성 배율</span><span class="v">×${fameMult().toFixed(2)}</span>
+    <span class="k">플레이 시간</span><span class="v">${Math.floor(secs/3600)}시간 ${Math.floor(secs%3600/60)}분</span>
+  </div></div>`;
+  h+='<div class="sect">설정</div>';
+  h+=`<div class="card">
+    <button class="btn wide" data-a="sound">${S.sound?'🔔 효과음 켜짐':'🔕 효과음 꺼짐'}</button>
+    <button class="btn wide" data-a="savenow">💾 지금 저장</button>
+    <button class="btn wide" data-a="expo">📤 저장 내보내기 / 불러오기</button>
+    <button class="btn red wide" data-a="reset">🗑️ 처음부터 다시</button>
+    <p class="demo-note">조선거상 v1.0 — 자동 저장 15초</p>
+  </div>`;
+  $('tab-shop').innerHTML=h;
+  updateShop();
+}
+function updateShop(){
+  const now=Date.now();
+  const r=$('shopRumor');
+  if(r){
+    if(S.boostEnd>now){ r.textContent='×4 '+fmtTime(S.boostEnd-now); r.classList.add('off'); }
+    else if(now<S.rumorAt){ r.textContent=fmtTime(S.rumorAt-now); r.classList.add('off'); }
+    else{ r.textContent='광고 시청'; r.classList.remove('off'); }
+  }
+  const sa=$('shopSilkAd');
+  if(sa){
+    if(now<S.silkAdAt){ sa.textContent=fmtTime(S.silkAdAt-now); sa.classList.add('off'); }
+    else{ sa.textContent='광고 시청'; sa.classList.remove('off'); }
+  }
+  const w=$('shopWarp'); if(w) w.classList.toggle('off', S.silk<60);
+  const ro=$('shopRoyal');
+  if(ro){
+    if(S.royalEnd>now){ ro.textContent='×2 '+fmtTime(S.royalEnd-now); ro.classList.add('off'); }
+    else{ ro.textContent='비단 250'; ro.classList.toggle('off', S.silk<250); }
+  }
+  const ob=$('shopOff'); if(ob) ob.classList.toggle('off', S.silk<(S.offTier===0?100:300));
+}
+function buyWarp(){
+  if(S.silk<60) return;
+  S.silk-=60;
+  const gain=ips(Date.now())*7200;
+  earn(gain); snd('reward');
+  toast('⏳ 시간 도약! +'+fmt(gain)+'냥');
+  updateHeader(); buildShop();
+}
+function buyRoyal(){
+  const now=Date.now();
+  if(S.royalEnd>now||S.silk<250) return;
+  S.silk-=250; S.royalEnd=now+24*3600e3; snd('reward');
+  toast('👑 왕실 후원! 24시간 수입 ×2');
+  updateHeader(); buildShop();
+}
+function buyOffUp(){
+  const cost=S.offTier===0?100:300;
+  if(S.offTier>=OFFLINE_TIERS.length-1||S.silk<cost) return;
+  S.silk-=cost; S.offTier++; snd('reward');
+  toast('🌙 방치 보상 상한 '+OFFLINE_TIERS[S.offTier]+'시간!');
+  updateHeader(); buildShop();
+}
+function buySilkPack(i){
+  const amt=[300,1200,3500][i];
+  S.silk+=amt; snd('reward');
+  toast('🧧 (데모) 비단 +'+amt+' — 실제 앱에선 결제 연동');
+  updateHeader(); buildShop();
+}
+function buyAdFree(){
+  if(S.adFree) return;
+  S.adFree=true; snd('reward');
+  toast('🚫 (데모) 광고 제거 적용 — 쿨타임 대폭 감소');
+  buildShop();
+}
+
+/* ══════════════ 헤더/칩 ══════════════ */
+function updateHeader(){
+  const now=Date.now();
+  $('yeopV').textContent=fmt(S.yeop)+'냥';
+  $('silkV').textContent=fmt(S.silk);
+  $('ipsV').textContent='초당 '+fmt(ips(now))+'냥';
+  $('titleV').textContent=titleFor(S.fame);
+  $('fameV').textContent='명성 '+fmt(S.fame)+' · 계승';
+  let ch='';
+  if(S.boostEnd>now) ch+='<span class="chip-boost">×4 '+fmtTime(S.boostEnd-now)+'</span>';
+  if(S.royalEnd>now) ch+='<span class="chip-royal">×2 후원</span>';
+  $('chips').innerHTML=ch;
+  const ab=$('adBoostBtn');
+  if(S.boostEnd>now){ ab.classList.add('off'); ab.innerHTML='<span class="big">🔥</span>'+fmtTime(S.boostEnd-now); }
+  else if(now<S.rumorAt){ ab.classList.add('off'); ab.innerHTML='<span class="big">⏳</span>'+fmtTime(S.rumorAt-now); }
+  else{ ab.classList.remove('off'); ab.innerHTML='<span class="big">📺</span>수입 ×4'; }
+}
+
+/* ══════════════ 탭 전환 ══════════════ */
+let activeTab='biz';
+function switchTab(t){
+  activeTab=t;
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active', p.id==='tab-'+t));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on', b.dataset.i===t));
+  if(t==='biz'){ bizRowsBuilt=-1; updateBiz(); }
+  if(t==='upg'){ buildUpg(); updateUpg(); }
+  if(t==='rel') buildRel();
+  if(t==='que') buildQue();
+  if(t==='shop') buildShop();
+}
+
+/* ══════════════ 탭 액션 위임 ══════════════ */
+document.addEventListener('click', e=>{
+  const el=e.target.closest('[data-a]');
+  if(!el) return;
+  const a=el.dataset.a, i=el.dataset.i;
+  switch(a){
+    case 'tab': switchTab(i); break;
+    case 'buymode': S.buyMode=+i; bizRowsBuilt=-1; updateBiz(); break;
+    case 'buybiz': buyBiz(+i); break;
+    case 'mgr': hireMgr(+i); break;
+    case 'buyupg': buyUpg(+i); break;
+    case 'pull': pull(+i); break;
+    case 'claimq': claimQuest(); break;
+    case 'claima': claimAch(i); break;
+    case 'prestModal': prestModal(); break;
+    case 'prestGo': doPrestige(); break;
+    case 'rumor': rumor(); break;
+    case 'freesilk': freeSilk(); break;
+    case 'warp': buyWarp(); break;
+    case 'royal': buyRoyal(); break;
+    case 'offup': buyOffUp(); break;
+    case 'buysilk': buySilkPack(+i); break;
+    case 'adfree': buyAdFree(); break;
+    case 'sound': S.sound=!S.sound; buildShop(); break;
+    case 'savenow': save(); toast('💾 저장 완료'); break;
+    case 'expo': exportModal(); break;
+    case 'doimport': doImport(); break;
+    case 'reset': resetModal(); break;
+    case 'resetGo': localStorage.removeItem(KEY); location.reload(); break;
+    case 'close': closeModal(); break;
+    case 'offtake': takeOffline(1); break;
+    case 'offtake2': adModal('보부상의 소식', ()=>takeOffline(2)); break;
+  }
+});
+
+/* ══════════════ 탭(두드리기) ══════════════ */
+$('scene').addEventListener('pointerdown', e=>{
+  if(e.target.closest('button')) return;
+  const v=tapVal();
+  earn(v); S.taps++;
+  snd('tap');
+  const r=$('scene').getBoundingClientRect();
+  const f=document.createElement('span');
+  f.className='fly';
+  f.textContent='+'+fmt(v)+'냥';
+  f.style.left=Math.min(Math.max(e.clientX-r.left-20,4), r.width-70)+'px';
+  f.style.top=Math.max(e.clientY-r.top-14,8)+'px';
+  $('scene').appendChild(f);
+  setTimeout(()=>f.remove(),900);
+  updateHeader();
+});
+
+/* ══════════════ 행인 연출 ══════════════ */
+const WALKERS=['🚶','🚶‍♀️','🧑‍🌾','👩‍🌾','🐕','🐈','🐂','👘'];
+setInterval(()=>{
+  if(document.hidden) return;
+  const w=document.createElement('span');
+  w.className='walker';
+  w.textContent=WALKERS[Math.floor(Math.random()*WALKERS.length)];
+  w.style.animationDuration=(7+Math.random()*6)+'s';
+  w.style.bottom=(10+Math.random()*10)+'px';
+  $('scene').appendChild(w);
+  setTimeout(()=>w.remove(),14000);
+},5200);
+
+/* ══════════════ 저장 내보내기/초기화 ══════════════ */
+function exportModal(){
+  let code='';
+  try{ code=btoa(unescape(encodeURIComponent(JSON.stringify(S)))); }catch(e){}
+  showModal(`<h2>💾 저장 관리</h2>
+  <p class="small">아래 부호를 복사해 두면 다른 기기에서 불러올 수 있습니다.</p>
+  <textarea class="io" id="ioBox">${code}</textarea>
+  <button class="btn wide" data-a="doimport">이 부호로 불러오기</button>
+  <button class="btn wide" data-a="close">닫기</button>`);
+}
+function doImport(){
+  try{
+    const code=$('ioBox').value.trim();
+    const d=JSON.parse(decodeURIComponent(escape(atob(code))));
+    if(!d||!d.v) throw 0;
+    localStorage.setItem(KEY, JSON.stringify(d));
+    location.reload();
+  }catch(e){ toast('⚠️ 부호가 올바르지 않습니다'); }
+}
+function resetModal(){
+  showModal(`<h2>🗑️ 처음부터 다시</h2>
+  <p>모든 진행(명성·유물·비단 포함)이 사라집니다. 되돌릴 수 없습니다.</p>
+  <button class="btn red wide" data-a="resetGo">전부 지우고 새로 시작</button>
+  <button class="btn wide" data-a="close">그만두기</button>`);
+}
+
+/* ══════════════ 오프라인/일일 보상 ══════════════ */
+let offlinePending=0;
+function takeOffline(mult){
+  earn(offlinePending*mult);
+  toast('🌙 방치 보상 +'+fmt(offlinePending*mult)+'냥');
+  offlinePending=0; snd('reward'); closeModal(); updateHeader();
+}
+function offlineModal(gain, dur){
+  offlinePending=gain;
+  queueModal(()=>showModal(`<h2>🌙 돌아오셨군요!</h2>
+  <p style="text-align:center">자리를 비운 <b>${fmtTime(dur)}</b> 동안<br>일꾼들이 부지런히 벌어두었습니다.</p>
+  <p style="text-align:center; font-size:22px; font-family:var(--serif); color:var(--red)"><b>+${fmt(gain)}냥</b></p>
+  <button class="btn red wide" data-a="offtake2">📺 광고 보고 2배 받기 (+${fmt(gain*2)}냥)</button>
+  <button class="btn wide" data-a="offtake">그냥 받기</button>
+  <p class="demo-note">방치 보상 상한: ${OFFLINE_TIERS[S.offTier]}시간 (상점에서 확장)</p>`));
+}
+function dailyCheck(){
+  const today=new Date().toDateString();
+  if(S.daily.last===today) return;
+  const yesterday=new Date(Date.now()-86400e3).toDateString();
+  S.daily.streak = S.daily.last===yesterday ? S.daily.streak+1 : 1;
+  S.daily.last=today;
+  const rewards=[20,30,40,50,60,80,120];
+  const r=rewards[Math.min(S.daily.streak-1,6)];
+  S.silk+=r;
+  queueModal(()=>showModal(`<h2>🌅 개시(開市) 보상</h2>
+  <p style="text-align:center">연속 출근 <b>${S.daily.streak}일째</b>!<br>오늘의 개시 보상으로 비단을 드립니다.</p>
+  <p style="text-align:center; font-size:20px"><b>🎀 비단 +${r}</b></p>
+  <p class="small" style="text-align:center">7일 연속까지 보상이 커집니다 (${rewards.join(' → ')})</p>
+  <button class="btn wide" data-a="close">받기</button>`));
+}
+function introModal(){
+  queueModal(()=>showModal(`<h2>朝鮮巨商</h2>
+  <p style="text-align:center; font-family:var(--serif); font-size:14px">
+  때는 조선 후기, 상업이 꽃피던 시절.<br><br>
+  몰락한 가문의 마지막 후손인 그대는<br>한양 저잣거리 한 켠에 <b>주먹밥 좌판</b>을 폈다.<br><br>
+  좌판에서 시작해 국밥집, 주막, 포목점을 넘어<br>무역선을 띄우는 <b style="color:var(--red)">조선 제일의 거상</b>이 되어라!</p>
+  <button class="btn red wide" data-a="close">🏮 개업하기</button>`));
+  S.intro=true;
+}
+
+/* ══════════════ 메인 루프 ══════════════ */
+let lastTick=Date.now(), uiAcc=0, saveAcc=0;
+function tick(){
+  const now=Date.now();
+  let dt=(now-lastTick)/1000;
+  lastTick=now;
+  if(dt<0) dt=0;
+  if(dt>2) dt=2; // 탭 복귀 시 대량 가산 방지(오프라인 보상과 중복 방지)
+  earn(ips(now)*dt);
+  if(!document.hidden) S.playMs+=dt*1000;
+  uiAcc+=dt; saveAcc+=dt;
+  if(uiAcc>=0.25){
+    uiAcc=0;
+    updateHeader();
+    if(activeTab==='biz') updateBiz();
+    else if(activeTab==='upg') updateUpg();
+    else if(activeTab==='rel') updateRel();
+    else if(activeTab==='shop') updateShop();
+    updateQue();
+  }
+  if(saveAcc>=15){ saveAcc=0; save(); }
+}
+let hiddenAt=0;
+document.addEventListener('visibilitychange', ()=>{
+  if(document.hidden){ hiddenAt=Date.now(); save(); }
+  else{
+    lastTick=Date.now();
+    // 같은 세션에서 오래 자리를 비웠다 돌아오면 방치 보상으로 정산
+    if(hiddenAt && Date.now()-hiddenAt>60e3){
+      const away=Date.now()-hiddenAt;
+      const capped=Math.min(away/1000, OFFLINE_TIERS[S.offTier]*3600);
+      const gain=baseIps()*upgMult('all')*relicMult()*fameMult()*capped;
+      if(gain>0) offlineModal(gain, away);
+    }
+    hiddenAt=0;
+  }
+});
+window.addEventListener('beforeunload', save);
+window.addEventListener('pagehide', save);
+
+/* ══════════════ 시작 ══════════════ */
+(function init(){
+  S=load();
+  const isNew=!S;
+  if(isNew) S=freshState();
+  // 오프라인 보상 계산
+  if(!isNew){
+    const away=Date.now()-S.lastSeen;
+    if(away>60e3){
+      const capped=Math.min(away/1000, OFFLINE_TIERS[S.offTier]*3600);
+      const gain=baseIps()*upgMult('all')*relicMult()*fameMult()*capped;
+      if(gain>0) offlineModal(gain, away);
+    }
+  }
+  buildBiz(); buildUpg(); updateScene(); updateHeader(); updateQue();
+  buildQue(); switchTab('biz');
+  if(!S.intro) introModal();
+  dailyCheck();
+  save();
+  setInterval(tick,100);
+})();
+</script>
+<script>
+'use strict';
+/* ═══════════ 운영 연동 (조선 관제소) ═══════════
+   서버(server.js)로 하트비트를 보내 접속 현황을 알리고,
+   운영자 공지·우편(선물)·강제 퇴장·오류 보고를 처리한다.
+   file:// 로 열면 조용히 비활성화된다. */
+(function(){
+  if(!/^https?:$/.test(location.protocol)) return;
+  const PID = localStorage.joseon_ops_pid || (localStorage.joseon_ops_pid =
+    Array.from(crypto.getRandomValues(new Uint8Array(8))).map(b=>b.toString(16).padStart(2,'0')).join(''));
+  const TOWNS=['한양','평양','개성','전주','상주','나주','제주','수원','동래','의주'];
+  const ROLES=['나그네','선비','한량','도령','낭자','포수','유생','장돌뱅이'];
+  const NAME = localStorage.joseon_ops_name || (localStorage.joseon_ops_name =
+    TOWNS[Math.floor(Math.random()*TOWNS.length)]+' '+ROLES[Math.floor(Math.random()*ROLES.length)]+' #'+PID.slice(0,4));
+  const GAME='geosang';
+  let kicked=false, beatTimer=null;
+  const shownMail=new Set();
+
+  function curTitle(){
+    let t=TITLES[0][1];
+    for(const [req,name] of TITLES){ if(S.fame>=req) t=name; }
+    return t;
+  }
+  function stats(){
+    try{
+      if(!S) return null;
+      return { yeop:S.yeop, silk:S.silk, fame:S.fame, lv:totalLv(), title:curTitle(),
+        prestiges:S.prestiges, playMs:S.playMs };
+    }catch(e){ return null; }
+  }
+
+  /* 우편 첨부 지급 — 냥→엽전, 비취→비단으로 해석 */
+  function applyItem(it){
+    const n=Math.max(1,Math.floor(+it.amt||1));
+    switch(it.type){
+      case 'gold': S.yeop+=n; return '엽전 '+fmt(n);
+      case 'jade': S.silk+=n; return '비단 '+fmt(n);
+      case 'box': {
+        let y=0,sk=0;
+        for(let i=0;i<n;i++){
+          y+=Math.floor((300+Math.random()*900)*Math.max(1,totalLv()));
+          sk+=15+Math.floor(Math.random()*46);
+        }
+        S.yeop+=y; S.silk+=sk;
+        return `보상 상자 ${n}개 → 엽전 ${fmt(y)} · 비단 ${sk}`;
+      }
+      case 'relic': if(!RELICS[it.id]) return null;
+        S.relics[it.id]=(S.relics[it.id]||0)+n; return RELICS[it.id].e+' '+RELICS[it.id].n+(n>1?' ×'+n:'');
+      default: return null; /* 검객 전용 아이템(영석·도검·기술·영물)은 무시 */
+    }
+  }
+  function itemLabel(it){
+    const n=it.amt>1?' ×'+fmt(it.amt):'';
+    switch(it.type){
+      case 'gold': return '💰 엽전 '+fmt(it.amt);
+      case 'jade': return '🧵 비단 '+fmt(it.amt);
+      case 'box': return '🎁 보상 상자'+n;
+      case 'relic': return RELICS[it.id]?RELICS[it.id].e+' '+RELICS[it.id].n+n:null;
+      default: return null;
+    }
+  }
+
+  /* ── 우편함 오버레이 ── */
+  let mailWrap=null, mailList=[];
+  function ensureMailUI(){
+    if(mailWrap) return;
+    mailWrap=document.createElement('div');
+    mailWrap.style.cssText='position:fixed;inset:0;background:rgba(22,17,12,.62);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px';
+    mailWrap.innerHTML=`<div style="background:#F1E5C9;border:2px solid #C9B07C;border-radius:14px;max-width:400px;width:100%;max-height:78vh;overflow-y:auto;padding:18px;box-shadow:0 8px 30px rgba(0,0,0,.4)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <b style="font-size:17px;color:#4A3823">📮 우편함</b>
+        <button id="opsMailClose" style="background:none;border:none;font-size:18px;cursor:pointer;color:#6B5B42">✕</button>
+      </div><div id="opsMailBody"></div></div>`;
+    document.body.appendChild(mailWrap);
+    mailWrap.querySelector('#opsMailClose').onclick=()=>{ mailWrap.style.display='none'; };
+    mailWrap.addEventListener('click',e=>{ if(e.target===mailWrap) mailWrap.style.display='none'; });
+  }
+  function renderMail(){
+    ensureMailUI();
+    const body=mailWrap.querySelector('#opsMailBody');
+    if(!mailList.length){ mailWrap.style.display='none'; return; }
+    body.innerHTML=mailList.map(m=>`
+      <div style="border:1px solid #C9B07C;border-radius:10px;padding:12px;margin-bottom:10px;background:#FBF4E4">
+        <b style="color:#16110C">${m.title}</b>
+        ${m.msg?`<div style="font-size:13px;color:#3A2F20;margin-top:5px;line-height:1.5">${m.msg}</div>`:''}
+        <div style="font-size:13px;color:#4A3823;margin-top:7px">${m.items.map(itemLabel).filter(Boolean).join(' · ')||'(첨부 없음)'}</div>
+        <button data-mid="${m.id}" class="opsClaim" style="margin-top:9px;background:#4A3823;color:#F2CE7B;border:none;border-radius:8px;padding:8px 20px;font-size:14px;cursor:pointer;width:100%">받 기</button>
+      </div>`).join('');
+    body.querySelectorAll('.opsClaim').forEach(b=>b.onclick=()=>claim(b.dataset.mid));
+    mailWrap.style.display='flex';
+  }
+  function claim(mid){
+    const m=mailList.find(x=>x.id===mid); if(!m) return;
+    const got=m.items.map(applyItem).filter(Boolean);
+    try{ save(); }catch(e){}
+    toast(got.length?'📮 수령: '+got.join(', '):'📮 우편을 확인했습니다');
+    mailList=mailList.filter(x=>x.id!==mid);
+    fetch('/api/mail/ack',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pid:PID,mid})}).catch(()=>{});
+    renderMail();
+  }
+
+  function onKick(){
+    if(kicked) return; kicked=true;
+    clearInterval(beatTimer);
+    const d=document.createElement('div');
+    d.style.cssText='position:fixed;inset:0;background:#16110C;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#F1E5C9;text-align:center;padding:24px';
+    d.innerHTML='<div style="font-size:44px">🚫</div><div style="font-size:19px;font-weight:bold">관아의 명으로 접속이 중단되었습니다</div><div style="font-size:13px;color:#C9B07C">문의는 운영자에게 해주시오.</div>';
+    document.body.appendChild(d);
+  }
+
+  async function beat(){
+    if(kicked) return;
+    try{
+      const r=await fetch('/api/beat',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({pid:PID,name:NAME,game:GAME,stats:stats()})});
+      const d=await r.json();
+      if(d.kick){ onKick(); return; }
+      if(d.notices) d.notices.forEach(n=>toast('📢 '+n));
+      if(d.mails){
+        const fresh=d.mails.filter(m=>!shownMail.has(m.id));
+        if(fresh.length){
+          fresh.forEach(m=>shownMail.add(m.id));
+          mailList=d.mails.slice();
+          renderMail();
+          toast('📮 우편이 도착했습니다!');
+        }else{
+          mailList=d.mails.slice();
+        }
+      }
+    }catch(e){}
+  }
+  beat();
+  beatTimer=setInterval(beat,5000);
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden) beat(); });
+  window.addEventListener('beforeunload',()=>{
+    try{ navigator.sendBeacon('/api/bye',JSON.stringify({pid:PID})); }catch(e){}
+  });
+
+  /* ── 오류 보고 ── */
+  let errSent=0, lastErr='';
+  function reportErr(o){
+    if(errSent>=15||o.msg===lastErr) return;
+    errSent++; lastErr=o.msg;
+    fetch('/api/error',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(Object.assign({pid:PID,name:NAME,game:GAME},o))}).catch(()=>{});
+  }
+  window.addEventListener('error',e=>reportErr({msg:e.message||'script error',src:e.filename,line:e.lineno,col:e.colno,stack:e.error&&e.error.stack||''}));
+  window.addEventListener('unhandledrejection',e=>reportErr({msg:'Promise 거부: '+((e.reason&&e.reason.message)||String(e.reason)),stack:e.reason&&e.reason.stack||''}));
+})();
+</script>
+</body>
+</html>

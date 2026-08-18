@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>조선 관제소 — 운영 대시보드</title>
+<style>
+:root{
+  --ink:#16110C; --ink2:#3A2F20; --ink3:#6B5B42;
+  --paper:#F1E5C9; --paper2:#F6EDD8; --panel:#FBF4E4; --line:#C9B07C; --line2:#E0CFA4;
+  --brown:#4A3823; --red:#B93A2B; --red2:#93291D; --blue:#2E6BC0;
+  --green:#3A6B52; --gold:#D9A441; --goldL:#F2CE7B;
+  --serif:'Gungsuh','Batang','AppleMyungjo','Noto Serif KR',serif;
+  --sans:'Malgun Gothic','Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:var(--paper); color:var(--ink); font-family:var(--sans); font-size:14px;
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(217,164,65,.07),transparent 60%),
+    repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(74,56,35,.015) 3px,rgba(74,56,35,.015) 4px);
+  min-height:100vh;
+}
+.wrap{max-width:1240px;margin:0 auto;padding:20px 16px 60px}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;
+  border-bottom:3px double var(--line);padding-bottom:14px;margin-bottom:18px}
+h1{font-family:var(--serif);font-size:26px;letter-spacing:2px}
+h1 .sub{font-size:13px;color:var(--ink3);letter-spacing:0;font-family:var(--sans);margin-left:10px}
+.live{font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:6px}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
+.live.dead .dot{background:var(--red);animation:none}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+h2{font-family:var(--serif);font-size:16px;letter-spacing:1px;margin-bottom:10px;color:var(--brown);
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+h2 .cnt{font-family:var(--sans);font-size:12px;color:var(--ink3);font-weight:normal}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;
+  box-shadow:0 1px 3px rgba(74,56,35,.08);margin-bottom:18px}
+/* ── 통계 타일 ── */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+  box-shadow:0 1px 3px rgba(74,56,35,.08)}
+.tile .k{font-size:12px;color:var(--ink3);margin-bottom:4px}
+.tile .v{font-size:26px;font-family:var(--serif);color:var(--ink);line-height:1.1}
+.tile .s{font-size:11px;color:var(--ink3);margin-top:4px}
+.tile.warn .v{color:var(--red)}
+/* ── 차트 ── */
+.chart-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--ink2)}
+.legend .chip{display:flex;align-items:center;gap:5px}
+.legend .sw{width:14px;height:3px;border-radius:2px}
+.ranges button{background:none;border:1px solid var(--line);border-radius:6px;padding:3px 10px;
+  font-size:12px;color:var(--ink3);cursor:pointer;font-family:var(--sans)}
+.ranges button.on{background:var(--brown);color:var(--goldL);border-color:var(--brown)}
+#chartBox{position:relative;height:250px}
+#chartBox svg{display:block;width:100%;height:100%}
+#tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--paper);border-radius:6px;
+  padding:7px 10px;font-size:12px;line-height:1.5;display:none;white-space:nowrap;z-index:5;
+  box-shadow:0 2px 8px rgba(0,0,0,.25)}
+#tip .tr{color:#E89A8D} #tip .tb{color:#9FC1F0}
+.empty{color:var(--ink3);font-size:13px;text-align:center;padding:40px 0}
+/* ── 표 ── */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-family:var(--serif);font-weight:normal;color:var(--brown);text-align:left;font-size:12px;
+  letter-spacing:1px;border-bottom:2px solid var(--line);padding:6px 8px;white-space:nowrap}
+td{border-bottom:1px solid var(--line2);padding:7px 8px;vertical-align:middle}
+tr:hover td{background:rgba(217,164,65,.07)}
+tr.off td{color:var(--ink3)}
+.tblwrap{overflow-x:auto}
+.pname{font-weight:bold;color:var(--ink)} tr.off .pname{color:var(--ink3)}
+.pid{font-size:11px;color:var(--ink3)}
+.gtag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;white-space:nowrap}
+.gtag.sword{background:rgba(185,58,43,.12);color:var(--red2)}
+.gtag.geosang{background:rgba(46,107,192,.12);color:#1F4E93}
+.st-on{color:var(--green);white-space:nowrap} .st-off{color:var(--ink3);white-space:nowrap}
+.st-block{color:var(--red);white-space:nowrap}
+.mini{font-size:12px;color:var(--ink2);line-height:1.5}
+button.act{background:var(--paper2);border:1px solid var(--line);border-radius:6px;padding:3px 9px;
+  font-size:12px;cursor:pointer;color:var(--ink2);font-family:var(--sans);white-space:nowrap}
+button.act:hover{background:var(--goldL)}
+button.act.danger{color:var(--red2)} button.act.danger:hover{background:rgba(185,58,43,.15)}
+button.primary{background:var(--brown);color:var(--goldL);border:none;border-radius:8px;
+  padding:9px 22px;font-size:14px;cursor:pointer;font-family:var(--serif);letter-spacing:2px}
+button.primary:hover{background:#5C4630}
+button.primary:disabled{opacity:.45;cursor:default}
+input[type=text],input[type=number],textarea,select{
+  background:#FFFDF6;border:1px solid var(--line);border-radius:6px;padding:7px 9px;
+  font-size:13px;color:var(--ink);font-family:var(--sans)}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--gold)}
+input[type=checkbox]{width:15px;height:15px;accent-color:var(--brown);cursor:pointer}
+/* ── 우편 ── */
+.mailgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:860px){.mailgrid{grid-template-columns:1fr}}
+.fld{margin-bottom:10px}
+.fld label{display:block;font-size:12px;color:var(--ink3);margin-bottom:4px}
+.fld input[type=text],.fld textarea{width:100%}
+.fld textarea{height:64px;resize:vertical}
+.tgt{display:flex;gap:6px;flex-wrap:wrap}
+.tgt button{background:var(--paper2);border:1px solid var(--line);border-radius:16px;padding:5px 14px;
+  font-size:12px;cursor:pointer;color:var(--ink2);font-family:var(--sans)}
+.tgt button.on{background:var(--brown);color:var(--goldL);border-color:var(--brown)}
+.attrow{display:flex;gap:6px;margin-bottom:6px;align-items:center;flex-wrap:wrap}
+.attrow select{max-width:190px}
+.attrow input[type=number]{width:110px}
+.hint{font-size:11px;color:var(--ink3);line-height:1.6;margin-top:8px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:860px){.two{grid-template-columns:1fr}}
+.loglist{max-height:320px;overflow-y:auto}
+.errmsg{color:var(--red2);cursor:pointer;word-break:break-all}
+.errstack{display:none;font-family:Consolas,monospace;font-size:11px;color:var(--ink2);
+  background:var(--paper2);border-radius:6px;padding:8px;margin-top:5px;white-space:pre-wrap;word-break:break-all}
+tr.open .errstack{display:block}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips .bchip{background:rgba(185,58,43,.1);border:1px solid rgba(185,58,43,.3);color:var(--red2);
+  border-radius:14px;padding:4px 6px 4px 12px;font-size:12px;display:flex;align-items:center;gap:6px}
+.chips .bchip button{background:none;border:none;color:var(--red2);cursor:pointer;font-size:12px}
+#toasts{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:99;display:flex;
+  flex-direction:column;gap:8px;align-items:center}
+.toast{background:var(--ink);color:var(--paper);border-radius:8px;padding:9px 18px;font-size:13px;
+  animation:tin .25s ease;box-shadow:0 3px 10px rgba(0,0,0,.3)}
+@keyframes tin{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.toolbar .grow{flex:1}
+.toolbar input[type=text]{min-width:200px;flex:1}
+.selinfo{font-size:12px;color:var(--ink2)}
+</style>
+</head>
+<body>
+<div id="toasts"></div>
+<div class="wrap">
+  <header>
+    <h1>🏯 조선 관제소<span class="sub">조선검객 · 조선거상 운영 대시보드</span></h1>
+    <div class="live" id="live"><span class="dot"></span><span id="liveTxt">연결 중…</span></div>
+  </header>
+
+  <!-- 통계 타일 -->
+  <div class="tiles" id="tiles"></div>
+
+  <!-- 동시 접속 차트 -->
+  <div class="panel">
+    <div class="chart-head">
+      <h2>📈 동시 접속 추이</h2>
+      <div class="legend">
+        <span class="chip"><span class="sw" style="background:#B93A2B"></span>조선검객</span>
+        <span class="chip"><span class="sw" style="background:#2E6BC0"></span>조선거상</span>
+      </div>
+      <div class="ranges" id="ranges">
+        <button data-r="60" class="on">1시간</button>
+        <button data-r="360">6시간</button>
+        <button data-r="1440">24시간</button>
+      </div>
+    </div>
+    <div id="chartBox"><svg id="chart"></svg><div id="tip"></div></div>
+  </div>
+
+  <!-- 접속자 관리 -->
+  <div class="panel">
+    <h2>👥 접속자 관리 <span class="cnt" id="pCnt"></span></h2>
+    <div class="toolbar">
+      <span class="selinfo" id="selInfo">0명 선택됨</span>
+      <span class="grow"></span>
+      <input type="text" id="noticeMsg" placeholder="📢 접속 중인 모두에게 보낼 공지…" maxlength="200">
+      <button class="act" id="noticeBtn">공지 보내기</button>
+    </div>
+    <div class="tblwrap">
+    <table id="pTable">
+      <thead><tr>
+        <th><input type="checkbox" id="selAll" title="전체 선택"></th>
+        <th>접속자</th><th>게임</th><th>진행도</th><th>보유 재화</th><th>플레이</th><th>상태</th><th>IP</th><th>관리</th>
+      </tr></thead>
+      <tbody id="pBody"></tbody>
+    </table>
+    </div>
+    <div id="pEmpty" class="empty" style="display:none">아직 접속한 유람객이 없습니다. 게임(<code>/</code> 또는 <code>/geosang</code>)에 접속하면 이곳에 나타납니다.</div>
+    <div id="blockedRow" style="margin-top:12px;display:none">
+      <h2 style="font-size:14px">⛔ 차단 목록</h2>
+      <div class="chips" id="blockedChips"></div>
+    </div>
+  </div>
+
+  <!-- 우편 발송 -->
+  <div class="panel">
+    <h2>📮 우편 · 선물 발송</h2>
+    <div class="mailgrid">
+      <div>
+        <div class="fld">
+          <label>받는이</label>
+          <div class="tgt">
+            <button id="tgtSel" data-t="selected">☑ 선택한 인원 (<span id="tgtSelN">0</span>명)</button>
+            <button id="tgtOn" data-t="online" class="on">🟢 접속 중 전체</button>
+            <button id="tgtAll" data-t="all">📜 전체 (누적 접속자)</button>
+          </div>
+        </div>
+        <div class="fld"><label>제목</label><input type="text" id="mTitle" placeholder="예: 개국 기념 선물" maxlength="60"></div>
+        <div class="fld"><label>내용</label><textarea id="mMsg" placeholder="예: 조선검객을 찾아주셔서 감사합니다. 작은 성의를 보내드립니다." maxlength="500"></textarea></div>
+      </div>
+      <div>
+        <div class="fld">
+          <label>첨부 (최대 4개)</label>
+          <div id="attRows"></div>
+          <button class="act" id="attAdd">＋ 첨부 추가</button>
+        </div>
+        <div class="hint">
+          · <b>냥</b>은 거상에게는 <b>엽전</b>으로, <b>비취</b>는 <b>비단</b>으로 지급됩니다.<br>
+          · <b>보상 상자</b>는 열 때 냥·비취·영석(거상: 엽전·비단)이 무작위로 나옵니다.<br>
+          · 게임 전용 아이템(도검·기술·영물·유물)은 해당 게임 접속자에게만 지급됩니다.
+        </div>
+        <div style="margin-top:14px;text-align:right"><button class="primary" id="mSend">우편 발송</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 로그 -->
+  <div class="two">
+    <div class="panel">
+      <h2>🪪 로그인 기록 <span class="cnt" id="lgCnt"></span></h2>
+      <div class="loglist tblwrap">
+        <table><thead><tr><th>시각</th><th>접속자</th><th>게임</th><th>IP</th></tr></thead>
+        <tbody id="lgBody"></tbody></table>
+      </div>
+      <div id="lgEmpty" class="empty" style="display:none">로그인 기록이 없습니다.</div>
+    </div>
+    <div class="panel">
+      <h2>🐞 오류 기록 <span class="cnt" id="erCnt"></span>
+        <span style="flex:1"></span><button class="act danger" id="erClear">기록 비우기</button></h2>
+      <div class="loglist tblwrap">
+        <table><thead><tr><th>시각</th><th>게임</th><th>접속자</th><th>오류</th></tr></thead>
+        <tbody id="erBody"></tbody></table>
+      </div>
+      <div id="erEmpty" class="empty" style="display:none">보고된 오류가 없습니다. 평온한 하루입니다. 🌿</div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const UNITS=[['극',1e48],['재',1e44],['정',1e40],['간',1e36],['구',1e32],['양',1e28],['자',1e24],['해',1e20],['경',1e16],['조',1e12],['억',1e8],['만',1e4]];
+function fmt(n){
+  if(n==null||!isFinite(n)) return '-';
+  if(n<0) return '-'+fmt(-n);
+  if(n<1e4) return Math.floor(n).toLocaleString('ko-KR');
+  for(const [u,v] of UNITS){ if(n>=v){ const q=n/v; return (q>=100?Math.floor(q).toLocaleString('ko-KR'):q.toFixed(q>=10?1:2))+u; } }
+}
+function fmtDur(ms){
+  const s=Math.floor(ms/1000);
+  if(s<60) return s+'초';
+  const m=Math.floor(s/60), h=Math.floor(m/60);
+  if(h>0) return h+'시간 '+(m%60)+'분';
+  return m+'분';
+}
+function fmtAgo(t,now){
+  const d=now-t;
+  if(d<10000) return '방금';
+  if(d<60000) return Math.floor(d/1000)+'초 전';
+  if(d<3600000) return Math.floor(d/60000)+'분 전';
+  if(d<86400000) return Math.floor(d/3600000)+'시간 전';
+  return Math.floor(d/86400000)+'일 전';
+}
+function fmtClock(t){ const d=new Date(t); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0'); }
+function fmtDT(t){ const d=new Date(t); return (d.getMonth()+1)+'/'+d.getDate()+' '+fmtClock(t); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function toast(msg){ const t=document.createElement('div'); t.className='toast'; t.textContent=msg; $('toasts').appendChild(t); setTimeout(()=>t.remove(),2800); }
+async function api(path,body){
+  const r=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});
+  return r.json();
+}
+
+/* ── 아이템 도감 (게임 데이터와 동일 순서) ── */
+const WEAPONS=['녹슨 환도 🗡️','낡은 목검 🪵','죽창 🎋','농부의 낫 🪓','정련 환도 ⚔️','은장도 🔪','협도 🥢','보병 월도 🌙','장인 환도 ✨','사인검 🔆','칠성검 ⭐','언월청룡도 🌗','용천검 🐲','현무보검 🐢','칠지도 🌿','비류어검 🌊','사인참사검 🌩️','뇌전검 ⚡','일월신검 ☀️','백두신검 🏔️','천상검 미리내 🌌','일월오봉검 🌄','단군신검 🗻','용왕검 🐉','파천황 어검 💫'];
+const SKILLS=['삼연격 ⚔️','사자후 🗣️','검기 방출 🌪️','화염참 🔥','질풍가도 💨','회천검무 🌀','빙백검 ❄️','뇌격일섬 ⚡'];
+const SPIRITS=['까치 🐦','삽살개 🐕','두꺼비 🐸','불여우 🦊','백학 🕊️','청설모 🐿️','백호 🐯','해태 🦁','현무 🐢','봉황 🦚','기린 🦄','청룡 🐉'];
+const RELICS=['까치호랑이 🐅','하회탈 🎭','짚신 한 켤레 🥾','놋수저 🥄','갓 🎩','태극선 부채 🪭','청화백자 🏺','나전칠기함 💼','상평통보 원판 🪙','일월오봉도 🌄','고려청자 매병 🍶','거북선 설계도 📜','혼천의 🔭','훈민정음 해례 📕','임금의 옥새 🦄','금척(金尺) 📏'];
+const ATT_TYPES=[
+  {v:'gold',n:'💰 냥 (거상: 엽전)'},
+  {v:'jade',n:'🟢 비취 (거상: 비단)'},
+  {v:'seok',n:'🔷 영석 (검객 전용)'},
+  {v:'box',n:'🎁 보상 상자'},
+  {v:'weapon',n:'🗡️ 도검 (검객 전용)',cat:WEAPONS},
+  {v:'skill',n:'📜 기술 (검객 전용)',cat:SKILLS},
+  {v:'spirit',n:'🦊 영물 (검객 전용)',cat:SPIRITS},
+  {v:'relic',n:'🏺 유물 (거상 전용)',cat:RELICS},
+];
+
+/* ── 상태 ── */
+let DATA=null;
+const sel=new Set();
+let range=60;           // 분
+let mailTarget='online';
+let failCnt=0;
+
+/* ── 통계 타일 ── */
+function renderTiles(){
+  const s=DATA.stats;
+  $('tiles').innerHTML=`
+    <div class="tile"><div class="k">현재 접속</div><div class="v">${s.online}<span style="font-size:14px">명</span></div>
+      <div class="s">검객 ${s.onlineSword} · 거상 ${s.onlineGeosang}</div></div>
+    <div class="tile"><div class="k">오늘 방문자</div><div class="v">${s.todayVisitors}<span style="font-size:14px">명</span></div>
+      <div class="s">로그인 ${s.todayLogins}회</div></div>
+    <div class="tile"><div class="k">누적 접속자</div><div class="v">${s.totalPlayers}<span style="font-size:14px">명</span></div>
+      <div class="s">전체 기간</div></div>
+    <div class="tile"><div class="k">미수령 우편</div><div class="v">${s.mailPending}<span style="font-size:14px">통</span></div>
+      <div class="s">누적 발송 ${s.mailsSent}통</div></div>
+    <div class="tile ${s.errors24h>0?'warn':''}"><div class="k">오류 (24시간)</div><div class="v">${s.errors24h}<span style="font-size:14px">건</span></div>
+      <div class="s">${s.errors24h>0?'⚠ 오류 기록 확인 필요':'정상 운영 중'}</div></div>`;
+}
+
+/* ── 차트 ── */
+const C_SWORD='#B93A2B', C_GEO='#2E6BC0';
+let chartPts=[];
+function renderChart(){
+  const svg=$('chart'), box=$('chartBox');
+  const W=box.clientWidth||900, H=box.clientHeight||250;
+  const now=DATA.now, from=now-range*60000;
+  const pts=DATA.history.filter(h=>h.t>=from);
+  chartPts=pts;
+  if(pts.length<2){
+    svg.innerHTML=`<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="#6B5B42" font-size="13">아직 수집된 접속 기록이 부족합니다 (30초마다 기록)</text>`;
+    return;
+  }
+  const P={l:34,r:64,t:12,b:24};
+  const iw=W-P.l-P.r, ih=H-P.t-P.b;
+  const yMax=Math.max(4,Math.ceil(Math.max(...pts.map(p=>Math.max(p.sword,p.geosang)))*1.25));
+  const X=t=>P.l+iw*(t-from)/(now-from);
+  const Y=v=>P.t+ih*(1-v/yMax);
+  let g='';
+  const ticks=4;
+  for(let i=0;i<=ticks;i++){
+    const v=Math.round(yMax*i/ticks), y=Y(v);
+    g+=`<line x1="${P.l}" y1="${y}" x2="${W-P.r}" y2="${y}" stroke="#C9B07C" stroke-width="1" opacity="${i===0?0.9:0.35}"/>`;
+    g+=`<text x="${P.l-6}" y="${y+4}" text-anchor="end" font-size="10" fill="#6B5B42">${v}</text>`;
+  }
+  const xt=range<=60?4:range<=360?6:8;
+  for(let i=0;i<=xt;i++){
+    const t=from+(now-from)*i/xt;
+    g+=`<text x="${X(t)}" y="${H-8}" text-anchor="middle" font-size="10" fill="#6B5B42">${fmtClock(t).slice(0,5)}</text>`;
+  }
+  function line(key,color){
+    let d='';
+    pts.forEach((p,i)=>{ d+=(i?'L':'M')+X(p.t).toFixed(1)+' '+Y(p[key]).toFixed(1)+' '; });
+    const lp=pts[pts.length-1];
+    return `<path d="${d}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"/>`+
+      `<circle cx="${X(lp.t)}" cy="${Y(lp[key])}" r="3.5" fill="${color}"/>`+
+      `<text x="${X(lp.t)+7}" y="${Y(lp[key])+4}" font-size="11" fill="${color}">${key==='sword'?'검객':'거상'} ${lp[key]}</text>`;
+  }
+  g+=line('sword',C_SWORD)+line('geosang',C_GEO);
+  g+=`<line id="xhair" x1="0" y1="${P.t}" x2="0" y2="${P.t+ih}" stroke="#4A3823" stroke-width="1" opacity="0" stroke-dasharray="3 3"/>`;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.innerHTML=g;
+  svg._geo={P,iw,ih,W,H,from,now,X,Y};
+}
+$('chartBox').addEventListener('mousemove',e=>{
+  const svg=$('chart'); if(!svg._geo||!chartPts.length) return;
+  const r=svg.getBoundingClientRect(), gx=(e.clientX-r.left)*(svg._geo.W/r.width);
+  let best=null,bd=1e18;
+  for(const p of chartPts){ const d=Math.abs(svg._geo.X(p.t)-gx); if(d<bd){bd=d;best=p;} }
+  if(!best) return;
+  const xh=svg.querySelector('#xhair');
+  if(xh){ xh.setAttribute('x1',svg._geo.X(best.t)); xh.setAttribute('x2',svg._geo.X(best.t)); xh.setAttribute('opacity','.5'); }
+  const tip=$('tip');
+  tip.style.display='block';
+  tip.innerHTML=`${fmtClock(best.t)}<br><span class="tr">● 검객</span> ${best.sword}명<br><span class="tb">● 거상</span> ${best.geosang}명`;
+  const bx=e.clientX-r.left, by=e.clientY-r.top;
+  tip.style.left=Math.min(bx+14,r.width-120)+'px';
+  tip.style.top=Math.max(by-52,0)+'px';
+});
+$('chartBox').addEventListener('mouseleave',()=>{
+  $('tip').style.display='none';
+  const xh=$('chart').querySelector('#xhair'); if(xh) xh.setAttribute('opacity','0');
+});
+$('ranges').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  range=+b.dataset.r;
+  [...$('ranges').children].forEach(x=>x.classList.toggle('on',x===b));
+  if(DATA) renderChart();
+});
+
+/* ── 접속자 표 ── */
+function progressCell(p){
+  const st=p.stats;
+  if(!st) return '<span class="mini">-</span>';
+  if(p.game==='sword')
+    return `<div class="mini">${st.top||1}층 · ${esc(st.rank||'무품')} · Lv${st.lv||1}${st.rebirths?` · 전생 ${st.rebirths}회`:''}</div>`;
+  return `<div class="mini">${esc(st.title||'보부상')} · 사업 ${fmt(st.lv||0)}단${st.prestiges?` · 계승 ${st.prestiges}회`:''}</div>`;
+}
+function wealthCell(p){
+  const st=p.stats;
+  if(!st) return '<span class="mini">-</span>';
+  if(p.game==='sword')
+    return `<div class="mini">냥 ${fmt(st.gold)} · 비취 ${fmt(st.jade)} · 영석 ${fmt(st.seok)}</div>`;
+  return `<div class="mini">엽전 ${fmt(st.yeop)} · 비단 ${fmt(st.silk)} · 명성 ${fmt(st.fame)}</div>`;
+}
+function renderPlayers(){
+  const now=DATA.now, list=DATA.players;
+  $('pCnt').textContent=`접속 중 ${DATA.stats.online}명 / 전체 ${list.length}명`;
+  $('pEmpty').style.display=list.length?'none':'block';
+  for(const pid of [...sel]) if(!list.some(p=>p.pid===pid)) sel.delete(pid);
+  const html=list.map(p=>{
+    const st=p.blocked?`<span class="st-block">⛔ 차단됨</span>`
+      : p.online&&!p.idle?`<span class="st-on">🟢 접속 중 · ${fmtDur(p.sessionMs)}</span>`
+      : p.online?`<span class="st-on" style="color:#8A6D2F">🌗 대기 중 (백그라운드)</span>`
+      : `<span class="st-off">⚪ ${fmtAgo(p.last||p.first,now)}</span>`;
+    return `<tr class="${p.online?'':'off'}" data-pid="${esc(p.pid)}">
+      <td><input type="checkbox" class="psel" data-pid="${esc(p.pid)}" ${sel.has(p.pid)?'checked':''}></td>
+      <td><span class="pname">${esc(p.name)}</span><br><span class="pid">${esc(p.pid.slice(0,8))}${p.mailPending?` · 📮${p.mailPending}`:''}</span></td>
+      <td><span class="gtag ${p.game}">${p.game==='sword'?'조선검객':'조선거상'}</span></td>
+      <td>${progressCell(p)}</td>
+      <td>${wealthCell(p)}</td>
+      <td class="mini">${p.stats&&p.stats.playMs?fmtDur(p.stats.playMs):'-'}</td>
+      <td>${st}</td>
+      <td class="mini">${esc(p.ip||'-')}</td>
+      <td>
+        <button class="act mailone" data-pid="${esc(p.pid)}" title="이 사람에게 우편">✉ 우편</button>
+        ${p.blocked
+          ?`<button class="act unkick" data-pid="${esc(p.pid)}">차단 해제</button>`
+          :`<button class="act danger kick" data-pid="${esc(p.pid)}" data-name="${esc(p.name)}">⛔ 퇴장</button>`}
+      </td></tr>`;
+  }).join('');
+  if(html!==renderPlayers.last){ renderPlayers.last=html; $('pBody').innerHTML=html; }
+  const blocked=DATA.players.filter(p=>p.blocked);
+  $('blockedRow').style.display=blocked.length?'block':'none';
+  const bhtml=blocked.map(p=>
+    `<span class="bchip">${esc(p.name)}<button class="unkick" data-pid="${esc(p.pid)}" title="해제">✕ 해제</button></span>`).join('');
+  if(bhtml!==renderPlayers.lastB){ renderPlayers.lastB=bhtml; $('blockedChips').innerHTML=bhtml; }
+  updateSelInfo();
+}
+function updateSelInfo(){
+  $('selInfo').textContent=sel.size+'명 선택됨';
+  $('tgtSelN').textContent=sel.size;
+  const all=[...document.querySelectorAll('.psel')];
+  $('selAll').checked=all.length>0&&all.every(c=>c.checked);
+}
+document.addEventListener('change',e=>{
+  if(e.target.classList.contains('psel')){
+    e.target.checked?sel.add(e.target.dataset.pid):sel.delete(e.target.dataset.pid);
+    updateSelInfo();
+  }
+  if(e.target.id==='selAll'){
+    document.querySelectorAll('.psel').forEach(c=>{
+      c.checked=e.target.checked;
+      e.target.checked?sel.add(c.dataset.pid):sel.delete(c.dataset.pid);
+    });
+    updateSelInfo();
+  }
+});
+document.addEventListener('click',async e=>{
+  const kick=e.target.closest('.kick');
+  if(kick){
+    if(!confirm(`'${kick.dataset.name}'을(를) 퇴장(차단)시키겠습니까?\n차단하면 다시 접속할 수 없습니다.`)) return;
+    await api('/api/kick',{pid:kick.dataset.pid}); toast('⛔ 차단했습니다'); poll(); return;
+  }
+  const unkick=e.target.closest('.unkick');
+  if(unkick){ await api('/api/unkick',{pid:unkick.dataset.pid}); toast('차단을 해제했습니다'); poll(); return; }
+  const mo=e.target.closest('.mailone');
+  if(mo){
+    sel.clear(); sel.add(mo.dataset.pid);
+    document.querySelectorAll('.psel').forEach(c=>c.checked=c.dataset.pid===mo.dataset.pid);
+    updateSelInfo(); setTarget('selected');
+    document.querySelector('.mailgrid').scrollIntoView({behavior:'smooth',block:'center'});
+    $('mTitle').focus(); return;
+  }
+  const er=e.target.closest('.errmsg');
+  if(er){ er.closest('tr').classList.toggle('open'); }
+});
+
+/* ── 공지 ── */
+$('noticeBtn').addEventListener('click',async()=>{
+  const msg=$('noticeMsg').value.trim();
+  if(!msg) return toast('공지 내용을 입력하세요');
+  const r=await api('/api/notice',{target:'online',msg});
+  toast(`📢 접속 중인 ${r.sent}명에게 공지를 보냈습니다`);
+  $('noticeMsg').value='';
+});
+
+/* ── 우편 작성 ── */
+function setTarget(t){
+  mailTarget=t;
+  ['tgtSel','tgtOn','tgtAll'].forEach(id=>$(id).classList.toggle('on',$(id).dataset.t===t));
+}
+['tgtSel','tgtOn','tgtAll'].forEach(id=>$(id).addEventListener('click',()=>setTarget($(id).dataset.t)));
+function attRow(){
+  const div=document.createElement('div');
+  div.className='attrow';
+  div.innerHTML=`<select class="atype">${ATT_TYPES.map(t=>`<option value="${t.v}">${t.n}</option>`).join('')}</select>
+    <select class="aitem" style="display:none"></select>
+    <input type="number" class="aamt" value="100" min="1" step="1" title="수량">
+    <button class="act adel">✕</button>`;
+  const typeSel=div.querySelector('.atype'), itemSel=div.querySelector('.aitem'), amt=div.querySelector('.aamt');
+  typeSel.addEventListener('change',()=>{
+    const t=ATT_TYPES.find(x=>x.v===typeSel.value);
+    if(t.cat){
+      itemSel.style.display='';
+      itemSel.innerHTML=t.cat.map((n,i)=>`<option value="${i}">${n}</option>`).join('');
+      amt.value=1;
+    }else{ itemSel.style.display='none'; amt.value=t.v==='box'?1:100; }
+  });
+  div.querySelector('.adel').addEventListener('click',()=>div.remove());
+  return div;
+}
+$('attAdd').addEventListener('click',()=>{
+  if($('attRows').children.length>=4) return toast('첨부는 최대 4개입니다');
+  $('attRows').appendChild(attRow());
+});
+$('attRows').appendChild(attRow()); // 기본 1줄
+
+$('mSend').addEventListener('click',async()=>{
+  const items=[...$('attRows').children].map(row=>{
+    const type=row.querySelector('.atype').value;
+    const t=ATT_TYPES.find(x=>x.v===type);
+    const it={type,amt:Math.max(1,Math.floor(+row.querySelector('.aamt').value||1))};
+    if(t.cat) it.id=+row.querySelector('.aitem').value;
+    return it;
+  });
+  const title=$('mTitle').value.trim(), msg=$('mMsg').value.trim();
+  if(!title&&!items.length) return toast('제목이나 첨부를 넣어주세요');
+  const body={target:mailTarget,title,msg,items};
+  if(mailTarget==='selected'){
+    if(!sel.size) return toast('먼저 접속자 표에서 받는이를 선택하세요');
+    body.target='selected'; body.pids=[...sel];
+  }
+  $('mSend').disabled=true;
+  try{
+    const r=await api('/api/mail',body);
+    if(r.sent>0){ toast(`📮 ${r.sent}명에게 우편을 보냈습니다`); $('mTitle').value=''; $('mMsg').value=''; }
+    else toast('보낼 대상이 없습니다');
+    poll();
+  }catch(e){ toast('발송 실패: '+e.message); }
+  $('mSend').disabled=false;
+});
+
+/* ── 로그 ── */
+function renderLogs(){
+  const lg=DATA.logins;
+  $('lgCnt').textContent='최근 '+lg.length+'건';
+  $('lgEmpty').style.display=lg.length?'none':'block';
+  const lghtml=lg.map(l=>`<tr>
+    <td class="mini">${fmtDT(l.t)}</td><td>${esc(l.name)}</td>
+    <td><span class="gtag ${l.game}">${l.game==='sword'?'검객':'거상'}</span></td>
+    <td class="mini">${esc(l.ip||'-')}</td></tr>`).join('');
+  if(lghtml!==renderLogs.lastLg){ renderLogs.lastLg=lghtml; $('lgBody').innerHTML=lghtml; }
+  const er=DATA.errors;
+  $('erCnt').textContent='최근 '+er.length+'건';
+  $('erEmpty').style.display=er.length?'none':'block';
+  const erhtml=er.map(x=>`<tr>
+    <td class="mini">${fmtDT(x.t)}</td>
+    <td><span class="gtag ${x.game}">${x.game==='sword'?'검객':'거상'}</span></td>
+    <td class="mini">${esc(x.name||'-')}</td>
+    <td><span class="errmsg" title="누르면 상세">${esc(x.msg)}</span>
+      <div class="errstack">${esc((x.src?x.src+':'+x.line+':'+x.col+'\n':'')+(x.stack||'(스택 없음)'))}</div></td></tr>`).join('');
+  if(erhtml!==renderLogs.lastEr){ renderLogs.lastEr=erhtml; $('erBody').innerHTML=erhtml; }
+}
+$('erClear').addEventListener('click',async()=>{
+  if(!confirm('오류 기록을 모두 지우시겠습니까?')) return;
+  await api('/api/errors/clear'); toast('오류 기록을 비웠습니다'); poll();
+});
+
+/* ── 폴링 ── */
+async function poll(){
+  try{
+    const r=await fetch('/api/dashboard');
+    DATA=await r.json();
+    failCnt=0;
+    $('live').classList.remove('dead');
+    $('liveTxt').textContent='실시간 · '+fmtClock(DATA.now);
+    renderTiles(); renderChart(); renderPlayers(); renderLogs();
+  }catch(e){
+    if(++failCnt>=2){ $('live').classList.add('dead'); $('liveTxt').textContent='서버 연결 끊김'; }
+  }
+}
+poll();
+setInterval(poll,3000);
+window.addEventListener('resize',()=>{ if(DATA) renderChart(); });
+</script>
+</body>
+</html>
