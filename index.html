@@ -236,7 +236,7 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
   border:2px solid var(--line);min-height:72px;position:relative}
 .rel .e{font-size:21px;line-height:1.2}
 /* 아이콘 스프라이트 — 이모지 자리에 원화 아이콘을 넣는다. 파일이 없으면 이모지가 그대로 남는다 */
-.ic{display:inline-block;vertical-align:middle;background-image:url(assets/sprites/icons.png?v=20260822c);
+.ic{display:inline-block;vertical-align:middle;background-image:url(assets/sprites/icons.png?v=20260822d);
   background-repeat:no-repeat;image-rendering:auto;width:var(--s);height:var(--s);
   background-size:calc(var(--s)*var(--gc)) calc(var(--s)*var(--gr));
   background-position:calc(var(--s)*var(--cx)*-1) calc(var(--s)*var(--cy)*-1)}
@@ -253,11 +253,11 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .rel .v{font-size:9px;color:var(--indigo);font-weight:700}
 /* 등급 테두리 — 9분할(border-image)로 모서리 장식이 늘어나지 않게 */
 .rel.fr{border-width:9px;border-style:solid;border-color:transparent;background-clip:padding-box}
-.rel.fr0{border-image:url(assets/sprites/frame0.png?v=20260822c) 40 / 9px stretch}
-.rel.fr1{border-image:url(assets/sprites/frame1.png?v=20260822c) 40 / 9px stretch}
-.rel.fr2{border-image:url(assets/sprites/frame2.png?v=20260822c) 40 / 9px stretch}
-.rel.fr3{border-image:url(assets/sprites/frame3.png?v=20260822c) 40 / 9px stretch}
-.rel.fr4{border-image:url(assets/sprites/frame4.png?v=20260822c) 40 / 9px stretch}
+.rel.fr0{border-image:url(assets/sprites/frame0.png?v=20260822d) 40 / 9px stretch}
+.rel.fr1{border-image:url(assets/sprites/frame1.png?v=20260822d) 40 / 9px stretch}
+.rel.fr2{border-image:url(assets/sprites/frame2.png?v=20260822d) 40 / 9px stretch}
+.rel.fr3{border-image:url(assets/sprites/frame3.png?v=20260822d) 40 / 9px stretch}
+.rel.fr4{border-image:url(assets/sprites/frame4.png?v=20260822d) 40 / 9px stretch}
 .rel.r1{border-color:#5C87B5}.rel.r2{border-color:#7A5CB5;background:linear-gradient(#F5EFFB,#E6DCF3)}
 .rel.r3{border-color:#B5722A;background:linear-gradient(#FDF3D8,#F3DFAE)}
 .rel.r4{border-color:var(--red);background:linear-gradient(#FFF0E2,#F7DDC2);box-shadow:0 0 8px rgba(185,58,43,.45)}
@@ -285,7 +285,7 @@ nav button{flex:1;padding:6px 0 7px;text-align:center;color:#8F7C5C;font-size:10
 nav button .e{display:block;font-size:18px;line-height:1.25;filter:grayscale(1) opacity(.7)}
 /* 탭 아이콘 6종 가로 스프라이트 — 6칸이므로 위치는 20%씩 */
 nav button .e.tabi{width:24px;height:24px;margin:0 auto 1px;font-size:0;
-  background-image:url(assets/sprites/tabs.png?v=20260822c);background-repeat:no-repeat;
+  background-image:url(assets/sprites/tabs.png?v=20260822d);background-repeat:no-repeat;
   background-size:600% 100%;background-position:calc(var(--ti)*20%) 0}
 nav button.on{color:var(--goldL)}
 nav button.on .e{filter:none}
@@ -431,7 +431,7 @@ textarea.io{width:100%;height:90px;font-size:11px;border:1px solid var(--line);b
 <div id="toasts"></div>
 
 <script>
-const ASSET_V='20260822c'; // 에셋 갱신 시 올린다 (브라우저 캐시 무력화)
+const ASSET_V='20260822d'; // 에셋 갱신 시 올린다 (브라우저 캐시 무력화)
 function av(u){ return u+'?v='+ASSET_V; }
 
 'use strict';
@@ -1041,14 +1041,18 @@ const HeroSpr={
       return c;
     }catch(e){ return null; } // file://에서는 캔버스가 오염되어 읽기 불가 → 기본 도포로
   },
+  n(c){ const a=this.F&&this.F[c]; return a?a.length:1; }, // 클립 프레임 수(시트가 바뀌어도 따라감)
   pick(h){ // 상태 → [클립, 프레임]
-    if(h.dead>0) return ['down', h.dead>2.1?0:1];         // 무릎 꿇음 → 쓰러짐
-    if(h.swing>0){                                        // 준비 → 베기 → 마무리
-      const p=Math.min(0.999,1-h.swing);
-      return [h.swBig?'big':'atk', Math.floor(p*3)];      // 회심타·기술은 큰 검기 궤적
+    if(h.dead>0){                                         // 비틀 → 무릎 → 쓰러짐
+      const n=this.n('down'), t=2.5-h.dead;               // 사망 후 경과
+      return ['down', Math.min(n-1, t<0.3?0:(t<0.7?1:2))];
     }
-    if(W.running) return ['run',Math.floor(h.run*7.5)%this.F.run.length];
-    return ['idle',0];                                    // 칼 뽑은 기본 자세
+    if(h.swing>0){                                        // 젖힘 → 파고듦 → 베기 → 마무리 → 자세복귀
+      const c=h.swBig?'big':'atk', n=this.n(c);
+      return [c, Math.min(n-1, Math.floor(Math.min(0.999,1-h.swing)*n))];
+    }
+    if(W.running) return ['run',Math.floor(h.run*7.5)%this.n('run')];
+    return ['idle',Math.floor(W.t*2.6)%this.n('idle')];   // 숨쉬는 기본 자세
   },
   draw(h){
     const pk=this.pick(h), arr=this.F[pk[0]];
@@ -1100,7 +1104,7 @@ const MobSpr={
       fetch(av('assets/sprites/mob_'+id+'.json')).then(r=>r.json()).then(j=>{
         const im=new Image();
         im.onload=()=>{ this.data[id]={img:im,F:j.frames,sc:j.scale||2,ref:j.ref||30}; };
-        im.src=av('assets/sprites/mob_')+id+'.png';
+        im.src=av('assets/sprites/mob_'+id+'.png');
       }).catch(()=>{});
       return null;
     }
@@ -1139,7 +1143,7 @@ const BgSpr={
       this.imgs[k]=null;
       const im=new Image();
       im.onload=()=>{ this.imgs[k]=im; };
-      im.src=av('assets/sprites/bg_')+kind+idx+'.png';
+      im.src=av('assets/sprites/bg_'+kind+idx+'.png');
       return null;
     }
     return v;
@@ -1677,7 +1681,8 @@ function skillFx(i,k){ // 버프형은 주인공 위, 공격형은 앞쪽에
   const y=W.G-(k.buff?46:34);
   W.fx.push({type:'skfx',n:'k'+i,x,y,t:0,dur:0.42,sz:k.aoe?1.1:0.9});
 }
-const SLASH_KINDS=['diag','cross','claw','spin']; // 회심타 전용 — 평타는 항상 작은 호
+const SLASH_KINDS=['diag','cross','claw','spin'];   // 회심타 — 크고 화려하게
+const CUT_KINDS=['cut0','cut1','cut2','cut3'];      // 평타 — 얇고 길게, 칼질로 읽히게
 function slashFx(x,y,ang,col,kind,sz){
   W.slashes.push({x,y,ang,t:0,col:col||'255,244,214',
     kind:kind||SLASH_KINDS[(W.slashN=(W.slashN||0)+1)%SLASH_KINDS.length], sz:sz||1});
@@ -1705,8 +1710,8 @@ function hitEnemy(e,dmg,opt){
   else snd('hit',pan);
   // 평타는 작은 호 하나로 '칼질'처럼, 회심타에만 큰 에너지 궤적을 쓴다.
   // 매 타격마다 십자·연격 같은 큰 궤적을 쓰면 번개가 계속 치는 것처럼 보인다.
-  if(!opt.noSlash) slashFx(ex-8,ey,-0.55+(Math.random()-.5)*0.3,slashCol(),
-    crit?null:'arc', crit?1.0:0.62); // 위에서 아래로 베는 각도로 통일
+  if(!opt.noSlash) slashFx(ex-8,ey,-0.55+(Math.random()-.5)*0.25,slashCol(),
+    crit?null:CUT_KINDS[(W.cutN=(W.cutN||0)+1)%CUT_KINDS.length], crit?1.0:0.9);
   if(opt.freeze) e.frozen=Math.max(e.frozen,opt.freeze);
   if(e.hp<=0) killEnemy(e);
 }
