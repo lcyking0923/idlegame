@@ -277,6 +277,21 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .lvbtn.rdy{animation:lvpulse 1.1s ease-in-out infinite}
 .lvbtn.off{filter:grayscale(.75);opacity:.55;pointer-events:none;box-shadow:0 3px 0 #6B6B5E}
 @keyframes lvpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+/* 비급 · 스킬 상세 */
+.mastrow{display:flex;align-items:center;gap:8px}
+.mastrow .mid{flex:1;min-width:0}
+.cardhold{display:flex;flex-wrap:wrap;gap:3px;justify-content:flex-end}
+.cardhold.mid2{justify-content:center;margin-bottom:6px}
+.cchip{font-size:9px;font-weight:700;border-radius:6px;padding:2px 6px;
+  background:var(--ink3);border:1px solid var(--brown2)}
+.cchip b{font-variant-numeric:tabular-nums}
+.skdet{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.skdet .ico.big{width:54px;height:54px;flex:none;border-radius:11px;background:var(--ink3);
+  border:1px solid var(--gold2);display:flex;align-items:center;justify-content:center}
+.skdet .mid{flex:1;min-width:0}
+.autotgl{flex:none;padding:5px 10px;border-radius:8px;font-size:10px;font-weight:800;
+  background:var(--ink3);color:#8F7C5C;border:1px solid var(--brown2)}
+.autotgl.on{background:linear-gradient(#8FE3A8,#4FBE79);color:#12301E;border-color:#2E8B57}
 /* 동료 상세 */
 .cdhead{text-align:center;margin:2px 0 8px}
 .cdhead .cdname{display:inline-block;background:var(--ink3);color:var(--goldL);
@@ -1595,6 +1610,32 @@ const DG_MOB={ gold:['imp','#E8B84A','#A87E1E','금괴 요괴',30],
                rift:['und','#5A4A8A','#2E2450','심연 요괴',30] };
 /* 보패(寶貝) — 참고 게임의 '유물'에 해당. 확률형 강화라 실패가 있다.
    레벨이 오를수록 성공 확률이 떨어져, 고레벨은 실패를 감수하고 올려야 한다. */
+/* 비급(祕笈) — 참고 게임의 '스킬카드'. 기술을 배우고 합성하는 재료.
+   기술 소환에서 나오고, 보스를 잡을 때도 낮은 확률로 떨어진다. */
+const CARD_N=['민급','희귀','영웅','전설'];
+function cardN(r){ return S.cards[r]||0; }
+function addCard(r,n){ S.cards[r]=cardN(r)+(n||1); }
+function learnCost(i){ // 기술 등급에 맞는 비급 장수
+  return {r:SKILLS[i].r, n:[3,3,2,2][SKILLS[i].r], gold:Math.floor(2000*Math.pow(6,SKILLS[i].r))};
+}
+function canLearn(i){
+  if(S.skills[i]) return false;
+  const c=learnCost(i);
+  return cardN(c.r)>=c.n && S.gold>=c.gold;
+}
+function learnSkill(i){
+  if(!canLearn(i)) return;
+  const c=learnCost(i);
+  S.cards[c.r]-=c.n; S.gold-=c.gold; S.skills[i]=1;
+  snd('reward'); toast('비급을 익혔소 — '+SKILLS[i].n);
+  skillLearnModal(); buildSkill(); updateHeader();
+}
+function fuseCard(r){ // 같은 등급 5장 → 상위 1장
+  if(r>=3||cardN(r)<5) return;
+  S.cards[r]-=5; addCard(r+1,1);
+  snd('reward'); toast(CARD_N[r]+' 비급 5장 → '+CARD_N[r+1]+' 1장');
+  cardFuseModal(); updateHeader();
+}
 /* 동료 패시브 — 참고 게임의 동료 상세 PASSIVE 3종에 해당.
    동료마다 성격에 맞는 보정을 주고, 냥+옥으로 따로 강화한다. */
 const COMP_JOB=['신궁','역사','장사치','도인'];
@@ -1728,6 +1769,7 @@ function freshState(){
     shopView:'sum', charView:0,
     weapons:{0:1}, wEq:0,
     spirits:{}, spEq:-1, relics:{}, equipView:0, compP:{}, compO:{}, compView:0, compSel:0, seen:{},
+    cards:{0:0,1:0,2:0,3:0}, skAuto:{},
     skills:{0:1}, skEq:[0,-1,-1,-1,-1,-1,-1,-1],
     aw:{atk:0,hp:0,critd:0,skill:0,gold:0},
     rebirths:0, dao:0, tr:{atk:0,hp:0,gold:0,skill:0},
@@ -1998,6 +2040,8 @@ function killEnemy(e){
     bossVictoryFx(e.x,W.G-e.size*0.6,e.nm,first?S.stage:0);
     if(first){
       S.maxClear=S.stage; S.jade+=5;
+      if(Math.random()<0.35){ const r=Math.random()<0.08?2:(Math.random()<0.3?1:0);
+        addCard(r,1); toast('📜 '+CARD_N[r]+' 비급을 얻었소'); }
       if(rankGateOk()) dmgText(W.w/2,150,'🏯 승급전 개방! 모험 탭에서 도전','#FF9A66',true);
     }
     S.stage=Math.min(S.stage+1,S.maxClear+1); S.kills=0;
@@ -2108,6 +2152,7 @@ function update(dt){
       for(let s=0;s<8;s++){
         const si=S.skEq[s];
         if(si<0||W.skCd[si]>0) continue;
+        if(S.skAuto[si]===0) continue;   // 상세에서 AUTO를 끈 기술은 자동으로 안 나간다
         const c=SK_COST[SKILLS[si].r];
         if(c>bestCost){ bestCost=c; best=si; }
       }
@@ -3361,7 +3406,18 @@ function buildSkill(){
     }
     h+='</div>';
   }
-  h+=`<div class="demo-note">스킬 숙련도 ${skillMastery()}단 (총 스킬 레벨 20마다 +1 — 전 스킬 피해 +5%) · 내공 소모: 민급 18 ~ 전설 38</div>`;
+  h+=`<div class="card mastrow">
+    <div class="mid">
+      <div class="nm">스킬 숙련도 <span class="lv">${skillMastery()}단</span></div>
+      <div class="sub">총 스킬 레벨 20마다 +1 · 전 기술 피해 +${skillMastery()*5}%</div>
+    </div>
+    <div class="cardhold">${CARD_N.map((nm,r)=>
+      `<span class="cchip rar${r}">${nm} <b>${cardN(r)}</b></span>`).join('')}</div>
+  </div>`;
+  h+=`<div class="togglebar">
+    <button data-a="cardfuse">비급 합성</button>
+    <button data-a="skilllearn">기술 배우기</button>
+  </div>`;
   h+='<div class="sect">보유 기술</div>';
   SKILLS.forEach((k,i)=>{
     const lv=S.skills[i]||0;
@@ -3375,10 +3431,84 @@ function buildSkill(){
         <div class="vv">${lv>0?(k.buff?(k.buff==='atk'?'공격 +'+(aw?35:25)+'% '+k.bd+'초':'공속 +'+(aw?60:40)+'% '+k.bd+'초'):'피해 '+Math.round(skillMult(i)*100)+'%'+(k.hits>1?' ×'+(i===0&&aw?5:k.hits):'')+(k.aoe?' · 전체':'')):'미보유 — 기술 소환으로 획득'}</div>
         <div class="sub">${k.d} · 재사용 ${k.cd}초 · 내공 ${SK_COST[k.r]}</div>
       </div>
-      ${canAw?`<button class="btn red" data-a="awsk" data-i="${i}" style="width:88px;flex:none ${S.seok<15?'':''}">${'각성'}<b>영석 15</b></button>`:(aw?'<span class="badge-done">각성</span>':'')}
+      ${canAw?`<button class="btn red" data-a="awsk" data-i="${i}" style="width:88px;flex:none">${'각성'}<b>영석 15</b></button>`
+        :(aw?'<span class="badge-done">각성</span>'
+            :(lv>0?`<button class="btn" data-a="skdet" data-i="${i}" style="width:74px;flex:none">자세히</button>`:''))}
     </div>`;
   });
   $('tab-skill').innerHTML=h;
+}
+/* 기술 상세 — 참고 게임의 스킬 팝업 (AUTO 토글 · 강화 · 슬롯 장착) */
+function skillDetail(i){
+  const k=SKILLS[i], lv=S.skills[i]||0, aw=!!S.skAw[i];
+  if(!lv) return;
+  const auto=S.skAuto[i]!==0;
+  showModal(`
+    <div class="skdet">
+      <div class="ico big">${ic('k',i,k.e)}</div>
+      <div class="mid">
+        <div class="nm">[${RAR4[k.r].n}] ${aw?SK_AW_NAME[i]:k.n}
+          <span class="lv">Lv.${lv}</span></div>
+        <div class="sub">${k.d}</div>
+      </div>
+      <button class="autotgl ${auto?'on':''}" data-a="skauto" data-i="${i}">AUTO</button>
+    </div>
+    <div class="card" style="text-align:center">
+      ${k.buff
+        ? (k.buff==='atk'?'공격력 +'+(aw?35:25)+'% · '+k.bd+'초':'공격 속도 +'+(aw?60:40)+'% · '+k.bd+'초')
+        : '적'+(k.aoe?' 전체':' 1체')+'에게 공격력의 <b>'+Math.round(skillMult(i)*100)+'%</b>로 '+(k.hits>1?k.hits+'회':'1회')+' 공격'}
+    </div>
+    <div class="kv2">
+      <span class="k">재사용 대기</span><span class="v">${k.cd}초</span>
+      <span class="k">내공 소모</span><span class="v">${SK_COST[k.r]}</span>
+      <span class="k">속성</span><span class="v">${k.el?ELS[k.el].e+ELS[k.el].n:'무속성'}</span>
+    </div>
+    <button class="btn wide" data-a="skslotpick" data-i="${i}">슬롯에 장착</button>
+    <button class="btn wide" data-a="close">닫기</button>`);
+}
+function skillLearnModal(){
+  let h='<h2>기술 배우기</h2><p class="small" style="text-align:center">비급과 냥으로 새 기술을 익히오</p>';
+  h+=`<div class="cardhold mid2">${CARD_N.map((nm,r)=>
+    `<span class="cchip rar${r}">${nm} <b>${cardN(r)}</b></span>`).join('')}</div>`;
+  let any=false;
+  SKILLS.forEach((k,i)=>{
+    if(S.skills[i]) return;
+    any=true;
+    const c=learnCost(i), ok=canLearn(i);
+    h+=`<div class="card strow">
+      <div class="ico">${ic('k',i,k.e)}</div>
+      <div class="mid">
+        <div class="nm">[${RAR4[k.r].n}] ${k.n}</div>
+        <div class="sub">${k.d}</div>
+        <div class="vv"><b class="${cardN(c.r)>=c.n?'nx':''}">${CARD_N[c.r]} 비급 ${cardN(c.r)}/${c.n}</b>
+          <span class="arw">·</span><b class="${S.gold>=c.gold?'nx':''}">${fmt(c.gold)}냥</b></div>
+      </div>
+      <button class="btn ${ok?'':'off'}" data-a="learnsk" data-i="${i}">배우기</button>
+    </div>`;
+  });
+  if(!any) h+='<p class="demo-note">모든 기술을 익혔소.</p>';
+  h+='<button class="btn wide" data-a="close">닫기</button>';
+  showModal(h);
+}
+function cardFuseModal(){
+  let h='<h2>비급 합성</h2><p class="small" style="text-align:center">같은 등급 5장을 모아 윗 등급 1장으로</p>';
+  CARD_N.forEach((nm,r)=>{
+    if(r>=3){
+      h+=`<div class="card strow"><div class="mid"><div class="nm rar3">${nm} 비급</div>
+        <div class="sub">보유 ${cardN(r)}장 — 최상위</div></div></div>`;
+      return;
+    }
+    const n5c=cardN(r);
+    h+=`<div class="card strow">
+      <div class="mid">
+        <div class="nm rar${r}">${nm} 비급<span class="lv">${n5c}장</span></div>
+        <div class="vv"><b>${nm} 5장</b><span class="arw">→</span><b class="nx">${CARD_N[r+1]} 1장</b></div>
+      </div>
+      <button class="btn ${n5c>=5?'':'off'}" data-a="fusecard" data-i="${r}">합성</button>
+    </div>`;
+  });
+  h+='<button class="btn wide" data-a="close">닫기</button>';
+  showModal(h);
 }
 function slotTap(slot){
   // 슬롯을 누르면 바로 쓴다. 빈 슬롯일 때만 장착창을 연다.
@@ -3729,6 +3859,7 @@ function pull(kind,times){
       const pool=SKILLS.map((k,i)=>({k,i})).filter(o=>o.k.r===r);
       const pk=pool[Math.floor(Math.random()*pool.length)];
       S.skills[pk.i]=(S.skills[pk.i]||0)+1;
+      addCard(r,1);   // 비급도 함께 — 배우기·합성 재료
       results.push({e:pk.k.e,n:pk.k.n,rr:r===3?4:r===2?3:r,rn:RAR4[r].n});
     }else if(kind==='ac'){
       const r=rollRar(RAR4);
@@ -4668,6 +4799,14 @@ function act(a,i){
     case 'levelup': levelUp(); break;
     case 'eqview': S.equipView=+i; buildEquip(); break;
     case 'compdet': compDetail(+i,0); break;
+    case 'skdet': skillDetail(+i); break;
+    case 'skauto': S.skAuto[+i]=(S.skAuto[+i]===0?1:0); skillDetail(+i); break;
+    case 'skslotpick': { const fi=S.skEq.findIndex((v,k)=>v<0&&!(SLOT_GATES[k]>0&&S.maxClear<SLOT_GATES[k]));
+      if(fi<0){ toast('빈 슬롯이 없소'); } else { equipSkill(fi,+i); closeModal(); } } break;
+    case 'skilllearn': skillLearnModal(); break;
+    case 'learnsk': learnSkill(+i); break;
+    case 'cardfuse': cardFuseModal(); break;
+    case 'fusecard': fuseCard(+i); break;
     case 'compview': compDetail(null,+i); break;
     case 'cpup': { const [a2,b2]=i.split('_').map(Number); cpUp(a2,b2); } break;
     case 'coopen': { const [a3,b3]=i.split('_').map(Number); coOpen(a3,b3); } break;
