@@ -330,6 +330,7 @@ textarea.io{width:100%;height:90px;font-size:11px;border:1px solid var(--line);b
 /* ── 타이틀 화면 ── */
 #titleScr{position:fixed;inset:0;margin:0 auto;max-width:430px;z-index:45;overflow:hidden;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  padding-bottom:14vh;
   background:#0D0A16 url(assets/sprites/splash.png?v=20260822d) center/cover no-repeat;
   transition:opacity .55s ease}
 /* 스플래시 원화를 깔았으므로 절차 생성 달·능선은 감춘다 */
@@ -339,7 +340,7 @@ textarea.io{width:100%;height:90px;font-size:11px;border:1px solid var(--line);b
   background:linear-gradient(rgba(13,10,22,0) 0%,rgba(13,10,22,.55) 34%,rgba(13,10,22,.9) 68%,rgba(13,10,22,.98) 100%)}
 #titleScr>*{position:relative;z-index:1}
 /* 제목 판 뒤에 엠블럼 */
-.temblem{width:min(94%,392px);aspect-ratio:760/433;margin-bottom:-118px;
+.temblem{position:relative;width:min(94%,392px);aspect-ratio:760/433;margin:0;
   background:url(assets/sprites/emblem.png?v=20260822d) center/contain no-repeat;
   filter:drop-shadow(0 6px 16px rgba(0,0,0,.6))}
 /* 제목판이 엠블럼 안쪽 판에 얹히도록 — 엠블럼은 가운데가 비어 있다 */
@@ -355,7 +356,13 @@ textarea.io{width:100%;height:90px;font-size:11px;border:1px solid var(--line);b
 .cutscene{width:100%;aspect-ratio:3/2;border-radius:10px;margin-bottom:8px;
   background-size:cover;background-position:center;background-color:#120E1C;
   border:1.5px solid var(--brown2);box-shadow:inset 0 -28px 34px -18px rgba(10,8,16,.95)}
-#titleScr .tboard{background:transparent;border:0;box-shadow:none;padding-top:0}
+/* 제목은 엠블럼 판 안쪽(이미지 기준 가로 8.8~92.2% · 세로 41.3~62.6%)에 그대로 얹는다.
+   바깥 여백으로 맞추면 레이아웃이 바뀔 때마다 어긋나므로 절대 배치로 고정. */
+#titleScr .temblem .tboard{position:absolute;left:8.8%;top:41.3%;width:83.4%;height:21.3%;
+  margin:0;padding:0;background:transparent;border:0;box-shadow:none;
+  display:flex;align-items:center;justify-content:center;
+  white-space:nowrap;letter-spacing:2px;line-height:1;
+  font-size:clamp(19px,7.4vw,32px)}
 #titleScr .tboard small{color:#E8C98A}
 #titleScr.hide{opacity:0;pointer-events:none}
 #titleScr .tmoon{position:absolute;top:9%;right:14%;width:52px;height:52px;border-radius:50%;
@@ -454,7 +461,7 @@ textarea.io{width:100%;height:90px;font-size:11px;border:1px solid var(--line);b
   </nav>
 </div>
 <div id="titleScr">
-  <div class="temblem"></div>
+  <div class="temblem"><div class="tboard">조선검객 키우기</div></div>
   <div class="tmoon"></div>
   <svg class="tridge" viewBox="0 0 430 150" preserveAspectRatio="none" aria-hidden="true">
     <path d="M0,150 L0,96 Q60,58 120,84 Q180,108 240,72 Q310,36 370,74 Q405,94 430,86 L430,150 Z" fill="#171226"></path>
@@ -465,7 +472,6 @@ textarea.io{width:100%;height:90px;font-size:11px;border:1px solid var(--line);b
   <span class="wisp" style="left:55%;animation-duration:12s;animation-delay:6s"></span>
   <span class="wisp" style="left:73%;animation-duration:16s;animation-delay:1.5s"></span>
   <span class="wisp" style="left:88%;animation-duration:13s;animation-delay:8s"></span>
-  <div class="tboard">조선검객 키우기<small>朝鮮劍客 · 妖怪錄</small></div>
   <div class="ttag">검 한 자루로, 조선 팔도의 요괴를 벤다</div>
   <div id="tsBody"></div>
   <div class="tver">v3.4 데모 빌드 · 자동 저장</div>
