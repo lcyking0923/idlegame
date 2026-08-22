@@ -255,6 +255,17 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .rel{border-radius:10px;padding:6px 3px 5px;text-align:center;background:linear-gradient(#FBF3DC,#EFE0BC);
   border:2px solid var(--line);min-height:72px;position:relative}
 .rel .e{font-size:21px;line-height:1.2}
+/* 좌측 세로 배너 — 참고 게임의 HOT TIME · EVENT 자리 */
+#sideBanner{position:absolute;left:0;top:44px;z-index:6;display:flex;flex-direction:column;gap:5px}
+.sbn{padding:4px 9px 4px 6px;border-radius:0 12px 12px 0;font-size:8.5px;font-weight:800;
+  line-height:1.15;letter-spacing:.5px;text-align:left;color:#FFE9B8;
+  border:1px solid rgba(255,233,184,.35);border-left:0;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+.sbn b{display:block;font-size:10px}
+.sbn.hot{background:linear-gradient(90deg,#7A2A18,#C24A28)}
+.sbn.evt{background:linear-gradient(90deg,#1E3A6E,#3A6EC2);animation:evtblink 2.2s ease-in-out infinite}
+@keyframes evtblink{0%,100%{filter:brightness(1)}50%{filter:brightness(1.35)}}
+/* 상단 초상 — 주인공 원화의 얼굴 부분만 잘라 쓴다 */
+.profile .pface{background-size:cover;background-position:50% 8%;border-radius:7px}
 /* 레벨업 줄 — 참고 게임처럼 큰 초록 버튼을 상시 노출 */
 .lvrow{display:flex;align-items:center;gap:10px}
 .lvrow .lvmid{flex:1;min-width:0}
@@ -421,7 +432,7 @@ textarea.io{width:100%;height:90px;font-size:11px;border:1px solid var(--line);b
     <div class="danchong"></div>
     <div class="hrow1">
       <button class="profile" data-a="statsmodal">
-        <span class="pface">⚔️</span><span class="plv" id="pLv">Lv.1</span>
+        <span class="pface" id="pFace"></span><span class="plv" id="pLv">Lv.1</span>
       </button>
       <div class="pnamew">
         <div class="pname" id="pName">무명 검객</div>
@@ -446,6 +457,10 @@ textarea.io{width:100%;height:90px;font-size:11px;border:1px solid var(--line);b
     <button id="autoBossBtn" data-a="autoboss">자동도전 켬</button>
     <div id="bossHud" hidden><div class="bn" id="bossNm"></div><div class="bar"><div class="fill" id="bossFill"></div></div><div class="bt" id="bossTm"></div></div>
     <button id="adBoostBtn" data-a="adbuffs"><span class="big">📺</span>광고 아이템</button>
+    <div id="sideBanner">
+      <button class="sbn hot" data-a="adbuffs"><b>HOT</b>TIME</button>
+      <button class="sbn evt" data-a="questmodal"><b>EVENT</b></button>
+    </div>
     <button id="questBtn" data-a="questmodal">👑<span class="dot" id="dot-quest"></span></button>
     <button id="mailBtn" data-a="mailmodal">📬<span class="dot" id="dot-mail"></span></button>
     <div id="chips"></div>
@@ -1392,6 +1407,8 @@ const SpSpr={
   },
 };
 function paintFixedIcons(){ // 상단 재화처럼 HTML에 고정된 자리
+  const pf=document.getElementById('pFace');
+  if(pf) pf.style.backgroundImage='url('+av('assets/sprites/por_hero.png')+')';
   document.querySelectorAll('.coin').forEach(e=>{ e.innerHTML=ic('c',0,''); e.classList.add('asicon'); });
   document.querySelectorAll('.jadeic').forEach(e=>{ e.innerHTML=ic('c',1,''); e.classList.add('asicon'); });
 }
@@ -1784,8 +1801,10 @@ function spawnPack(){
   const n=curStageN(), ch=chapterOf(W.mode==='dungeon'?S.stage:n);
   const dgm=(W.mode==='dungeon'&&W.dg)?DG_MOB[W.dg.id]:null; // 던전은 전용 몬스터
   let cnt=1;
-  if(n>3&&Math.random()<0.5) cnt++;
-  if(n>8&&Math.random()<0.4) cnt++;
+  if(n>3&&Math.random()<0.55) cnt++;
+  if(n>8&&Math.random()<0.5) cnt++;
+  if(n>15&&Math.random()<0.45) cnt++;   // 층이 오를수록 더 몰려나온다
+  if(n>25&&Math.random()<0.4) cnt++;
   for(let i=0;i<cnt;i++){
     const m=dgm||ch.mobs[Math.floor(Math.random()*ch.mobs.length)];
     spawnEnemy(m,false,W.w+50+i*52,n);
@@ -1811,9 +1830,11 @@ function startBoss(){
   updateSceneUI();
 }
 function frontEnemy(){ return W.enemies.find(e=>e.state!=='die'); }
-function engageX(idx,e){ return W.hero.x+(e&&e.boss?80:56)+idx*42; }
+function engageX(idx,e){ return W.hero.x+(e&&e.boss?80:52)+idx*38; } // 5마리까지 화면에 들어오도록 간격 축소
 function dmgText(x,y,txt,color,big){
-  W.dmgs.push({x,y,txt,color:color||'#FFE9B8',t:0,big:!!big,vx:(Math.random()-0.5)*22});
+  // 큰 타격은 화면 가운데 쪽에서 크게 터지도록 x를 중앙으로 당긴다
+  const px=big? W.w*0.5+(Math.random()-0.5)*40 : x;
+  W.dmgs.push({x:px,y,txt,color:color||'#FFE9B8',t:0,big:!!big,vx:(Math.random()-0.5)*(big?8:22)});
   if(W.dmgs.length>44) W.dmgs.shift();
 }
 function burst(x,y,color,n){
@@ -1859,7 +1880,7 @@ function hitEnemy(e,dmg,opt){
   e.hp-=d; e.hitF=1;
   const ex=e.x, ey=W.G-e.size*0.7;
   const tag=elm>=2?'약점! ':(crit?'회심! ':'');
-  const col=elm>=2?'#FFD24A':(elm<1?'#9FB2C4':(crit?'#FF8A5C':'#FFF2CC'));
+  const col=elm>=2?'#FFD24A':(elm<1?'#9FB2C4':(crit?'#FF4A3A':'#FFF2CC'));
   dmgText(ex+(Math.random()-.5)*22,ey-14,tag+fmt(d),col,crit||elm>=2);
   burst(ex,ey,crit?'#FF9A66':'#F2CE7B',crit?9:4);
   const pan=(e.x/W.w-0.5)*0.7;
@@ -2507,11 +2528,23 @@ function draw(){
   // 데미지 숫자 (팝 이징)
   for(const d of W.dmgs){
     const a=Math.max(0,1-d.t/0.95);
-    const sc=d.t<0.12?0.6+d.t/0.12*0.55:(d.t<0.25?1.15-(d.t-0.12)/0.13*0.15:1);
-    cx.save(); cx.translate(d.x,d.y); cx.scale(sc,sc); cx.globalAlpha=a;
-    cx.font=(d.big?'bold 18px ':'bold 13px ')+'"Malgun Gothic",sans-serif';
-    cx.strokeStyle='rgba(0,0,0,.75)'; cx.lineWidth=3; cx.strokeText(d.txt,-20,0);
-    cx.fillStyle=d.color; cx.fillText(d.txt,-20,0);
+    // 튀어올랐다 가라앉는 탄성 — 큰 타격일수록 크게 부푼다
+    const pop=d.t<0.1?0.55+d.t/0.1*0.75:(d.t<0.24?1.3-(d.t-0.1)/0.14*0.3:1);
+    cx.save(); cx.translate(d.x,d.y); cx.globalAlpha=a;
+    let px=d.big?34:17;                       // 기본 글자 크기
+    cx.font='900 '+px+'px "Malgun Gothic",sans-serif';
+    let tw=cx.measureText(d.txt).width;
+    const cap=W.w*(d.big?0.92:0.55);          // 큰 타격은 화면 폭의 92%까지 차오른다
+    const fit=Math.min(1,cap/Math.max(1,tw));
+    cx.scale(pop*fit,pop*fit); tw=tw;
+    cx.lineJoin='round';
+    cx.strokeStyle='rgba(0,0,0,.9)'; cx.lineWidth=d.big?7:4.5;
+    cx.strokeText(d.txt,-tw/2,0);
+    if(d.big){                                 // 붉은 테두리 한 겹 더 (참고 게임 느낌)
+      cx.strokeStyle='rgba(150,20,14,.95)'; cx.lineWidth=3.5;
+      cx.strokeText(d.txt,-tw/2,0);
+    }
+    cx.fillStyle=d.color; cx.fillText(d.txt,-tw/2,0);
     cx.restore();
   }
   cx.globalAlpha=1;
@@ -2793,8 +2826,8 @@ function drawHero(h){
 }
 /* ── 몬스터: 종족별 벡터 ── */
 function drawMonster(e){
-  const sl=Math.min(e.slot||0,2), dep=1-sl*0.09;
-  const G=W.G-sl*9; // 뒤쪽 슬롯은 위로+작게 (2.5D 깊이)
+  const sl=Math.min(e.slot||0,4), dep=1-sl*0.06;
+  const G=W.G-sl*6; // 뒤쪽 슬롯은 위로+작게 (2.5D 깊이)
   const SZ=e.size*dep;
   const dieP=e.state==='die'?1-e.dieT/0.45:0;
   const bob=e.state==='die'?0:Math.sin(W.t*5+e.bob)*3;
@@ -2802,7 +2835,7 @@ function drawMonster(e){
   const sq=1+Math.sin(W.t*6+e.bob)*0.035+e.hitF*0.16;
   const x=e.x-lung, s=SZ/32, yb=G+bob*0.4;
   cx.save();
-  if(sl>0) cx.globalAlpha=1-sl*0.13; // 원근 감쇠
+  if(sl>0) cx.globalAlpha=1-sl*0.085; // 원근 감쇠
   if(e.state==='die'){ cx.globalAlpha=1-dieP;
     cx.translate(x,yb-14*s); cx.rotate(dieP*1.3); cx.scale(1+dieP*0.35,1-dieP*0.5); cx.translate(-x,-(yb-14*s)); }
   // 그림자 (부드러운 라디얼)
