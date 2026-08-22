@@ -1967,6 +1967,11 @@ function update(dt){
   if(front&&front.state==='fight'&&h.dead<=0){
     h.atkT-=dt;
     if(h.atkT<=0){ h.atkT=1/heroAps(); h.swing=1; h.swBig=0; hitEnemy(front,heroAtk()); }
+  }
+  // 기술은 '맞붙기 전'에도 쓴다.
+  // 예전엔 교전 중일 때만 시전했는데, 층이 낮아 적이 걸어오다 죽으면 교전 자체가
+  // 성립하지 않아 오토를 켜도 기술이 한 번도 안 나갔다.
+  if(h.dead<=0&&front){
     if(S.autoSkill){
       // 준비된 기술 중 '가장 비싼 것'을 먼저 시전한다.
       // 내공 회복(12/초)보다 전체 소모가 크면, 값싸고 재사용이 빠른 기술이 내공을
@@ -2066,7 +2071,7 @@ function castSkill(i){
   const k=SKILLS[i];
   const cost=SK_COST[k.r];
   if(W.mana<cost) return; // 내공 부족 — 회복 후 자동 재시전
-  if(!k.buff&&(!front||front.state!=='fight')) return; // 공격 기술은 교전 중에만
+  if(!k.buff&&!front) return; // 공격 기술은 적이 있을 때. 걸어오는 중이어도 맞힌다
   skillFx(i,k); // 기술별 원화 이펙트 (실제로 나갈 때만)
   if(k.buff){
     W.mana-=cost;
@@ -3238,10 +3243,7 @@ function slotTap(slot){
   if(W.skCd[si]>0.05){ toast('⏳ '+SKILLS[si].n+' 재사용까지 '+W.skCd[si].toFixed(1)+'초'); return; }
   const k=SKILLS[si];
   if(W.mana<SK_COST[k.r]){ toast('💠 내공이 모자라오 ('+Math.floor(W.mana)+'/'+SK_COST[k.r]+')'); return; }
-  if(!k.buff){
-    const f=frontEnemy();
-    if(!f||f.state!=='fight'){ toast('⚔️ 적과 맞붙어야 쓸 수 있소'); return; }
-  }
+  if(!k.buff&&!frontEnemy()){ toast('⚔️ 벨 적이 없소'); return; }
   castSkill(si);
 }
 function slotPick(slot){
