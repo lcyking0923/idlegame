@@ -242,6 +242,10 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
   background-position:calc(var(--s)*var(--cx)*-1) calc(var(--s)*var(--cy)*-1)}
 .rel .e .ic{--s:40px}
 .slot .ic{--s:30px}
+.asicon{background:none!important;border:none!important;box-shadow:none!important;transform:none!important;
+  width:auto!important;height:auto!important;border-radius:0!important}
+.coin .ic{--s:18px}
+.jadeic .ic{--s:17px}
 .skslot .ic{--s:26px}
 .btn .ic{--s:20px}
 .strow .ico .ic{--s:38px}
@@ -1167,8 +1171,34 @@ function chapterIdx(n){ return (Math.floor((n-1)/10)%CH.length)+1; }
 let ICONS=null;
 fetch('assets/sprites/icons.json').then(r=>r.json()).then(j=>{
   ICONS=j;
+  try{ paintFixedIcons(); }catch(e){}
   try{ if(typeof activeTab!=='undefined') switchTab(activeTab); }catch(e){} // 로드 후 열려 있던 탭 다시 그리기
 }).catch(()=>{});
+/* ═══ 수호 영물 인게임 스프라이트 (assets/sprites/spirits.png)
+   원화가 있는 영물만 교체하고, 없는 것(두꺼비·청설모·현무)은 기존 벡터로 남는다 ═══ */
+const SpSpr={
+  img:null, F:null, sc:2,
+  load(){
+    fetch('assets/sprites/spirits.json').then(r=>r.json()).then(j=>{
+      const im=new Image();
+      im.onload=()=>{ this.img=im; this.F=j.frames; this.sc=j.scale||2; };
+      im.src='assets/sprites/spirits.png';
+    }).catch(()=>{});
+  },
+  draw(idx,x,y,scale){ // 중심 기준으로 그린다 (영물은 공중에 떠 있다)
+    if(!this.img||!this.F) return false;
+    const arr=this.F[idx]; if(!arr) return false;
+    const f=arr[Math.floor(W.t*7)%arr.length];
+    const sc=scale/this.sc;
+    cx.drawImage(this.img,f.x,f.y,f.w,f.h,
+      Math.round(x-f.w*sc/2), Math.round(y-f.h*sc/2), f.w*sc, f.h*sc);
+    return true;
+  },
+};
+function paintFixedIcons(){ // 상단 재화처럼 HTML에 고정된 자리
+  document.querySelectorAll('.coin').forEach(e=>{ e.innerHTML=ic('c',0,''); e.classList.add('asicon'); });
+  document.querySelectorAll('.jadeic').forEach(e=>{ e.innerHTML=ic('c',1,''); e.classList.add('asicon'); });
+}
 function ic(kind,idx,emoji){
   const m=ICONS&&ICONS.map[kind]&&ICONS.map[kind][idx];
   if(!m) return emoji||'';
@@ -2710,6 +2740,7 @@ function drawSpirit(){
     cx.restore();
   }
   const c=sp.c, OUT='#12100C', s=1+SPIRITS[S.spEq].r*0.12;
+  if(SpSpr.draw(S.spEq,sx,sy,s)) return; // 원화가 있으면 그걸로
   cx.save(); cx.strokeStyle=OUT; cx.lineWidth=1.8;
   if(sp.body==='bird'){
     const wf=Math.sin(W.t*14)*5;
@@ -2848,7 +2879,7 @@ function buildStat(){
     `<button data-a="buymode" data-i="${i}" class="${S.buyMode===i?'on':''}">${m}</button>`).join('')+'</div>';
   STATS.forEach((c,i)=>{
     h+=`<div class="card strow">
-      <div class="ico">${c.e}</div>
+      <div class="ico">${ic('t',i,c.e)}</div>
       <div class="mid">
         <div class="nm">${c.n}<span class="lv" id="stlv${i}"></span></div>
         <div class="vv" id="stvv${i}"></div>
@@ -3225,7 +3256,7 @@ function buildAdvent(){
   AWAKEN.forEach((a,i)=>{
     const lv=S.aw[a.id], cost=lv+1;
     h+=`<div class="card strow">
-      <div class="ico">${a.e}</div>
+      <div class="ico">${ic('m',i,a.e)}</div>
       <div class="mid"><div class="nm">${a.n}<span class="lv">${lv}성</span></div><div class="sub">${a.d}</div></div>
       <button class="btn ${S.seok>=cost?'':'off'}" data-a="awaken" data-i="${i}" style="width:88px;flex:none">영석 ${cost}</button>
     </div>`;
@@ -4357,6 +4388,7 @@ window.addEventListener('resize',sizeCanvas);
   SFXF.init(); // 실제 칼소리 파일 로드 시도 (없으면 합성음 폴백)
   HeroSpr.load(); // 주인공 원화 스프라이트 (없으면 벡터 검객 유지)
   BgSpr.load(); BgSpr.loadObj(); // 배경 원화 레이어·구조물·지면
+  SpSpr.load();   // 수호 영물 원화
   renderTitle(); // 타이틀 화면 — 출정 전까지 모달(서장/일일/방치) 대기
   save();
   requestAnimationFrame(frame);
