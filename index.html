@@ -1039,12 +1039,21 @@ const HeroSpr={
    MOB_SPR에 등록된 몬스터만 원화로 그리고, 없는 몬스터는 기존 벡터로 남는다.
    주인공과 같은 방식 — 프레임마다 앵커(ox,oy)를 담아 자세가 달라도 지면선에 붙는다.
    몬스터는 왼쪽을 보므로 좌우 반전 없이 그대로 그린다 ═══ */
-const MOB_SPR={ '애기도깨비':'imp', '처녀귀신':'cheonyeo' };
+const MOB_SPR={ // 이름 → 아틀라스 id (뜨는 몬스터는 lift로 지면에서 띄운다)
+ '애기도깨비':'imp',      '들개귀':'dog',        '물안개혼':'mist',
+ '산돼지귀':'boar',       '흡혈박쥐':{id:'bat',lift:20},  '늑대귀신':'wolf',
+ '집게괴':'crab',         '물괴':{id:'water',lift:6},     '상어귀신':'shark',
+ '너구리귀':'raccoon',    '부엉이귀':{id:'owl',lift:18},  '독버섯귀':'shroom',
+ '해골귀졸':'skel',       '처녀귀신':'cheonyeo', '강시':'jiangshi',
+ '왕도깨비':'impking',    '창귀호랑이':'tiger',  '이무기':'imugi',
+ '구미호':'gumiho',       '저승사자':'reaper',
+};
 const MobSpr={
   data:{},                                   // id → {img,F,sc} (로드 완료분만)
-  want(nm){ return MOB_SPR[nm]||null; },
+  cfg(nm){ const v=MOB_SPR[nm]; return v?(typeof v==='string'?{id:v,lift:0}:v):null; },
   get(nm){
-    const id=this.want(nm); if(!id) return null;
+    const c=this.cfg(nm); if(!c) return null;
+    const id=c.id;
     const d=this.data[id];
     if(d===undefined){                       // 최초 요청 시 1회만 로드 시도
       this.data[id]=null;
@@ -1055,6 +1064,7 @@ const MobSpr={
       }).catch(()=>{});
       return null;
     }
+    if(d) d.lift=c.lift||0;
     return d;
   },
   pick(e,d){ // 상태 → [클립, 프레임]
@@ -1068,6 +1078,7 @@ const MobSpr={
     const pk=this.pick(e,d), arr=d.F[pk[0]]||d.F.walk;
     const f=arr[Math.min(pk[1],arr.length-1)];
     const s=scale/d.sc;
+    if(d.lift&&e.state!=='die') yb-=(d.lift+Math.sin(W.t*4+e.bob)*5)*scale; // 비행: 부양 + 상하 흔들림
     cx.drawImage(d.img,f.x,f.y,f.w,f.h,
       Math.round(x-f.ox*s), Math.round(yb-f.oy*s), f.w*s, f.h*s);
   },
