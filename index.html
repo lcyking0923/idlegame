@@ -236,7 +236,7 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
   border:2px solid var(--line);min-height:72px;position:relative}
 .rel .e{font-size:21px;line-height:1.2}
 /* 아이콘 스프라이트 — 이모지 자리에 원화 아이콘을 넣는다. 파일이 없으면 이모지가 그대로 남는다 */
-.ic{display:inline-block;vertical-align:middle;background-image:url(assets/sprites/icons.png);
+.ic{display:inline-block;vertical-align:middle;background-image:url(assets/sprites/icons.png?v=20260822c);
   background-repeat:no-repeat;image-rendering:auto;width:var(--s);height:var(--s);
   background-size:calc(var(--s)*var(--gc)) calc(var(--s)*var(--gr));
   background-position:calc(var(--s)*var(--cx)*-1) calc(var(--s)*var(--cy)*-1)}
@@ -420,6 +420,9 @@ textarea.io{width:100%;height:90px;font-size:11px;border:1px solid var(--line);b
 <div id="toasts"></div>
 
 <script>
+const ASSET_V='20260822c'; // 에셋 갱신 시 올린다 (브라우저 캐시 무력화)
+function av(u){ return u+'?v='+ASSET_V; }
+
 'use strict';
 /* ═══════════ 유틸 ═══════════ */
 const $=id=>document.getElementById(id);
@@ -983,10 +986,10 @@ const SFXF={
 const HeroSpr={
   img:null, F:null, sc:2, ready:false, tint:{},
   load(){
-    fetch('assets/sprites/hero.json').then(r=>r.json()).then(d=>{
+    fetch(av('assets/sprites/hero.json')).then(r=>r.json()).then(d=>{
       const im=new Image();
       im.onload=()=>{ this.img=im; this.F=d.frames; this.sc=d.scale||2; this.ready=true; };
-      im.src='assets/sprites/hero.png';
+      im.src=av('assets/sprites/hero.png');
     }).catch(()=>{});
   },
   sheet(){
@@ -1083,10 +1086,10 @@ const MobSpr={
     const d=this.data[id];
     if(d===undefined){                       // 최초 요청 시 1회만 로드 시도
       this.data[id]=null;
-      fetch('assets/sprites/mob_'+id+'.json').then(r=>r.json()).then(j=>{
+      fetch(av('assets/sprites/mob_'+id+'.json')).then(r=>r.json()).then(j=>{
         const im=new Image();
         im.onload=()=>{ this.data[id]={img:im,F:j.frames,sc:j.scale||2,ref:j.ref||30}; };
-        im.src='assets/sprites/mob_'+id+'.png';
+        im.src=av('assets/sprites/mob_')+id+'.png';
       }).catch(()=>{});
       return null;
     }
@@ -1116,7 +1119,7 @@ const MobSpr={
 const BgSpr={
   sc:2, imgs:{}, ready:false,
   load(){
-    fetch('assets/sprites/bg.json').then(r=>r.json()).then(j=>{ this.sc=j.scale||2; this.ready=true; })
+    fetch(av('assets/sprites/bg.json')).then(r=>r.json()).then(j=>{ this.sc=j.scale||2; this.ready=true; })
       .catch(()=>{});
   },
   img(kind,idx){
@@ -1125,17 +1128,17 @@ const BgSpr={
       this.imgs[k]=null;
       const im=new Image();
       im.onload=()=>{ this.imgs[k]=im; };
-      im.src='assets/sprites/bg_'+kind+idx+'.png';
+      im.src=av('assets/sprites/bg_')+kind+idx+'.png';
       return null;
     }
     return v;
   },
   objs:null, oimg:null, gimg:null,
   loadObj(){
-    fetch('assets/sprites/bgobj.json').then(r=>r.json()).then(j=>{
+    fetch(av('assets/sprites/bgobj.json')).then(r=>r.json()).then(j=>{
       this.objs=j;
-      const a=new Image(); a.onload=()=>{ this.oimg=a; }; a.src='assets/sprites/bg_obj.png';
-      const b=new Image(); b.onload=()=>{ this.gimg=b; }; b.src='assets/sprites/bg_ground.png';
+      const a=new Image(); a.onload=()=>{ this.oimg=a; }; a.src=av('assets/sprites/bg_obj.png');
+      const b=new Image(); b.onload=()=>{ this.gimg=b; }; b.src=av('assets/sprites/bg_ground.png');
     }).catch(()=>{});
   },
   deco(type,x,scale){ // 배경 구조물 1개 — 밑동이 지면선에 오게
@@ -1169,7 +1172,7 @@ function chapterIdx(n){ return (Math.floor((n-1)/10)%CH.length)+1; }
 /* ═══ 아이템 아이콘 (assets/sprites/icons.png)
    무기 w · 장신구 a · 기술 k · 영물 s. 아직 원화가 없는 항목은 이모지를 그대로 쓴다 ═══ */
 let ICONS=null;
-fetch('assets/sprites/icons.json').then(r=>r.json()).then(j=>{
+fetch(av('assets/sprites/icons.json')).then(r=>r.json()).then(j=>{
   ICONS=j;
   try{ paintFixedIcons(); }catch(e){}
   try{ if(typeof activeTab!=='undefined') switchTab(activeTab); }catch(e){} // 로드 후 열려 있던 탭 다시 그리기
@@ -1179,10 +1182,10 @@ fetch('assets/sprites/icons.json').then(r=>r.json()).then(j=>{
 const Fx={
   img:null, F:null, sc:2,
   load(){
-    fetch('assets/sprites/fx.json').then(r=>r.json()).then(j=>{
+    fetch(av('assets/sprites/fx.json')).then(r=>r.json()).then(j=>{
       const im=new Image();
       im.onload=()=>{ this.img=im; this.F=j.frames; this.sc=j.scale||2; };
-      im.src='assets/sprites/fx.png';
+      im.src=av('assets/sprites/fx.png');
     }).catch(()=>{});
   },
   has(nm){ return !!(this.img&&this.F&&this.F[nm]); },
@@ -1209,10 +1212,10 @@ const Fx={
 const SpSpr={
   img:null, F:null, sc:2,
   load(){
-    fetch('assets/sprites/spirits.json').then(r=>r.json()).then(j=>{
+    fetch(av('assets/sprites/spirits.json')).then(r=>r.json()).then(j=>{
       const im=new Image();
       im.onload=()=>{ this.img=im; this.F=j.frames; this.sc=j.scale||2; };
-      im.src='assets/sprites/spirits.png';
+      im.src=av('assets/sprites/spirits.png');
     }).catch(()=>{});
   },
   draw(idx,x,y,scale){ // 중심 기준으로 그린다 (영물은 공중에 떠 있다)
@@ -1812,14 +1815,18 @@ function update(dt){
     h.atkT-=dt;
     if(h.atkT<=0){ h.atkT=1/heroAps(); h.swing=1; h.swBig=0; hitEnemy(front,heroAtk()); }
     if(S.autoSkill){
-      // 한 프레임에 하나만 시전한다. 준비된 기술을 전부 돌리면 슬롯 앞쪽의
-      // 값싼 기술이 내공을 독차지해서 비싼 기술(뇌격일섬 38)은 영영 못 나간다.
-      // 시작 슬롯을 매 프레임 한 칸씩 돌려 모든 기술에 차례가 가게 한다.
-      const st0=(W.skPick=((W.skPick||0)+1)%8);
-      for(let n=0;n<8;n++){
-        const si=S.skEq[(st0+n)%8];
-        if(si>=0&&W.skCd[si]<=0&&W.mana>=SK_COST[SKILLS[si].r]){ castSkill(si); break; }
+      // 준비된 기술 중 '가장 비싼 것'을 먼저 시전한다.
+      // 내공 회복(12/초)보다 전체 소모가 크면, 값싸고 재사용이 빠른 기술이 내공을
+      // 계속 갉아먹어 비싼 기술(뇌격일섬 38)은 문턱에 닿지도 못하고 영영 못 나간다.
+      // 그래서 비싼 것을 우선하고, 아직 못 사면 이번 판은 참고 내공을 모은다.
+      let best=-1, bestCost=-1;
+      for(let s=0;s<8;s++){
+        const si=S.skEq[s];
+        if(si<0||W.skCd[si]>0) continue;
+        const c=SK_COST[SKILLS[si].r];
+        if(c>bestCost){ bestCost=c; best=si; }
       }
+      if(best>=0&&W.mana>=bestCost) castSkill(best);
     }
   }else{
     h.atkT=0; // 교전 대기 중엔 타이머를 비워 만나는 즉시 첫 타가 나가게 함
@@ -2447,7 +2454,9 @@ function drawHero(h){
     const anim=gold?'auraA_atk':'auraA_aps';   // 애니메이션 시트(있으면)
     const nFr=Fx.count(anim);
     if(nFr){
-      Fx.draw(anim+(Math.floor(W.t*14)%nFr), x+2, G-14, 0.62, 0.9);
+      // 8프레임 순환 — 몸을 감아 도는 링. 두 겹을 다른 속도로 돌려 두께감을 준다
+      Fx.draw(anim+(Math.floor(W.t*13)%nFr), x+2, G-30, 1.0, 0.85);
+      Fx.draw(anim+(Math.floor(W.t*9+nFr/2)%nFr), x+2, G-20, 0.72, 0.5);
     }else{
       // 정지 이미지뿐이면 회전·맥동으로라도 흐르게 보이게 한다
       const base=gold?'aura_atk':'aura_aps';
