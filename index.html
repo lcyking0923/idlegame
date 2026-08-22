@@ -1047,6 +1047,7 @@ const MOB_SPR={ // 이름 → 아틀라스 id (뜨는 몬스터는 lift로 지�
  '해골귀졸':'skel',       '처녀귀신':'cheonyeo', '강시':'jiangshi',
  '왕도깨비':'impking',    '창귀호랑이':'tiger',  '이무기':'imugi',
  '구미호':'gumiho',       '저승사자':'reaper',
+ '금괴 요괴':'goldmob',   '심연 요괴':'riftmob',  '승급 시험관':'examiner',
 };
 const MobSpr={
   data:{},                                   // id → {img,F,sc} (로드 완료분만)
@@ -1088,6 +1089,63 @@ const MobSpr={
       Math.round(x-f.ox*s), Math.round(yb-f.oy*s), f.w*s, f.h*s);
   },
 };
+
+/* ═══ 배경 원화 레이어 (assets/sprites/bg_far*.png, bg_mid*.png)
+   챕터별 원경·중경을 가로로 이어 붙여 패럴랙스로 흘린다.
+   파일이 없거나 아직 안 받아졌으면 기존 절차 생성 능선(drawRidge)이 그대로 나온다 ═══ */
+const BgSpr={
+  sc:2, imgs:{}, ready:false,
+  load(){
+    fetch('assets/sprites/bg.json').then(r=>r.json()).then(j=>{ this.sc=j.scale||2; this.ready=true; })
+      .catch(()=>{});
+  },
+  img(kind,idx){
+    const k=kind+idx, v=this.imgs[k];
+    if(v===undefined){
+      this.imgs[k]=null;
+      const im=new Image();
+      im.onload=()=>{ this.imgs[k]=im; };
+      im.src='assets/sprites/bg_'+kind+idx+'.png';
+      return null;
+    }
+    return v;
+  },
+  objs:null, oimg:null, gimg:null,
+  loadObj(){
+    fetch('assets/sprites/bgobj.json').then(r=>r.json()).then(j=>{
+      this.objs=j;
+      const a=new Image(); a.onload=()=>{ this.oimg=a; }; a.src='assets/sprites/bg_obj.png';
+      const b=new Image(); b.onload=()=>{ this.gimg=b; }; b.src='assets/sprites/bg_ground.png';
+    }).catch(()=>{});
+  },
+  deco(type,x,scale){ // 배경 구조물 1개 — 밑동이 지면선에 오게
+    if(!this.objs||!this.oimg) return false;
+    const f=this.objs.obj[type]; if(!f) return false;
+    const s=scale/this.objs.scale;
+    cx.drawImage(this.oimg,f.x,f.y,f.w,f.h,
+      Math.round(x-f.ox*s), Math.round(W.G-f.oy*s), f.w*s, f.h*s);
+    return true;
+  },
+  ground(idx,topY,speed){ // 지면 텍스처 띠
+    if(!this.objs||!this.gimg) return false;
+    const f=this.objs.ground[String(idx)]; if(!f) return false;
+    const s=this.objs.scale, iw=f.w/s, ih=f.h/s;
+    let x=-mod(W.runX*speed,iw);
+    for(; x<W.w+1; x+=iw) cx.drawImage(this.gimg,f.x,f.y,f.w,f.h,Math.round(x),Math.round(topY),Math.ceil(iw)+1,ih);
+    return true;
+  },
+  layer(kind,idx,speed,baseY,alpha){ // 그렸으면 true
+    if(!this.ready) return false;
+    const im=this.img(kind,idx); if(!im) return false;
+    const iw=im.width/this.sc, ih=im.height/this.sc;
+    if(alpha!=null){ cx.save(); cx.globalAlpha=alpha; }
+    let x=-mod(W.runX*speed,iw);
+    for(; x<W.w+1; x+=iw) cx.drawImage(im,0,0,im.width,im.height,Math.round(x),Math.round(baseY-ih),Math.ceil(iw)+1,ih);
+    if(alpha!=null) cx.restore();
+    return true;
+  },
+};
+function chapterIdx(n){ return (Math.floor((n-1)/10)%CH.length)+1; }
 
 /* ═══════════ 데이터 ═══════════ */
 const CH=[
@@ -1241,6 +1299,9 @@ const AWAKEN=[
  {id:'skill',n:'무극 심법',e:'🌀',d:'기술 피해 +5%/성'},
  {id:'gold',n:'식리 심법',e:'💰',d:'냥 획득 +4%/성'},
 ];
+// 던전 전용 몬스터 (설명문에만 있고 실제로는 챕터 잡몹이 나오던 것을 실물로)
+const DG_MOB={ gold:['imp','#E8B84A','#A87E1E','금괴 요괴',30],
+               rift:['und','#5A4A8A','#2E2450','심연 요괴',30] };
 const DUNGEONS=[
  {id:'gold', n:'황금곳간', e:'💰', d:'45초 동안 금괴 요괴 20마리 처치', rw:'냥 대량'},
  {id:'trial',n:'무과 시험장', e:'📚', d:'시험관 무사를 30초 안에 격파', rw:'수련서(SP)'},
@@ -1451,11 +1512,12 @@ const W={
 function curStageN(){ return W.mode==='dungeon'&&W.dg&&W.dg.id!=='rankup'?6*W.dg.lvl+4:S.stage; }
 function spawnPack(){
   const n=curStageN(), ch=chapterOf(W.mode==='dungeon'?S.stage:n);
+  const dgm=(W.mode==='dungeon'&&W.dg)?DG_MOB[W.dg.id]:null; // 던전은 전용 몬스터
   let cnt=1;
   if(n>3&&Math.random()<0.5) cnt++;
   if(n>8&&Math.random()<0.4) cnt++;
   for(let i=0;i<cnt;i++){
-    const m=ch.mobs[Math.floor(Math.random()*ch.mobs.length)];
+    const m=dgm||ch.mobs[Math.floor(Math.random()*ch.mobs.length)];
     spawnEnemy(m,false,W.w+50+i*52,n);
   }
 }
@@ -1885,9 +1947,10 @@ function draw(){
     cx.ellipse(c.x,c.y,28*c.s,8*c.s,0,0,7); cx.ellipse(c.x+18*c.s,c.y+3,18*c.s,6*c.s,0,0,7);
     cx.fill();
   }
-  // 원경 산 (2겹)
-  drawRidge(ch.far,0.12,58,52);
-  drawRidge(ch.mid,0.25,40,30);
+  // 원경 산 (2겹) — 원화가 있으면 그걸로, 없으면 기존 절차 생성 능선
+  const ci=chapterIdx(S.stage);
+  if(!BgSpr.layer('far',ci,0.12,G-14,0.9)) drawRidge(ch.far,0.12,58,52);
+  if(!BgSpr.layer('mid',ci,0.25,G+3,null)) drawRidge(ch.mid,0.25,40,30);
   // 숲/구조물 실루엣 (0.5×)
   drawDecoLayer(ch,0.5);
   // ── 지면: 원근 타일 평면 (2.5D) ──
@@ -1899,6 +1962,7 @@ function draw(){
   const fog=cx.createLinearGradient(0,FAR,0,FAR+24);
   fog.addColorStop(0,'rgba(220,225,235,.10)'); fog.addColorStop(1,'rgba(220,225,235,0)');
   cx.fillStyle=fog; cx.fillRect(-12,FAR,W.w+24,26);
+  BgSpr.ground(ci,G-6,1.0); // 원화 지면 (없으면 아래 타일 줄만 남는다)
   // 원근 타일 줄 (뒤→앞: 커지고 빨라짐 — 카메라가 비스듬히 내려다보는 착시)
   const rows=[
     {y:FAR+2,h:5,s:0.4,a:0.07},{y:FAR+8,h:8,s:0.62,a:0.09},
@@ -2180,6 +2244,7 @@ function drawDecoLayer(ch,speed){
 }
 function drawDeco(type,x,col,s){
   const G=W.G;
+  if(BgSpr.deco(type,x,s)) return; // 원화 구조물이 있으면 그걸로
   cx.fillStyle='rgba(0,0,0,.22)';
   cx.beginPath(); cx.ellipse(x,G+1,15*s,3*s,0,0,7); cx.fill();
   cx.fillStyle=col;
@@ -4250,6 +4315,7 @@ window.addEventListener('resize',sizeCanvas);
   buildStat(); buildSkillbar(); updateHeader(); updateSceneUI(); updateQuestHud(); switchTab('char');
   SFXF.init(); // 실제 칼소리 파일 로드 시도 (없으면 합성음 폴백)
   HeroSpr.load(); // 주인공 원화 스프라이트 (없으면 벡터 검객 유지)
+  BgSpr.load(); BgSpr.loadObj(); // 배경 원화 레이어·구조물·지면
   renderTitle(); // 타이틀 화면 — 출정 전까지 모달(서장/일일/방치) 대기
   save();
   requestAnimationFrame(frame);
