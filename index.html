@@ -1126,13 +1126,13 @@ const BgSpr={
       Math.round(x-f.ox*s), Math.round(W.G-f.oy*s), f.w*s, f.h*s);
     return true;
   },
-  ground(idx,topY,speed){ // 지면 텍스처 띠
-    if(!this.objs||!this.gimg) return false;
-    const f=this.objs.ground[String(idx)]; if(!f) return false;
+  ground(idx,topY,speed){ // 지면 텍스처 띠 — 그렸으면 띠의 아래쪽 y를 돌려준다
+    if(!this.objs||!this.gimg) return 0;
+    const f=this.objs.ground[String(idx)]; if(!f) return 0;
     const s=this.objs.scale, iw=f.w/s, ih=f.h/s;
     let x=-mod(W.runX*speed,iw);
     for(; x<W.w+1; x+=iw) cx.drawImage(this.gimg,f.x,f.y,f.w,f.h,Math.round(x),Math.round(topY),Math.ceil(iw)+1,ih);
-    return true;
+    return topY+ih;
   },
   layer(kind,idx,speed,baseY,alpha){ // 그렸으면 true
     if(!this.ready) return false;
@@ -1962,9 +1962,15 @@ function draw(){
   const fog=cx.createLinearGradient(0,FAR,0,FAR+24);
   fog.addColorStop(0,'rgba(220,225,235,.10)'); fog.addColorStop(1,'rgba(220,225,235,0)');
   cx.fillStyle=fog; cx.fillRect(-12,FAR,W.w+24,26);
-  BgSpr.ground(ci,G-6,1.0); // 원화 지면 (없으면 아래 타일 줄만 남는다)
-  // 원근 타일 줄 (뒤→앞: 커지고 빨라짐 — 카메라가 비스듬히 내려다보는 착시)
-  const rows=[
+  const gBot=BgSpr.ground(ci,G-6,1.0); // 원화 지면
+  if(gBot){
+    // 지면 아래는 보이지 않게 덮는다. 원화 지면 밑으로 밝은 바닥면이 계속 보이면
+    // 무대가 두 겹으로 깔린 것처럼 보이고, 아래쪽 UI와도 따로 논다.
+    cx.fillStyle='#0B0A0E';
+    cx.fillRect(-12,Math.round(gBot)-1,W.w+24,W.h-gBot+14);
+  }
+  // 원근 타일 줄 — 절차 생성 지면용. 원화 지면 위에 겹치면 격자 줄무늬가 생겨 생략한다
+  const rows=gBot?[]:[
     {y:FAR+2,h:5,s:0.4,a:0.07},{y:FAR+8,h:8,s:0.62,a:0.09},
     {y:G+2,h:13,s:1.0,a:0.12},{y:G+17,h:18,s:1.35,a:0.15},{y:G+37,h:24,s:1.8,a:0.17},
   ];
@@ -2187,9 +2193,9 @@ function draw(){
     cx.restore();
   }
   cx.globalAlpha=1;
-  // 전경 풀 (1.35×)
+  // 전경 풀 (1.35×) — 원화 지면일 땐 어둠에 가려 보이지 않으므로 건너뛴다
   cx.fillStyle='rgba(10,8,5,.55)';
-  for(let i=0;i<14;i++){
+  for(let i=0;!BgSpr.gimg&&i<14;i++){
     const gx=mod(i*37+hash(i*11)*30-W.runX*1.35,W.w+40)-20;
     const gh=8+hash(i*13)*10;
     cx.beginPath(); cx.moveTo(gx-4,W.h); cx.quadraticCurveTo(gx-1,W.h-gh,gx+1,W.h-gh-2);
