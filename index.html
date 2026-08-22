@@ -1659,7 +1659,7 @@ function skillFx(i,k){ // 버프형은 주인공 위, 공격형은 앞쪽에
   const y=W.G-(k.buff?46:34);
   W.fx.push({type:'skfx',n:'k'+i,x,y,t:0,dur:0.42,sz:k.aoe?1.1:0.9});
 }
-const SLASH_KINDS=['arc','diag','cross','claw'];
+const SLASH_KINDS=['diag','cross','claw','spin']; // 회심타 전용 — 평타는 항상 작은 호
 function slashFx(x,y,ang,col,kind,sz){
   W.slashes.push({x,y,ang,t:0,col:col||'255,244,214',
     kind:kind||SLASH_KINDS[(W.slashN=(W.slashN||0)+1)%SLASH_KINDS.length], sz:sz||1});
@@ -1685,7 +1685,10 @@ function hitEnemy(e,dmg,opt){
   const pan=(e.x/W.w-0.5)*0.7;
   if(crit){ W.cam.shake=Math.max(W.cam.shake,e.boss?5:3); W.hitStop=Math.max(W.hitStop,0.045); ring(ex,ey,'255,170,110'); snd('crit',pan); W.hero.swBig=1; }
   else snd('hit',pan);
-  if(!opt.noSlash) slashFx(ex-8,ey,(Math.random()-.5)*0.9,slashCol()); // 참격 색 = 장착 검 색
+  // 평타는 작은 호 하나로 '칼질'처럼, 회심타에만 큰 에너지 궤적을 쓴다.
+  // 매 타격마다 십자·연격 같은 큰 궤적을 쓰면 번개가 계속 치는 것처럼 보인다.
+  if(!opt.noSlash) slashFx(ex-8,ey,(Math.random()-.5)*0.9,slashCol(),
+    crit?null:'arc', crit?0.85:0.42);
   if(opt.freeze) e.frozen=Math.max(e.frozen,opt.freeze);
   if(e.hp<=0) killEnemy(e);
 }
@@ -1808,9 +1811,15 @@ function update(dt){
   if(front&&front.state==='fight'&&h.dead<=0){
     h.atkT-=dt;
     if(h.atkT<=0){ h.atkT=1/heroAps(); h.swing=1; h.swBig=0; hitEnemy(front,heroAtk()); }
-    if(S.autoSkill) for(let s=0;s<8;s++){
-      const si=S.skEq[s];
-      if(si>=0&&W.skCd[si]<=0) castSkill(si);
+    if(S.autoSkill){
+      // 한 프레임에 하나만 시전한다. 준비된 기술을 전부 돌리면 슬롯 앞쪽의
+      // 값싼 기술이 내공을 독차지해서 비싼 기술(뇌격일섬 38)은 영영 못 나간다.
+      // 시작 슬롯을 매 프레임 한 칸씩 돌려 모든 기술에 차례가 가게 한다.
+      const st0=(W.skPick=((W.skPick||0)+1)%8);
+      for(let n=0;n<8;n++){
+        const si=S.skEq[(st0+n)%8];
+        if(si>=0&&W.skCd[si]<=0&&W.mana>=SK_COST[SKILLS[si].r]){ castSkill(si); break; }
+      }
     }
   }else{
     h.atkT=0; // 교전 대기 중엔 타이머를 비워 만나는 즉시 첫 타가 나가게 함
@@ -1897,7 +1906,8 @@ function castSkill(i){
   const k=SKILLS[i];
   const cost=SK_COST[k.r];
   if(W.mana<cost) return; // 내공 부족 — 회복 후 자동 재시전
-  skillFx(i,k); // 기술별 원화 이펙트
+  if(!k.buff&&(!front||front.state!=='fight')) return; // 공격 기술은 교전 중에만
+  skillFx(i,k); // 기술별 원화 이펙트 (실제로 나갈 때만)
   if(k.buff){
     W.mana-=cost;
     W.skCd[i]=k.cd;
@@ -1915,7 +1925,6 @@ function castSkill(i){
     ring(W.hero.x,W.G-40,'159,232,192'); snd('skill');
     return;
   }
-  if(!front||front.state!=='fight') return;
   W.mana-=cost;
   W.skCd[i]=k.cd;
   const dmg=heroAtk()*skillMult(i);
