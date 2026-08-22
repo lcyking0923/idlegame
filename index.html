@@ -235,6 +235,16 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .rel{border-radius:10px;padding:6px 3px 5px;text-align:center;background:linear-gradient(#FBF3DC,#EFE0BC);
   border:2px solid var(--line);min-height:72px;position:relative}
 .rel .e{font-size:21px;line-height:1.2}
+/* 아이콘 스프라이트 — 이모지 자리에 원화 아이콘을 넣는다. 파일이 없으면 이모지가 그대로 남는다 */
+.ic{display:inline-block;vertical-align:middle;background-image:url(assets/sprites/icons.png);
+  background-repeat:no-repeat;image-rendering:auto;width:var(--s);height:var(--s);
+  background-size:calc(var(--s)*var(--gc)) calc(var(--s)*var(--gr));
+  background-position:calc(var(--s)*var(--cx)*-1) calc(var(--s)*var(--cy)*-1)}
+.rel .e .ic{--s:40px}
+.slot .ic{--s:30px}
+.skslot .ic{--s:26px}
+.btn .ic{--s:20px}
+.strow .ico .ic{--s:38px}
 .rel .n{font-size:9.5px;font-weight:700;color:#33240F;line-height:1.2;margin-top:2px}
 .rel .v{font-size:9px;color:var(--indigo);font-weight:700}
 .rel.r1{border-color:#5C87B5}.rel.r2{border-color:#7A5CB5;background:linear-gradient(#F5EFFB,#E6DCF3)}
@@ -1146,6 +1156,18 @@ const BgSpr={
   },
 };
 function chapterIdx(n){ return (Math.floor((n-1)/10)%CH.length)+1; }
+/* ═══ 아이템 아이콘 (assets/sprites/icons.png)
+   무기 w · 장신구 a · 기술 k · 영물 s. 아직 원화가 없는 항목은 이모지를 그대로 쓴다 ═══ */
+let ICONS=null;
+fetch('assets/sprites/icons.json').then(r=>r.json()).then(j=>{
+  ICONS=j;
+  try{ if(typeof activeTab!=='undefined') switchTab(activeTab); }catch(e){} // 로드 후 열려 있던 탭 다시 그리기
+}).catch(()=>{});
+function ic(kind,idx,emoji){
+  const m=ICONS&&ICONS.map[kind]&&ICONS.map[kind][idx];
+  if(!m) return emoji||'';
+  return '<i class="ic" style="--gc:'+ICONS.cols+';--gr:'+ICONS.rows+';--cx:'+m[0]+';--cy:'+m[1]+'"></i>';
+}
 
 /* ═══════════ 데이터 ═══════════ */
 const CH=[
@@ -2752,7 +2774,7 @@ function updateSkillbar(){
     const locked=SLOT_GATES[i]>0&&S.maxClear<SLOT_GATES[i];
     const si=S.skEq[i];
     el.className='skslot'+(locked?' lockd':(si>=0?' filled':''));
-    let inner=locked?'🔒':(si>=0?SKILLS[si].e:'＋');
+    let inner=locked?'🔒':(si>=0?ic('k',si,SKILLS[si].e):'＋');
     if(!locked&&si>=0&&W.skCd[si]>0.05)
       inner+='<span class="cd">'+(W.skCd[si]>=10?Math.ceil(W.skCd[si]):W.skCd[si].toFixed(1))+'</span>';
     el.innerHTML=inner;
@@ -2886,7 +2908,7 @@ function buildSkill(){
       const si=S.skEq[i];
       const locked=SLOT_GATES[i]>0&&S.maxClear<SLOT_GATES[i];
       h+=`<div class="slot ${si>=0&&!locked?'filled':''} ${locked?'lockd':''}" data-a="${locked?'none':'slotpick'}" data-i="${i}" style="cursor:pointer">
-        ${locked?'🔒':(si>=0?SKILLS[si].e:'＋')}
+        ${locked?'🔒':(si>=0?ic('k',si,SKILLS[si].e):'＋')}
         <span class="sn">${locked?SLOT_GATES[i]+'층 해방':(si>=0?SKILLS[si].n:'슬롯 '+(i+1))}</span>
       </div>`;
     }
@@ -2900,7 +2922,7 @@ function buildSkill(){
     const aw=!!S.skAw[i];
     const canAw=lv>=10&&!aw;
     h+=`<div class="card strow ${lv>0?'':'locked'}">
-      <div class="ico">${k.e}</div>
+      <div class="ico">${ic('k',i,k.e)}</div>
       <div class="mid">
         <div class="nm">${aw?'★'+SK_AW_NAME[i]:k.n}<span class="lv">${lv>0?lv+'성':''}</span> <span class="small ${'rar'+(k.r===3?4:k.r===2?3:k.r)}">${RAR4[k.r].n}</span>${k.el?` <span class="small" style="color:${ELS[k.el].c}">${ELS[k.el].e}${ELS[k.el].n}</span>`:''}${eqd?' <span class="small" style="color:var(--green)">장착중</span>':''}</div>
         <div class="vv">${lv>0?(k.buff?(k.buff==='atk'?'공격 +'+(aw?35:25)+'% '+k.bd+'초':'공속 +'+(aw?60:40)+'% '+k.bd+'초'):'피해 '+Math.round(skillMult(i)*100)+'%'+(k.hits>1?' ×'+(i===0&&aw?5:k.hits):'')+(k.aoe?' · 전체':'')):'미보유 — 기술 소환으로 획득'}</div>
@@ -2916,7 +2938,7 @@ function slotPick(slot){
   let h='<h2>기술 장착</h2><p class="small" style="text-align:center">슬롯 '+(slot+1)+'에 넣을 기술을 고르시오</p>';
   owned.forEach(o=>{
     const already=S.skEq.includes(o.i);
-    h+=`<button class="btn wide ${already&&S.skEq[slot]!==o.i?'off':''}" data-a="equipsk" data-i="${slot}_${o.i}">${o.k.e} ${o.k.n} ${S.skills[o.i]}성${S.skEq[slot]===o.i?' (현재)':''}</button>`;
+    h+=`<button class="btn wide ${already&&S.skEq[slot]!==o.i?'off':''}" data-a="equipsk" data-i="${slot}_${o.i}">${ic('k',o.i,o.k.e)} ${o.k.n} ${S.skills[o.i]}성${S.skEq[slot]===o.i?' (현재)':''}</button>`;
   });
   h+='<button class="btn red wide" data-a="equipsk" data-i="'+slot+'_-1">슬롯 비우기</button>';
   h+='<button class="btn wide" data-a="close">닫기</button>';
@@ -2948,7 +2970,7 @@ function buildEquip(){
     const fx='+'+Math.round(W_PCT[w2.r]*(1+0.12*(lv-1)))+'%'
       +(W_CD[w2.r]?' 치피+':'')+(W_GOLD[w2.r]?' 냥+':'');
     h+= lv>0
-      ? `<div class="rel ${cls} ${S.wEq===i?'eq':''}" data-a="eqw" data-i="${i}" style="cursor:pointer"><div class="e">${w2.e}</div><div class="n">${w2.n}</div><div class="v">Lv.${lv} · ${fx}</div></div>`
+      ? `<div class="rel ${cls} ${S.wEq===i?'eq':''}" data-a="eqw" data-i="${i}" style="cursor:pointer"><div class="e">${ic('w',i,w2.e)}</div><div class="n">${w2.n}</div><div class="v">Lv.${lv} · ${fx}</div></div>`
       : `<div class="rel no ${cls}"><div class="e">❓</div><div class="n">???</div><div class="v ${'rar'+w2.r}">${w2.r===6?'합성 전용':RAR7[w2.r].n}</div></div>`;
   });
   h+='</div>';
@@ -2960,7 +2982,7 @@ function buildEquip(){
     const lv=S.spirits[i]||0;
     const cls='r'+(sp.r===3?4:sp.r===2?3:sp.r);
     h+= lv>0
-      ? `<div class="rel ${cls} ${S.spEq===i?'eq':''}" data-a="eqsp" data-i="${i}" style="cursor:pointer"><div class="e">${sp.e}</div><div class="n">${sp.n}</div><div class="v">Lv.${lv} · +${Math.round(SP_PCT[sp.r]*(1+0.1*(lv-1)))}%</div></div>`
+      ? `<div class="rel ${cls} ${S.spEq===i?'eq':''}" data-a="eqsp" data-i="${i}" style="cursor:pointer"><div class="e">${ic('s',i,sp.e)}</div><div class="n">${sp.n}</div><div class="v">Lv.${lv} · +${Math.round(SP_PCT[sp.r]*(1+0.1*(lv-1)))}%</div></div>`
       : `<div class="rel no ${cls}"><div class="e">❓</div><div class="n">???</div><div class="v ${'rar'+(sp.r===3?4:sp.r)}">${RAR4[sp.r].n}</div></div>`;
   });
   h+='</div>';
@@ -2972,7 +2994,7 @@ function buildEquip(){
     const cls='r'+(ac.r===3?4:ac.r===2?3:ac.r);
     const fxK=Object.keys(ac.fx)[0];
     h+= lv>0
-      ? `<div class="rel ${cls} ${S.accEq===i?'eq':''}" data-a="eqac" data-i="${i}" style="cursor:pointer"><div class="e">${ac.e}</div><div class="n">${ac.n}</div><div class="v">Lv.${lv} · ${ACC_FX_N[fxK]}+${Math.round(ac.fx[fxK]*(1+0.1*(lv-1)))}${fxK==='cd'?'%p':'%'}</div></div>`
+      ? `<div class="rel ${cls} ${S.accEq===i?'eq':''}" data-a="eqac" data-i="${i}" style="cursor:pointer"><div class="e">${ic('a',i,ac.e)}</div><div class="n">${ac.n}</div><div class="v">Lv.${lv} · ${ACC_FX_N[fxK]}+${Math.round(ac.fx[fxK]*(1+0.1*(lv-1)))}${fxK==='cd'?'%p':'%'}</div></div>`
       : `<div class="rel no ${cls}"><div class="e">❓</div><div class="n">???</div><div class="v ${'rar'+(ac.r===3?4:ac.r)}">${RAR4[ac.r].n}</div></div>`;
   });
   h+='</div><p class="demo-note">장신구 소환으로 획득 · 중복 = 강화</p>';
