@@ -1307,16 +1307,20 @@ const CompSpr={
     for(let i=COMPS.length-1;i>=0;i--){          // 뒤쪽부터 그려 앞사람이 위로
       if(S.maxClear+1<COMPS[i].un) continue;      // 아직 합류 전
       const arr=this.F[i]; if(!arr) continue;
-      // 주인공 뒤쪽 위로 살짝 물러서게 (2.5D 깊이). 너무 왼쪽으로 빼면 화면 밖·UI에 가린다
-      const x=h.x-16-i*12, gy=W.G-9-i*7;
-      let fi;
-      if(h.swing>0) fi=Math.min(arr.length-1,1+Math.floor((1-h.swing)*2)); // 주인공이 벨 때 같이
-      else fi=Math.floor(W.t*3+i)%2;                                        // 평소엔 대기 흔들림
+      // 주인공 뒤쪽 위로 물러서게 (2.5D 깊이). 서로 겹치지 않게 간격을 벌린다
+      const x=h.x-26-i*19, gy=W.G-10-i*8;
+      let fi=0;
+      if(W.running){
+        fi=0;                                   // 달릴 땐 따라오기만 — 공격 동작을 취하지 않는다
+      }else if(h.swing>0){
+        fi=Math.min(arr.length-1,1+Math.floor((1-h.swing)*3)); // 교전 중 주인공이 벨 때만 함께 친다
+      }
       const f=arr[fi], s=1/this.sc;
+      const bob=W.running?Math.abs(Math.sin(h.run*9+i*1.7))*3:0; // 달릴 땐 위아래로만 흔들린다
       cx.save();
       cx.globalAlpha=0.85-i*0.07;               // 뒤로 갈수록 옅게 (원근)
       cx.drawImage(this.img,f.x,f.y,f.w,f.h,
-        Math.round(x-f.ox*s), Math.round(gy-f.oy*s), f.w*s, f.h*s);
+        Math.round(x-f.ox*s), Math.round(gy-f.oy*s-bob), f.w*s, f.h*s);
       cx.restore();
     }
   },
@@ -1743,7 +1747,7 @@ const W={
   mode:'farm', // farm|boss|dungeon
   dg:null, // {id, lvl, timer, killed, need}
   enemies:[], spawnT:0.4, runX:0, running:true,
-  hero:{x:96,hp:1,run:0,swing:0,swProg:1,hurt:0,dead:0,atkT:0.5,dustT:0},
+  hero:{x:124,hp:1,run:0,swing:0,swProg:1,hurt:0,dead:0,atkT:0.5,dustT:0},
   spirit:{bob:0,atkT:3,dash:0,dashX:0},
   cam:{shake:0,punch:0}, mana:100,
   hitStop:0, slowMo:0, bossTimer:0, bossDelay:0, victT:0, flash:0,
@@ -2588,6 +2592,12 @@ function drawAmb(ch){
   }
 }
 /* ── 영웅: 셀셰이딩 벡터 ── */
+function drawAura(kind,x,y,scale,alpha){ // 버프 오라 한 겹
+  const anim='auraA_'+kind, nFr=Fx.count(anim);
+  if(nFr){ Fx.draw(anim+(Math.floor(W.t*11+(kind==='aps'?3:0))%nFr), x, y, scale, alpha); return; }
+  const base='aura_'+kind;                 // 애니메이션 시트가 없으면 회전으로 대체
+  Fx.draw(base, x, y, scale*0.66, alpha*0.8, W.t*(kind==='atk'?1.5:-2.1));
+}
 function drawHero(h){
   const G=W.G, x=h.x;
   const run=W.running;
@@ -2600,20 +2610,13 @@ function drawHero(h){
   // 그림자
   cx.fillStyle='rgba(0,0,0,.32)'; cx.beginPath(); cx.ellipse(x+2,G+3,21,4.5,0,0,7); cx.fill();
   // 버프 오라 (사자후=황금 화염 / 질풍=푸른 바람)
-  if(h.dead<=0&&(buffAtk>0||buffAps>0)&&Fx.has('aura_atk')){
-    const gold=buffAtk>0;
-    const anim=gold?'auraA_atk':'auraA_aps';   // 애니메이션 시트(있으면)
-    const nFr=Fx.count(anim);
-    if(nFr){
-      // 8프레임 순환 — 몸을 감아 도는 링. 두 겹을 다른 속도로 돌려 두께감을 준다
-      Fx.draw(anim+(Math.floor(W.t*13)%nFr), x+2, G-30, 1.0, 0.85);
-      Fx.draw(anim+(Math.floor(W.t*9+nFr/2)%nFr), x+2, G-20, 0.72, 0.5);
-    }else{
-      // 정지 이미지뿐이면 회전·맥동으로라도 흐르게 보이게 한다
-      const base=gold?'aura_atk':'aura_aps';
-      Fx.draw(base, x+2, G-12, 0.66+Math.sin(W.t*3.1)*0.05, 0.5, W.t*(gold?1.5:-2.1));
-      Fx.draw(base, x+2, G-18, 0.50+Math.sin(W.t*4.3+2)*0.05, 0.42, -W.t*(gold?2.4:1.7));
-    }
+  if(h.dead<=0&&(buffAtk>0||buffAps>0)){
+    // 사자후와 질풍가도는 동시에 걸릴 수 있다. 예전엔 둘 중 하나만 그려서
+    // 한쪽 버프가 안 보였다. 이제 각각 다른 높이에 겹쳐 그린다.
+    // 겹을 하나로 줄이고 불투명도를 낮춰 정신없지 않게 한다.
+    const both=buffAtk>0&&buffAps>0;
+    if(buffAtk>0) drawAura('atk', x+2, G-(both?34:26), both?0.86:1.0, both?0.6:0.72);
+    if(buffAps>0) drawAura('aps', x+2, G-(both?18:26), both?0.86:1.0, both?0.6:0.72);
   }
   else if(h.dead<=0&&(buffAtk>0||buffAps>0)){
     cx.save(); cx.globalCompositeOperation='lighter';
