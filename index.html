@@ -1420,6 +1420,9 @@ function load(){
     s.tr=Object.assign(freshState().tr,d.tr||{});
     s.aw=Object.assign(freshState().aw,d.aw||{});
     s.spSt=Object.assign(freshState().spSt,d.spSt||{});
+    // 최전선을 넘어선 층 번호는 되돌린다 (넘어가 있으면 층 이동이 막힌다)
+    s.maxClear=Math.max(0,s.maxClear|0);
+    s.stage=Math.max(1,Math.min(s.stage|0,s.maxClear+1));
     return s;
   }catch(e){ return null; }
 }
@@ -2789,8 +2792,12 @@ function updateSkillbar(){
   if(ab) ab.classList.toggle('on',S.autoSkill);
 }
 function moveStage(d){
-  const ns=S.stage+d;
-  if(ns<1||ns>S.maxClear+1||W.mode!=='farm') return;
+  if(W.mode!=='farm') return;
+  // 아래로는 언제나 갈 수 있어야 한다. 예전엔 위·아래 모두 maxClear+1로 막아서,
+  // 저장값이 어긋나 S.stage가 최전선을 넘어가면 ◀ 버튼이 눌려도 아무 일이 없었다.
+  const front=Math.max(1,S.maxClear+1);
+  const ns=d<0 ? Math.max(1,S.stage-1) : Math.min(S.stage+1,front);
+  if(ns===S.stage) return;
   S.stage=ns;
   W.enemies=[]; W.spawnT=0.4;
   updateSceneUI();
