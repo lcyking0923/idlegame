@@ -1050,7 +1050,12 @@ const MOB_SPR={ // 이름 → 아틀라스 id (뜨는 몬스터는 lift로 지�
 };
 const MobSpr={
   data:{},                                   // id → {img,F,sc} (로드 완료분만)
-  cfg(nm){ const v=MOB_SPR[nm]; return v?(typeof v==='string'?{id:v,lift:0}:v):null; },
+  _cfg:{},
+  cfg(nm){ // 매 프레임 호출되므로 결과를 캐시 (객체를 새로 만들면 GC 부담)
+    let c=this._cfg[nm];
+    if(c===undefined){ const v=MOB_SPR[nm]; c=this._cfg[nm]=v?(typeof v==='string'?{id:v,lift:0}:v):null; }
+    return c;
+  },
   get(nm){
     const c=this.cfg(nm); if(!c) return null;
     const id=c.id;
@@ -1693,14 +1698,24 @@ function update(dt){
   for(let i=W.fx.length-1;i>=0;i--){
     const f=W.fx[i]; f.t+=dt;
     if(f.type==='firewall'){ f.x+=460*dt;
-      if(Math.random()<0.5) W.parts.push({x:f.x-10+Math.random()*20,y:W.G-Math.random()*60,vx:30,vy:-90-Math.random()*60,t:0.2,color:'rgba(255,'+(120+Math.random()*80|0)+',40,.8)',r:3});
+      if(W.parts.length<140&&Math.random()<0.5) W.parts.push({x:f.x-10+Math.random()*20,y:W.G-Math.random()*60,vx:30,vy:-90-Math.random()*60,t:0.2,color:'rgba(255,'+(120+Math.random()*80|0)+',40,.8)',r:3});
     }
     if(f.t>f.dur) W.fx.splice(i,1);
   }
-  // 질풍 버프 중 잔상 속도선
-  if(buffAps>0&&Math.random()<0.4) W.lines.push({y:W.G-20-Math.random()*50,x:W.hero.x+30,t:0});
-  if(W.running&&Math.random()<0.3) W.lines.push({y:40+Math.random()*160,x:W.w+10,t:0});
+  // 속도선 — 반드시 '초당 개수'로 생성한다.
+  // 프레임마다 확률로 뽑으면 120·144Hz 화면에서 60Hz의 2~2.4배가 쏟아져
+  // 화면이 흰 선으로 뒤덮이고 그리기 부하도 그만큼 늘어난다.
+  const lrate=(W.running?15:0)+(buffAps>0?14:0);
+  if(lrate>0){
+    W.lineT=(W.lineT||0)+dt*lrate;
+    let n=Math.min(4,Math.floor(W.lineT)); W.lineT-=n; // 한 프레임 최대 4개
+    while(n-->0){
+      if(buffAps>0&&Math.random()<0.5) W.lines.push({y:W.G-20-Math.random()*50,x:W.hero.x+30,t:0});
+      else W.lines.push({y:40+Math.random()*160,x:W.w+10,t:0});
+    }
+  }else W.lineT=0;
   for(let i=W.lines.length-1;i>=0;i--){const l=W.lines[i];l.x-=900*dt;l.t+=dt;if(l.x<-80)W.lines.splice(i,1);}
+  if(W.lines.length>48) W.lines.splice(0,W.lines.length-48); // 어떤 상황에서도 상한 (기존엔 상한이 없었다)
   for(const c of W.clouds){ c.x-= (W.running?14:3)*dt*c.s; if(c.x<-70) c.x=W.w+60; }
   updateAmb(dt);
   S.playMs+=dt*1000;
@@ -4189,6 +4204,7 @@ function introModal(){
 let lastFrame=performance.now(), uiAcc=0, saveAcc=0;
 function frame(now){
   let dt=(now-lastFrame)/1000; lastFrame=now;
+  if(!(dt>0)) dt=0;      // 시계 역행·복귀 직후의 음수/NaN 방지
   if(dt>0.05) dt=0.05;
   update(dt);
   draw();
