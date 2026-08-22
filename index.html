@@ -1174,6 +1174,30 @@ fetch('assets/sprites/icons.json').then(r=>r.json()).then(j=>{
   try{ paintFixedIcons(); }catch(e){}
   try{ if(typeof activeTab!=='undefined') switchTab(activeTab); }catch(e){} // 로드 후 열려 있던 탭 다시 그리기
 }).catch(()=>{});
+/* ═══ 이펙트 아틀라스 (assets/sprites/fx.png)
+   베기 궤적·타격·기술·오라. 없으면 기존 캔버스 드로잉이 그대로 나온다 ═══ */
+const Fx={
+  img:null, F:null, sc:2,
+  load(){
+    fetch('assets/sprites/fx.json').then(r=>r.json()).then(j=>{
+      const im=new Image();
+      im.onload=()=>{ this.img=im; this.F=j.frames; this.sc=j.scale||2; };
+      im.src='assets/sprites/fx.png';
+    }).catch(()=>{});
+  },
+  has(nm){ return !!(this.img&&this.F&&this.F[nm]); },
+  draw(nm,x,y,scale,alpha,ang,add){ // 중심 기준 + 가산합성(빛)
+    if(!this.has(nm)) return false;
+    const f=this.F[nm], sc=(scale||1)/this.sc;
+    cx.save();
+    if(add!==false) cx.globalCompositeOperation='lighter';
+    cx.globalAlpha=Math.max(0,Math.min(1,alpha==null?1:alpha));
+    cx.translate(x,y); if(ang) cx.rotate(ang);
+    cx.drawImage(this.img,f.x,f.y,f.w,f.h,-f.w*sc/2,-f.h*sc/2,f.w*sc,f.h*sc);
+    cx.restore();
+    return true;
+  },
+};
 /* ═══ 수호 영물 인게임 스프라이트 (assets/sprites/spirits.png)
    원화가 있는 영물만 교체하고, 없는 것(두꺼비·청설모·현무)은 기존 벡터로 남는다 ═══ */
 const SpSpr={
@@ -1613,8 +1637,15 @@ function burst(x,y,color,n){
 }
 function ring(x,y,color){ W.parts.push({x,y,vx:0,vy:0,t:0,color,r:-1}); }
 function coinFly(x,y,n){ for(let i=0;i<Math.min(n,7);i++) W.coins.push({x,y,vx:-70-Math.random()*100,vy:-150-Math.random()*110,t:0}); }
-function slashFx(x,y,ang,col){
-  W.slashes.push({x,y,ang,t:0,col:col||'255,244,214'});
+function skillFx(i,k){ // 버프형은 주인공 위, 공격형은 앞쪽에
+  if(!Fx.has('k'+i)) return;
+  const x=W.hero.x+(k.buff?6:64), y=W.G-(k.buff?46:38);
+  W.fx.push({type:'skfx',n:'k'+i,x,y,t:0,dur:0.5,sz:k.aoe?1.25:1});
+}
+const SLASH_KINDS=['arc','diag','cross','claw'];
+function slashFx(x,y,ang,col,kind,sz){
+  W.slashes.push({x,y,ang,t:0,col:col||'255,244,214',
+    kind:kind||SLASH_KINDS[(W.slashN=(W.slashN||0)+1)%SLASH_KINDS.length], sz:sz||1});
   if(W.slashes.length>16) W.slashes.shift();
 }
 function hitEnemy(e,dmg,opt){
@@ -1849,6 +1880,7 @@ function castSkill(i){
   const k=SKILLS[i];
   const cost=SK_COST[k.r];
   if(W.mana<cost) return; // 내공 부족 — 회복 후 자동 재시전
+  skillFx(i,k); // 기술별 원화 이펙트
   if(k.buff){
     W.mana-=cost;
     W.skCd[i]=k.cd;
@@ -2202,6 +2234,9 @@ function draw(){
       cx.strokeStyle='rgba(0,0,0,.8)'; cx.lineWidth=3.4; cx.strokeText(f.sub,-tw4/2,24);
       cx.fillStyle='#FFE9B8'; cx.fillText(f.sub,-tw4/2,24);
       cx.restore();
+    }else if(f.type==='skfx'){ // 기술 원화 이펙트 — 커지며 사라진다
+      const k2=f.t/f.dur;
+      Fx.draw(f.n,f.x,f.y,(f.sz||1)*(0.72+k2*0.5),Math.min(1,(1-k2)*1.6));
     }else if(f.type==='banner'){ // 스킬명 붓글씨 배너
       const sc=f.t<0.12?0.5+f.t/0.12*0.6:(f.t<0.25?1.1-(f.t-0.12)/0.13*0.1:1);
       cx.save(); cx.translate(W.w/2,64); cx.scale(sc,sc); cx.globalAlpha=Math.min(1,a*2);
@@ -2217,6 +2252,7 @@ function draw(){
   cx.save(); cx.globalCompositeOperation='lighter';
   for(const s of W.slashes){
     const a=1-s.t/0.22;
+    if(Fx.draw(s.kind||'arc',s.x,s.y,(s.sz||1)*(1+(1-a)*0.35),a*0.95,s.ang)) continue;
     cx.save(); cx.translate(s.x,s.y); cx.rotate(s.ang);
     cx.strokeStyle='rgba('+s.col+','+(0.9*a)+')'; cx.lineWidth=4;
     cx.beginPath(); cx.arc(0,0,21,-0.95,0.95); cx.stroke();
@@ -2228,9 +2264,12 @@ function draw(){
   // 파티클/링/동전
   for(const p of W.parts){
     const a=Math.max(0,1-p.t/0.7);
-    if(p.r<0){ // 충격 링
-      cx.strokeStyle='rgba('+p.color+','+(a*0.7)+')'; cx.lineWidth=2.5;
-      cx.beginPath(); cx.arc(p.x,p.y,4+p.t*90,0,7); cx.stroke();
+    if(p.r<0){ // 충격 링 — 회심타는 붉은 폭발, 그 외는 흰 스파크
+      const isCrit=p.color.indexOf('255,170')===0;
+      if(!Fx.draw(isCrit?'crit':'spark',p.x,p.y,0.7+p.t*2.2,a*0.9)){
+        cx.strokeStyle='rgba('+p.color+','+(a*0.7)+')'; cx.lineWidth=2.5;
+        cx.beginPath(); cx.arc(p.x,p.y,4+p.t*90,0,7); cx.stroke();
+      }
     }else{
       cx.globalAlpha=a; cx.fillStyle=p.color;
       cx.fillRect(p.x-p.r/2,p.y-p.r/2,p.r,p.r);
@@ -2372,7 +2411,10 @@ function drawHero(h){
   // 그림자
   cx.fillStyle='rgba(0,0,0,.32)'; cx.beginPath(); cx.ellipse(x+2,G+3,21,4.5,0,0,7); cx.fill();
   // 버프 오라 (사자후=황금 화염 / 질풍=푸른 바람)
-  if(h.dead<=0&&(buffAtk>0||buffAps>0)){
+  if(h.dead<=0&&(buffAtk>0||buffAps>0)&&Fx.has('aura_atk')){
+    Fx.draw(buffAtk>0?'aura_atk':'aura_aps', x+2, G-14, 0.62, 0.72+Math.sin(W.t*7)*0.14);
+  }
+  else if(h.dead<=0&&(buffAtk>0||buffAps>0)){
     cx.save(); cx.globalCompositeOperation='lighter';
     const ac2=buffAtk>0?'255,200,90':'120,200,255';
     const gr2=cx.createRadialGradient(x+2,G-34,6,x+2,G-34,34);
@@ -4389,6 +4431,7 @@ window.addEventListener('resize',sizeCanvas);
   HeroSpr.load(); // 주인공 원화 스프라이트 (없으면 벡터 검객 유지)
   BgSpr.load(); BgSpr.loadObj(); // 배경 원화 레이어·구조물·지면
   SpSpr.load();   // 수호 영물 원화
+  Fx.load();      // 이펙트 아틀라스
   renderTitle(); // 타이틀 화면 — 출정 전까지 모달(서장/일일/방치) 대기
   save();
   requestAnimationFrame(frame);
