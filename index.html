@@ -255,6 +255,21 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .rel{border-radius:10px;padding:6px 3px 5px;text-align:center;background:linear-gradient(#FBF3DC,#EFE0BC);
   border:2px solid var(--line);min-height:72px;position:relative}
 .rel .e{font-size:21px;line-height:1.2}
+/* 레벨업 줄 — 참고 게임처럼 큰 초록 버튼을 상시 노출 */
+.lvrow{display:flex;align-items:center;gap:10px}
+.lvrow .lvmid{flex:1;min-width:0}
+.lvrow .pct{float:right;color:var(--green);font-weight:700}
+.lvbtn{flex:none;width:82px;padding:9px 0;border-radius:9px;font-weight:800;font-size:12px;
+  line-height:1.15;letter-spacing:.5px;color:#12301E;
+  background:linear-gradient(#8FE3A8,#4FBE79);border:2px solid #2E8B57;
+  box-shadow:0 3px 0 #2E8B57}
+.lvbtn.rdy{animation:lvpulse 1.1s ease-in-out infinite}
+.lvbtn.off{filter:grayscale(.75);opacity:.55;pointer-events:none;box-shadow:0 3px 0 #6B6B5E}
+@keyframes lvpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+/* 강화 수치: 지금 → 올린 뒤 */
+.strow .vv b{font-variant-numeric:tabular-nums}
+.strow .vv .arw{margin:0 5px;color:var(--brown2)}
+.strow .vv .nx{color:var(--green)}
 /* 아이콘 스프라이트 — 이모지 자리에 원화 아이콘을 넣는다. 파일이 없으면 이모지가 그대로 남는다 */
 .ic{display:inline-block;vertical-align:middle;background-image:url(assets/sprites/icons.png?v=20260822f);
   background-repeat:no-repeat;image-rendering:auto;width:var(--s);height:var(--s);
@@ -1714,12 +1729,21 @@ function rankGateOk(){ return S.rank<RANK_MULTS.length&&S.maxClear>=RANK_GATES[S
 /* 검객 레벨·SP (처치 경험치) */
 function expNeed(lv){ return Math.floor(30*Math.pow(1.22,lv-1)); }
 function expFor(n,boss){ return Math.floor((2+n*0.7)*(boss?10:1)*(1+spFx('exp')/100)*(1+accFx('exp')/100)*(1+rankOptSum('exp')/100)*(adbOn('exp')?3:1)); }
-function gainExp(x){
-  S.exp+=x;
-  while(S.exp>=expNeed(S.lv)){
-    S.exp-=expNeed(S.lv); S.lv++; S.sp+=3;
-    toast('⬆️ 검객 '+S.lv+'레벨 달성! SP +3');
-  }
+function gainExp(x){ S.exp+=x; }   // 레벨업은 LEVEL UP 버튼으로 (자동 상승 아님)
+function canLevel(){ return S.exp>=expNeed(S.lv); }
+function doLevelUp(){
+  if(!canLevel()) return false;
+  S.exp-=expNeed(S.lv); S.lv++; S.sp+=3;
+  return true;
+}
+function levelUp(){ // 한 번 누르면 올릴 수 있는 만큼 한꺼번에 (연타 부담을 없앤다)
+  let n=0;
+  while(canLevel()&&n<9999){ doLevelUp(); n++; }
+  if(!n) return;
+  snd('reward'); W.flash=Math.min(1,W.flash+0.5);
+  Fx.has('levelup')&&W.fx.push({type:'skfx',n:'levelup',x:W.hero.x,y:W.G-30,t:0,dur:0.7,sz:1});
+  toast('⬆️ 검객 '+S.lv+'레벨! SP +'+(n*3));
+  buildStat(); updateHeader();
 }
 function daoGain(){ const s=S.maxClear+1; if(s<400) return 0; return Math.floor(Math.pow(s/50,2)); }
 function dps(){
@@ -3093,13 +3117,17 @@ function moveStage(d){
 
 /* ═══════════ 성장 탭 ═══════════ */
 function buildStat(){
-  let h=`<div class="card" style="display:flex;align-items:center;gap:10px">
+  const pct=Math.min(100,S.exp/expNeed(S.lv)*100);
+  let h=`<div class="card lvrow">
     <div class="ico" style="font-size:24px">⚔️</div>
-    <div style="flex:1">
-      <div class="nm" style="font-family:var(--serif)">Lv.${S.lv} <span class="small">${S.login?S.login.name:'무명 검객'}</span></div>
-      <div class="expbar" style="margin:4px 0 2px"><div class="fill" style="width:${Math.min(100,S.exp/expNeed(S.lv)*100)}%"></div></div>
+    <div class="lvmid">
+      <div class="nm" style="font-family:var(--serif)">Lv.${S.lv}
+        <span class="small">${S.login?S.login.name:'무명 검객'}</span>
+        <span class="small pct">${pct.toFixed(1)}%</span></div>
+      <div class="expbar" style="margin:4px 0 2px"><div class="fill" style="width:${pct}%"></div></div>
       <div class="small" style="font-variant-numeric:tabular-nums">EXP ${fmt(S.exp)} / ${fmt(expNeed(S.lv))} · SP ${S.sp}</div>
     </div>
+    <button class="lvbtn ${canLevel()?'rdy':'off'}" data-a="levelup">LEVEL<br>UP !</button>
   </div>`;
   h+=`<div class="subtab">
     <button data-a="growview" data-i="0" class="${S.growView===0?'on':''}">강화</button>
@@ -3166,10 +3194,13 @@ function updateStat(){
     const el=$('stlv'+i); if(!el) return;
     const lv=S.st[c.id], maxed=c.max&&lv>=c.max;
     el.textContent=lv+'강'+(maxed?' (최대)':'');
-    $('stvv'+i).textContent=c.fm(c.f(lv));
     const k=S.buyMode===3?Math.max(statMaxBuy(c.id),1):[1,10,100][S.buyMode];
     const kk=c.max?Math.min(k,c.max-lv):k;
-    $('stsub'+i).textContent=maxed?'':('다음: '+c.fm(c.f(lv+kk)));
+    // 지금 값과 올린 뒤 값을 한 줄에 나란히 — 얼마나 오르는지 바로 보이게
+    $('stvv'+i).innerHTML=maxed
+      ? '<b>'+c.fm(c.f(lv))+'</b>'
+      : '<b>'+c.fm(c.f(lv))+'</b><span class="arw">→</span><b class="nx">'+c.fm(c.f(lv+kk))+'</b>';
+    $('stsub'+i).textContent='';
     const btn=$('stbtn'+i);
     if(maxed){ btn.textContent='완성'; btn.classList.add('off'); return; }
     const cost=statCost(c.id,kk);
@@ -4399,6 +4430,7 @@ function act(a,i){
   if(a.startsWith('buyjade_')){ buyJadePack(+a.split('_')[1]); return; }
   switch(a){
     case 'tab': switchTab(i); break;
+    case 'levelup': levelUp(); break;
     case 'buymode': S.buyMode=+i; buildStat(); break;
     case 'buystat': buyStat(+i); break;
     case 'autoskill': S.autoSkill=!S.autoSkill; buildSkill(); break;
