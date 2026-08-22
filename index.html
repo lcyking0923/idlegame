@@ -1035,6 +1035,44 @@ const HeroSpr={
   },
 };
 
+/* ═══ 몬스터 원화 스프라이트 (assets/sprites/mob_<id>.png)
+   MOB_SPR에 등록된 몬스터만 원화로 그리고, 없는 몬스터는 기존 벡터로 남는다.
+   주인공과 같은 방식 — 프레임마다 앵커(ox,oy)를 담아 자세가 달라도 지면선에 붙는다.
+   몬스터는 왼쪽을 보므로 좌우 반전 없이 그대로 그린다 ═══ */
+const MOB_SPR={ '애기도깨비':'imp', '처녀귀신':'cheonyeo' };
+const MobSpr={
+  data:{},                                   // id → {img,F,sc} (로드 완료분만)
+  want(nm){ return MOB_SPR[nm]||null; },
+  get(nm){
+    const id=this.want(nm); if(!id) return null;
+    const d=this.data[id];
+    if(d===undefined){                       // 최초 요청 시 1회만 로드 시도
+      this.data[id]=null;
+      fetch('assets/sprites/mob_'+id+'.json').then(r=>r.json()).then(j=>{
+        const im=new Image();
+        im.onload=()=>{ this.data[id]={img:im,F:j.frames,sc:j.scale||2,ref:j.ref||30}; };
+        im.src='assets/sprites/mob_'+id+'.png';
+      }).catch(()=>{});
+      return null;
+    }
+    return d;
+  },
+  pick(e,d){ // 상태 → [클립, 프레임]
+    if(e.state==='die') return ['die',0];
+    if(e.hitF>0.25&&d.F.hit) return ['hit',0];
+    if(e.lunge>0&&d.F.atk) return ['atk',e.lunge>0.55?1:0];   // 준비 → 타격
+    const n=d.F.walk.length;
+    return ['walk',Math.floor((W.t*7+e.bob)%n)];
+  },
+  draw(e,d,x,yb,scale){
+    const pk=this.pick(e,d), arr=d.F[pk[0]]||d.F.walk;
+    const f=arr[Math.min(pk[1],arr.length-1)];
+    const s=scale/d.sc;
+    cx.drawImage(d.img,f.x,f.y,f.w,f.h,
+      Math.round(x-f.ox*s), Math.round(yb-f.oy*s), f.w*s, f.h*s);
+  },
+};
+
 /* ═══════════ 데이터 ═══════════ */
 const CH=[
  {nm:'한양 근교', sky:['#2A3450','#7A5560'], far:'#1D2540', mid:'#2C3555', tree:'#141B30', gr:'#4A3B28', grL:'#5C4A32',
@@ -2341,11 +2379,20 @@ function drawMonster(e){
     cx.fillStyle=gr; cx.beginPath(); cx.arc(x,yb-16*s,SZ*0.9,0,7); cx.fill();
     cx.restore();
   }
+  const MD=MobSpr.get(e.nm); // 원화 스프라이트가 등록된 몬스터면 벡터 대신 사용
   const hit=e.hitF>0.45;
   const MAIN=hit?'#FFFFFF':e.c, DARK=hit?'#E8E8E8':e.c2, OUT='#12100C';
   cx.strokeStyle=OUT; cx.lineWidth=2*Math.min(s,1.6);
   cx.save(); cx.translate(x,yb); cx.scale(sq*(e.frozen>0?1:1),1/sq*(1-dieP*0.1)); cx.translate(-x,-yb);
-  if(e.sp==='imp'){
+  if(MD){
+    MobSpr.draw(e,MD,x,yb,SZ/MD.ref);
+    if(hit){ // 피격 시 하얗게 번쩍
+      cx.save(); cx.globalCompositeOperation='lighter'; cx.globalAlpha=e.hitF*0.5;
+      MobSpr.draw(e,MD,x,yb,SZ/MD.ref);
+      cx.restore();
+    }
+  }
+  else if(e.sp==='imp'){
     // 도깨비: 몸통+뿔+방망이
     cx.fillStyle=MAIN;
     cx.beginPath(); cx.ellipse(x,yb-14*s,11*s,13*s,0,0,7); cx.fill(); cx.stroke();
