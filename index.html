@@ -343,6 +343,10 @@ textarea.io{width:100%;height:90px;font-size:11px;border:1px solid var(--line);b
   background:url(assets/sprites/emblem.png?v=20260822d) center/contain no-repeat;
   filter:drop-shadow(0 6px 16px rgba(0,0,0,.6))}
 /* 제목판이 엠블럼 안쪽 판에 얹히도록 — 엠블럼은 가운데가 비어 있다 */
+/* 스토리 컷신 — 대사 위에 장면 한 컷 */
+.cutscene{width:100%;aspect-ratio:3/2;border-radius:10px;margin-bottom:8px;
+  background-size:cover;background-position:center;background-color:#120E1C;
+  border:1.5px solid var(--brown2);box-shadow:inset 0 -28px 34px -18px rgba(10,8,16,.95)}
 #titleScr .tboard{background:transparent;border:0;box-shadow:none;padding-top:0}
 #titleScr .tboard small{color:#E8C98A}
 #titleScr.hide{opacity:0;pointer-events:none}
@@ -493,6 +497,7 @@ function renderStory(){
   const st=curStory; if(!st) return;
   const ln=st.lines[storyIdx];
   showModal(`<h2>${st.t}</h2>
+    <div class="cutscene" style="background-image:url(assets/sprites/cut_${st.id}.jpg?v=20260822d)"></div>
     <div class="card" style="min-height:104px">
       ${ln[0]?`<div style="font-family:var(--serif);font-weight:700;color:var(--red);margin-bottom:4px;letter-spacing:2px">${ln[0]}</div>`:''}
       <p style="font-size:13px;line-height:1.8;${ln[0]?'':'font-style:italic;color:var(--brown2)'}">${ln[1]}</p>
