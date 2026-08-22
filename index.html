@@ -251,6 +251,13 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .strow .ico .ic{--s:38px}
 .rel .n{font-size:9.5px;font-weight:700;color:#33240F;line-height:1.2;margin-top:2px}
 .rel .v{font-size:9px;color:var(--indigo);font-weight:700}
+/* 등급 테두리 — 9분할(border-image)로 모서리 장식이 늘어나지 않게 */
+.rel.fr{border-width:9px;border-style:solid;border-color:transparent;background-clip:padding-box}
+.rel.fr0{border-image:url(assets/sprites/frame0.png?v=20260822c) 40 / 9px stretch}
+.rel.fr1{border-image:url(assets/sprites/frame1.png?v=20260822c) 40 / 9px stretch}
+.rel.fr2{border-image:url(assets/sprites/frame2.png?v=20260822c) 40 / 9px stretch}
+.rel.fr3{border-image:url(assets/sprites/frame3.png?v=20260822c) 40 / 9px stretch}
+.rel.fr4{border-image:url(assets/sprites/frame4.png?v=20260822c) 40 / 9px stretch}
 .rel.r1{border-color:#5C87B5}.rel.r2{border-color:#7A5CB5;background:linear-gradient(#F5EFFB,#E6DCF3)}
 .rel.r3{border-color:#B5722A;background:linear-gradient(#FDF3D8,#F3DFAE)}
 .rel.r4{border-color:var(--red);background:linear-gradient(#FFF0E2,#F7DDC2);box-shadow:0 0 8px rgba(185,58,43,.45)}
@@ -276,6 +283,10 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 nav{flex:none;display:flex;background:#100C08;border-top:2px solid var(--gold2);padding-bottom:env(safe-area-inset-bottom)}
 nav button{flex:1;padding:6px 0 7px;text-align:center;color:#8F7C5C;font-size:10px;font-weight:700;position:relative}
 nav button .e{display:block;font-size:18px;line-height:1.25;filter:grayscale(1) opacity(.7)}
+/* 탭 아이콘 6종 가로 스프라이트 — 6칸이므로 위치는 20%씩 */
+nav button .e.tabi{width:24px;height:24px;margin:0 auto 1px;font-size:0;
+  background-image:url(assets/sprites/tabs.png?v=20260822c);background-repeat:no-repeat;
+  background-size:600% 100%;background-position:calc(var(--ti)*20%) 0}
 nav button.on{color:var(--goldL)}
 nav button.on .e{filter:none}
 nav button.on::before{content:'';position:absolute;top:0;left:20%;right:20%;height:3px;background:var(--red);border-radius:0 0 3px 3px}
@@ -392,12 +403,12 @@ textarea.io{width:100%;height:90px;font-size:11px;border:1px solid var(--line);b
   </main>
 
   <nav>
-    <button data-a="tab" data-i="char" class="on"><span class="e">👤</span>캐릭터</button>
-    <button data-a="tab" data-i="skill"><span class="e">📖</span>스킬</button>
-    <button data-a="tab" data-i="equip"><span class="e">🗡️</span>장비</button>
-    <button data-a="tab" data-i="comp"><span class="e">🧑‍🤝‍🧑</span>동료</button>
-    <button data-a="tab" data-i="advent"><span class="e">🗺️</span>모험<span class="dot" id="dot-advent"></span></button>
-    <button data-a="tab" data-i="shop"><span class="e">🏪</span>상점</button>
+    <button data-a="tab" data-i="char" class="on"><span class="e tabi" style="--ti:0"></span>캐릭터</button>
+    <button data-a="tab" data-i="skill"><span class="e tabi" style="--ti:1"></span>스킬</button>
+    <button data-a="tab" data-i="equip"><span class="e tabi" style="--ti:2"></span>장비</button>
+    <button data-a="tab" data-i="comp"><span class="e tabi" style="--ti:3"></span>동료</button>
+    <button data-a="tab" data-i="advent"><span class="e tabi" style="--ti:4"></span>모험<span class="dot" id="dot-advent"></span></button>
+    <button data-a="tab" data-i="shop"><span class="e tabi" style="--ti:5"></span>상점</button>
   </nav>
 </div>
 <div id="titleScr">
@@ -1232,6 +1243,10 @@ function paintFixedIcons(){ // 상단 재화처럼 HTML에 고정된 자리
   document.querySelectorAll('.coin').forEach(e=>{ e.innerHTML=ic('c',0,''); e.classList.add('asicon'); });
   document.querySelectorAll('.jadeic').forEach(e=>{ e.innerHTML=ic('c',1,''); e.classList.add('asicon'); });
 }
+function frCls(r,max){ // 등급 → 테두리 클래스
+  const i=Math.max(0,Math.min(4,Math.round(r*4/Math.max(1,max))));
+  return 'fr fr'+i;
+}
 function ic(kind,idx,emoji){
   const m=ICONS&&ICONS.map[kind]&&ICONS.map[kind][idx];
   if(!m) return emoji||'';
@@ -1690,8 +1705,8 @@ function hitEnemy(e,dmg,opt){
   else snd('hit',pan);
   // 평타는 작은 호 하나로 '칼질'처럼, 회심타에만 큰 에너지 궤적을 쓴다.
   // 매 타격마다 십자·연격 같은 큰 궤적을 쓰면 번개가 계속 치는 것처럼 보인다.
-  if(!opt.noSlash) slashFx(ex-8,ey,(Math.random()-.5)*0.9,slashCol(),
-    crit?null:'arc', crit?0.85:0.42);
+  if(!opt.noSlash) slashFx(ex-8,ey,-0.55+(Math.random()-.5)*0.3,slashCol(),
+    crit?null:'arc', crit?1.0:0.62); // 위에서 아래로 베는 각도로 통일
   if(opt.freeze) e.frozen=Math.max(e.frozen,opt.freeze);
   if(e.hp<=0) killEnemy(e);
 }
@@ -1852,7 +1867,7 @@ function update(dt){
     const inF=front&&front.state==='fight';
     h.hp=Math.min(heroMaxHp(),h.hp+stVal('reg')*rankMult()*(inF?1:5)*dt);
   }
-  h.swing=Math.max(0,h.swing-dt*7); h.hurt=Math.max(0,h.hurt-dt*4);
+  h.swing=Math.max(0,h.swing-dt*4.6); // 베는 동작 길이(약 0.22초) — 너무 빠르면 휘두른 게 안 보인다 h.hurt=Math.max(0,h.hurt-dt*4);
   if(W.running){ h.dustT-=dt; if(h.dustT<=0){ h.dustT=0.18;
     W.parts.push({x:h.x-8,y:W.G+1,vx:-40-Math.random()*30,vy:-20-Math.random()*24,t:0.25,color:'rgba(150,130,100,.5)',r:3}); } }
   // 지연 타격
@@ -1881,7 +1896,7 @@ function update(dt){
     if(p.r>=0){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=430*dt;}
     if(p.t>0.7)W.parts.splice(i,1);}
   for(let i=W.coins.length-1;i>=0;i--){const c=W.coins[i];c.t+=dt;c.x+=c.vx*dt;c.y+=c.vy*dt;c.vy+=320*dt;if(c.t>0.85)W.coins.splice(i,1);}
-  for(let i=W.slashes.length-1;i>=0;i--){W.slashes[i].t+=dt;if(W.slashes[i].t>0.22)W.slashes.splice(i,1);}
+  for(let i=W.slashes.length-1;i>=0;i--){W.slashes[i].t+=dt;if(W.slashes[i].t>0.3)W.slashes.splice(i,1);}
   for(let i=W.fx.length-1;i>=0;i--){
     const f=W.fx[i]; f.t+=dt;
     if(f.type==='firewall'){ f.x+=460*dt;
@@ -2289,7 +2304,7 @@ function draw(){
   // 베기 이펙트
   cx.save(); cx.globalCompositeOperation='lighter';
   for(const s of W.slashes){
-    const a=1-s.t/0.22;
+    const a=1-s.t/0.3;
     if(Fx.draw(s.kind||'arc',s.x,s.y,(s.sz||1)*(1+(1-a)*0.35),a*0.95,s.ang)) continue;
     cx.save(); cx.translate(s.x,s.y); cx.rotate(s.ang);
     cx.strokeStyle='rgba('+s.col+','+(0.9*a)+')'; cx.lineWidth=4;
@@ -3106,7 +3121,7 @@ function buildEquip(){
     const fx='+'+Math.round(W_PCT[w2.r]*(1+0.12*(lv-1)))+'%'
       +(W_CD[w2.r]?' 치피+':'')+(W_GOLD[w2.r]?' 냥+':'');
     h+= lv>0
-      ? `<div class="rel ${cls} ${S.wEq===i?'eq':''}" data-a="eqw" data-i="${i}" style="cursor:pointer"><div class="e">${ic('w',i,w2.e)}</div><div class="n">${w2.n}</div><div class="v">Lv.${lv} · ${fx}</div></div>`
+      ? `<div class="rel ${cls} ${frCls(w2.r,6)} ${S.wEq===i?'eq':''}" data-a="eqw" data-i="${i}" style="cursor:pointer"><div class="e">${ic('w',i,w2.e)}</div><div class="n">${w2.n}</div><div class="v">Lv.${lv} · ${fx}</div></div>`
       : `<div class="rel no ${cls}"><div class="e">❓</div><div class="n">???</div><div class="v ${'rar'+w2.r}">${w2.r===6?'합성 전용':RAR7[w2.r].n}</div></div>`;
   });
   h+='</div>';
@@ -3118,7 +3133,7 @@ function buildEquip(){
     const lv=S.spirits[i]||0;
     const cls='r'+(sp.r===3?4:sp.r===2?3:sp.r);
     h+= lv>0
-      ? `<div class="rel ${cls} ${S.spEq===i?'eq':''}" data-a="eqsp" data-i="${i}" style="cursor:pointer"><div class="e">${ic('s',i,sp.e)}</div><div class="n">${sp.n}</div><div class="v">Lv.${lv} · +${Math.round(SP_PCT[sp.r]*(1+0.1*(lv-1)))}%</div></div>`
+      ? `<div class="rel ${cls} ${frCls(sp.r,3)} ${S.spEq===i?'eq':''}" data-a="eqsp" data-i="${i}" style="cursor:pointer"><div class="e">${ic('s',i,sp.e)}</div><div class="n">${sp.n}</div><div class="v">Lv.${lv} · +${Math.round(SP_PCT[sp.r]*(1+0.1*(lv-1)))}%</div></div>`
       : `<div class="rel no ${cls}"><div class="e">❓</div><div class="n">???</div><div class="v ${'rar'+(sp.r===3?4:sp.r)}">${RAR4[sp.r].n}</div></div>`;
   });
   h+='</div>';
@@ -3130,7 +3145,7 @@ function buildEquip(){
     const cls='r'+(ac.r===3?4:ac.r===2?3:ac.r);
     const fxK=Object.keys(ac.fx)[0];
     h+= lv>0
-      ? `<div class="rel ${cls} ${S.accEq===i?'eq':''}" data-a="eqac" data-i="${i}" style="cursor:pointer"><div class="e">${ic('a',i,ac.e)}</div><div class="n">${ac.n}</div><div class="v">Lv.${lv} · ${ACC_FX_N[fxK]}+${Math.round(ac.fx[fxK]*(1+0.1*(lv-1)))}${fxK==='cd'?'%p':'%'}</div></div>`
+      ? `<div class="rel ${cls} ${frCls(ac.r,3)} ${S.accEq===i?'eq':''}" data-a="eqac" data-i="${i}" style="cursor:pointer"><div class="e">${ic('a',i,ac.e)}</div><div class="n">${ac.n}</div><div class="v">Lv.${lv} · ${ACC_FX_N[fxK]}+${Math.round(ac.fx[fxK]*(1+0.1*(lv-1)))}${fxK==='cd'?'%p':'%'}</div></div>`
       : `<div class="rel no ${cls}"><div class="e">❓</div><div class="n">???</div><div class="v ${'rar'+(ac.r===3?4:ac.r)}">${RAR4[ac.r].n}</div></div>`;
   });
   h+='</div><p class="demo-note">장신구 소환으로 획득 · 중복 = 강화</p>';
