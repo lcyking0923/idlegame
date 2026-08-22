@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>조선검객 키우기</title>
-<link rel="icon" href="assets/sprites/favicon.png?v=20260822d">
-<link rel="apple-touch-icon" href="assets/sprites/appicon.png?v=20260822d">
+<link rel="icon" href="assets/sprites/favicon.png?v=20260822e">
+<link rel="apple-touch-icon" href="assets/sprites/appicon.png?v=20260822e">
 <style>
 :root{
   --ink:#16110C; --ink2:#221A11; --ink3:#2C2216;
@@ -95,7 +95,10 @@ header{flex:none;background:var(--ink2);border-bottom:2px solid var(--gold2)}
 }
 /* 모험 지도 */
 .advmap{position:relative;height:330px;border-radius:12px;overflow:hidden;margin-bottom:8px;
-  background:linear-gradient(160deg,#E8D5A8 0%,#DCC28E 45%,#CDb684 100%);border:2px solid var(--gold2)}
+  background:#DCC28E url(assets/sprites/map.jpg?v=20260822e) center/cover no-repeat;
+  border:2px solid var(--gold2)}
+/* 원화 지도를 깔았으므로 절차 생성 종이 무늬는 감춘다 */
+.advmap::before{display:none}
 .advmap::before{content:'';position:absolute;inset:0;opacity:.25;
   background:radial-gradient(circle at 20% 30%,#B99A5E 0 2px,transparent 3px),
              radial-gradient(circle at 70% 60%,#B99A5E 0 2px,transparent 3px),
@@ -253,7 +256,7 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
   border:2px solid var(--line);min-height:72px;position:relative}
 .rel .e{font-size:21px;line-height:1.2}
 /* 아이콘 스프라이트 — 이모지 자리에 원화 아이콘을 넣는다. 파일이 없으면 이모지가 그대로 남는다 */
-.ic{display:inline-block;vertical-align:middle;background-image:url(assets/sprites/icons.png?v=20260822d);
+.ic{display:inline-block;vertical-align:middle;background-image:url(assets/sprites/icons.png?v=20260822e);
   background-repeat:no-repeat;image-rendering:auto;width:var(--s);height:var(--s);
   background-size:calc(var(--s)*var(--gc)) calc(var(--s)*var(--gr));
   background-position:calc(var(--s)*var(--cx)*-1) calc(var(--s)*var(--cy)*-1)}
@@ -270,11 +273,11 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .rel .v{font-size:9px;color:var(--indigo);font-weight:700}
 /* 등급 테두리 — 9분할(border-image)로 모서리 장식이 늘어나지 않게 */
 .rel.fr{border-width:9px;border-style:solid;border-color:transparent;background-clip:padding-box}
-.rel.fr0{border-image:url(assets/sprites/frame0.png?v=20260822d) 40 / 9px stretch}
-.rel.fr1{border-image:url(assets/sprites/frame1.png?v=20260822d) 40 / 9px stretch}
-.rel.fr2{border-image:url(assets/sprites/frame2.png?v=20260822d) 40 / 9px stretch}
-.rel.fr3{border-image:url(assets/sprites/frame3.png?v=20260822d) 40 / 9px stretch}
-.rel.fr4{border-image:url(assets/sprites/frame4.png?v=20260822d) 40 / 9px stretch}
+.rel.fr0{border-image:url(assets/sprites/frame0.png?v=20260822e) 40 / 9px stretch}
+.rel.fr1{border-image:url(assets/sprites/frame1.png?v=20260822e) 40 / 9px stretch}
+.rel.fr2{border-image:url(assets/sprites/frame2.png?v=20260822e) 40 / 9px stretch}
+.rel.fr3{border-image:url(assets/sprites/frame3.png?v=20260822e) 40 / 9px stretch}
+.rel.fr4{border-image:url(assets/sprites/frame4.png?v=20260822e) 40 / 9px stretch}
 .rel.r1{border-color:#5C87B5}.rel.r2{border-color:#7A5CB5;background:linear-gradient(#F5EFFB,#E6DCF3)}
 .rel.r3{border-color:#B5722A;background:linear-gradient(#FDF3D8,#F3DFAE)}
 .rel.r4{border-color:var(--red);background:linear-gradient(#FFF0E2,#F7DDC2);box-shadow:0 0 8px rgba(185,58,43,.45)}
@@ -302,7 +305,7 @@ nav button{flex:1;padding:6px 0 7px;text-align:center;color:#8F7C5C;font-size:10
 nav button .e{display:block;font-size:18px;line-height:1.25;filter:grayscale(1) opacity(.7)}
 /* 탭 아이콘 6종 가로 스프라이트 — 6칸이므로 위치는 20%씩 */
 nav button .e.tabi{width:24px;height:24px;margin:0 auto 1px;font-size:0;
-  background-image:url(assets/sprites/tabs.png?v=20260822d);background-repeat:no-repeat;
+  background-image:url(assets/sprites/tabs.png?v=20260822e);background-repeat:no-repeat;
   background-size:600% 100%;background-position:calc(var(--ti)*20%) 0}
 nav button.on{color:var(--goldL)}
 nav button.on .e{filter:none}
@@ -331,7 +334,7 @@ textarea.io{width:100%;height:90px;font-size:11px;border:1px solid var(--line);b
 #titleScr{position:fixed;inset:0;margin:0 auto;max-width:430px;z-index:45;overflow:hidden;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
   padding-bottom:14vh;
-  background:#0D0A16 url(assets/sprites/splash.png?v=20260822d) center/cover no-repeat;
+  background:#0D0A16 url(assets/sprites/splash.png?v=20260822e) center/cover no-repeat;
   transition:opacity .55s ease}
 /* 스플래시 원화를 깔았으므로 절차 생성 달·능선은 감춘다 */
 #titleScr .tmoon,#titleScr .tridge{display:none}
@@ -341,7 +344,7 @@ textarea.io{width:100%;height:90px;font-size:11px;border:1px solid var(--line);b
 #titleScr>*{position:relative;z-index:1}
 /* 제목 판 뒤에 엠블럼 */
 .temblem{position:relative;width:min(94%,392px);aspect-ratio:760/433;margin:0;
-  background:url(assets/sprites/emblem.png?v=20260822d) center/contain no-repeat;
+  background:url(assets/sprites/emblem.png?v=20260822e) center/contain no-repeat;
   filter:drop-shadow(0 6px 16px rgba(0,0,0,.6))}
 /* 제목판이 엠블럼 안쪽 판에 얹히도록 — 엠블럼은 가운데가 비어 있다 */
 /* 화자 초상 — 대사 왼쪽에 얼굴 */
@@ -480,7 +483,7 @@ textarea.io{width:100%;height:90px;font-size:11px;border:1px solid var(--line);b
 <div id="toasts"></div>
 
 <script>
-const ASSET_V='20260822d'; // 에셋 갱신 시 올린다 (브라우저 캐시 무력화)
+const ASSET_V='20260822e'; // 에셋 갱신 시 올린다 (브라우저 캐시 무력화)
 function av(u){ return u+'?v='+ASSET_V; }
 
 'use strict';
@@ -514,9 +517,9 @@ function renderStory(){
   const st=curStory; if(!st) return;
   const ln=st.lines[storyIdx];
   showModal(`<h2>${st.t}</h2>
-    <div class="cutscene" style="background-image:url(assets/sprites/cut_${st.id}.jpg?v=20260822d)"></div>
+    <div class="cutscene" style="background-image:url(assets/sprites/cut_${st.id}.jpg?v=20260822e)"></div>
     <div class="card storyline" style="min-height:104px">
-      ${PORTRAIT[ln[0]]?`<div class="portrait" style="background-image:url(assets/sprites/por_${PORTRAIT[ln[0]]}.png?v=20260822d)"></div>`:''}
+      ${PORTRAIT[ln[0]]?`<div class="portrait" style="background-image:url(assets/sprites/por_${PORTRAIT[ln[0]]}.png?v=20260822e)"></div>`:''}
       <div class="stext">
         ${ln[0]?`<div class="who">${ln[0]}</div>`:''}
         <p style="font-size:13px;line-height:1.8;${ln[0]?'':'font-style:italic;color:var(--brown2)'}">${ln[1]}</p>
@@ -1286,6 +1289,38 @@ fetch(av('assets/sprites/icons.json')).then(r=>r.json()).then(j=>{
   try{ paintFixedIcons(); }catch(e){}
   try{ if(typeof activeTab!=='undefined') switchTab(activeTab); }catch(e){} // 로드 후 열려 있던 탭 다시 그리기
 }).catch(()=>{});
+/* ═══ 동료 인게임 스프라이트 (assets/sprites/comps.png)
+   해금된 동료가 주인공 뒤에 서서 함께 공격 동작을 취한다.
+   피해는 지금처럼 능력치 보정으로만 들어가고, 화면에서만 같이 싸운다 ═══ */
+const CompSpr={
+  img:null, F:null, sc:2,
+  load(){
+    fetch(av('assets/sprites/comps.json')).then(r=>r.json()).then(j=>{
+      const im=new Image();
+      im.onload=()=>{ this.img=im; this.F=j.frames; this.sc=j.scale||2; };
+      im.src=av('assets/sprites/comps.png');
+    }).catch(()=>{});
+  },
+  drawAll(){
+    if(!this.img||!this.F) return;
+    const h=W.hero;
+    for(let i=COMPS.length-1;i>=0;i--){          // 뒤쪽부터 그려 앞사람이 위로
+      if(S.maxClear+1<COMPS[i].un) continue;      // 아직 합류 전
+      const arr=this.F[i]; if(!arr) continue;
+      // 주인공 뒤쪽 위로 살짝 물러서게 (2.5D 깊이). 너무 왼쪽으로 빼면 화면 밖·UI에 가린다
+      const x=h.x-16-i*12, gy=W.G-9-i*7;
+      let fi;
+      if(h.swing>0) fi=Math.min(arr.length-1,1+Math.floor((1-h.swing)*2)); // 주인공이 벨 때 같이
+      else fi=Math.floor(W.t*3+i)%2;                                        // 평소엔 대기 흔들림
+      const f=arr[fi], s=1/this.sc;
+      cx.save();
+      cx.globalAlpha=0.85-i*0.07;               // 뒤로 갈수록 옅게 (원근)
+      cx.drawImage(this.img,f.x,f.y,f.w,f.h,
+        Math.round(x-f.ox*s), Math.round(gy-f.oy*s), f.w*s, f.h*s);
+      cx.restore();
+    }
+  },
+};
 /* ═══ 이펙트 아틀라스 (assets/sprites/fx.png)
    베기 궤적·타격·기술·오라. 없으면 기존 캔버스 드로잉이 그대로 나온다 ═══ */
 const Fx={
@@ -2262,6 +2297,8 @@ function draw(){
     const kp=f.t/f.dur;
     Fx.draw(f.n,f.x,f.y,(f.sz||1)*(0.72+kp*0.5),Math.min(1,(1-kp)*1.5)*0.72);
   }
+  // 동료 — 주인공 뒤에 선다
+  CompSpr.drawAll();
   // 수호 영물
   if(S.spEq>=0) drawSpirit();
   // 영웅
@@ -4631,6 +4668,7 @@ window.addEventListener('resize',sizeCanvas);
   BgSpr.load(); BgSpr.loadObj(); // 배경 원화 레이어·구조물·지면
   SpSpr.load();   // 수호 영물 원화
   Fx.load();      // 이펙트 아틀라스
+  CompSpr.load(); // 동료 인게임 스프라이트
   renderTitle(); // 타이틀 화면 — 출정 전까지 모달(서장/일일/방치) 대기
   save();
   requestAnimationFrame(frame);
