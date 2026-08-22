@@ -277,6 +277,13 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .lvbtn.rdy{animation:lvpulse 1.1s ease-in-out infinite}
 .lvbtn.off{filter:grayscale(.75);opacity:.55;pointer-events:none;box-shadow:0 3px 0 #6B6B5E}
 @keyframes lvpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+/* 승급 티어 목록 */
+.rankrow{display:flex;align-items:center;gap:8px;padding:7px 9px}
+.rankrow .mid{flex:1;min-width:0}
+.rankrow .rmark{width:18px;flex:none;text-align:center;font-weight:800;color:var(--green)}
+.rankrow .rstate{flex:none}
+.rankrow.done{opacity:.62}
+.rankrow.now{border-color:var(--gold2);box-shadow:0 0 0 2px rgba(217,164,65,.35)}
 /* 비급 · 스킬 상세 */
 .mastrow{display:flex;align-items:center;gap:8px}
 .mastrow .mid{flex:1;min-width:0}
@@ -3903,6 +3910,26 @@ function promoHTML(){
       ['atk','gold','exp','mana'].map(t=>{const v=rankOptSum(t);return v?({atk:'공격',gold:'냥',exp:'경험치',mana:'내공회복'}[t])+' +'+v+'%':null;}).filter(Boolean).join(' · ')
     }</div>`:''}
   </div>`;
+  // 품계 18단계를 전부 펼쳐 보인다 — 참고 게임의 승급 티어 목록 형태
+  h+='<div class="sect">품계</div>';
+  for(let r=0;r<RANKS.length;r++){
+    const done=S.rank>=r;
+    const now=S.rank===r;
+    const isNext=S.rank+1===r;
+    let mult=1; for(let k=0;k<r;k++) mult*=RANK_MULTS[k];
+    const gate=r>0?RANK_GATES[r-1]:0;
+    h+=`<div class="card rankrow ${done?'done':''} ${now?'now':''}">
+      <div class="rmark">${done?'✓':(isNext?'▶':'')}</div>
+      <div class="mid">
+        <div class="nm">${RANKS[r]}${now?'<span class="lv">현재</span>':''}</div>
+        <div class="vv"><b>공격력 ×${fmt(mult)}</b><span class="arw">·</span><b>체력 ×${fmt(mult)}</b></div>
+      </div>
+      <div class="rstate">${
+        done ? '<span class="badge-done">승급 완료</span>'
+        : isNext ? `<button class="btn red ${rankGateOk()&&S.gold>=rc.gold?'':'off'}" data-a="rankgo">승급 도전</button>`
+        : `<span class="small">권장 ${gate}층</span>`}</div>
+    </div>`;
+  }
   return h;
 }
 /* ═══════════ 모험 탭 — 팔도 요괴 지도 ═══════════ */
