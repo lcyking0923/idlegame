@@ -277,6 +277,13 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .lvbtn.rdy{animation:lvpulse 1.1s ease-in-out infinite}
 .lvbtn.off{filter:grayscale(.75);opacity:.55;pointer-events:none;box-shadow:0 3px 0 #6B6B5E}
 @keyframes lvpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+/* 동료 상세 */
+.cdhead{text-align:center;margin:2px 0 8px}
+.cdhead .cdname{display:inline-block;background:var(--ink3);color:var(--goldL);
+  border:1px solid var(--gold2);border-radius:7px;padding:2px 14px;font-family:var(--serif);margin:2px 0}
+.cdhead .cface.big{font-size:44px;line-height:1.1;margin:4px 0}
+.compstage .cbar{position:relative}
+.compstage .cbar b{position:absolute;inset:0;font-size:7px;line-height:9px;color:#fff;text-shadow:0 1px 1px #000}
 /* 장비 4분할 — 참고 게임처럼 4열 격자에 등급·N 뱃지·진행바 */
 .relgrid.g4{grid-template-columns:repeat(4,1fr)}
 .rel{position:relative}
@@ -1588,6 +1595,48 @@ const DG_MOB={ gold:['imp','#E8B84A','#A87E1E','금괴 요괴',30],
                rift:['und','#5A4A8A','#2E2450','심연 요괴',30] };
 /* 보패(寶貝) — 참고 게임의 '유물'에 해당. 확률형 강화라 실패가 있다.
    레벨이 오를수록 성공 확률이 떨어져, 고레벨은 실패를 감수하고 올려야 한다. */
+/* 동료 패시브 — 참고 게임의 동료 상세 PASSIVE 3종에 해당.
+   동료마다 성격에 맞는 보정을 주고, 냥+옥으로 따로 강화한다. */
+const COMP_JOB=['신궁','역사','장사치','도인'];
+const COMP_PASSIVE=[
+ [ {n:'집중 사격', e:'🎯', k:'acc',  pv:4,    d:'명중'},
+   {n:'숲의 도움', e:'🌲', k:'atk',  pv:1.2,  d:'추가 공격력'},
+   {n:'바람의 노래',e:'🎵', k:'aps',  pv:0.4,  d:'공격 속도'} ],
+ [ {n:'투지',     e:'🛡️', k:'hp',   pv:1.8,  d:'체력'},
+   {n:'광기',     e:'💢', k:'critd',pv:3.0,  d:'치명 피해'},
+   {n:'검무',     e:'⚔️', k:'atk',  pv:1.5,  d:'총 공격력'} ],
+ [ {n:'주머니 셈', e:'💰', k:'gold', pv:2.0,  d:'냥 획득량'},
+   {n:'발 빠른 눈',e:'👣', k:'eva',  pv:3,    d:'회피'},
+   {n:'물건 보는 눈',e:'🔍',k:'exp',  pv:1.5,  d:'경험치 획득'} ],
+ [ {n:'기의 순환', e:'🌀', k:'mana', pv:2.0,  d:'내공 회복'},
+   {n:'무극 증폭', e:'✨', k:'skill',pv:1.2,  d:'기술 피해'},
+   {n:'전장의 지혜',e:'📖', k:'reg',  pv:1.5,  d:'체력 회복량'} ],
+];
+function cpLv(ci,pi){ return (S.compP[ci]&&S.compP[ci][pi])||0; }
+function cpCost(ci,pi){ const lv=cpLv(ci,pi);
+  return { gold: Math.floor(400*Math.pow(1.14,lv)*Math.pow(6,ci)), jade: Math.floor(2+lv*0.35) }; }
+function compPFx(k){ // 해금된 동료의 패시브만 합산
+  let v=0;
+  COMP_PASSIVE.forEach((arr,ci)=>{ if(!compUnlocked(ci)) return;
+    arr.forEach((pp,pi)=>{ if(pp.k===k) v+=pp.pv*cpLv(ci,pi); }); });
+  return v;
+}
+/* 동료 승급 옵션 — 잠금 능력을 영석으로 해금 */
+const COMP_OPT=[
+ {n:'명중',      k:'acc',  v:10, cost:12},
+ {n:'치명 피해', k:'critd',v:24, cost:18},
+ {n:'추가 체력', k:'hp',   v:24, cost:18},
+ {n:'체력 회복', k:'reg',  v:35, cost:24},
+ {n:'상태 저항', k:'eva',  v:14, cost:24},
+ {n:'냥 획득',   k:'gold', v:14, cost:30},
+];
+function coOn(ci,oi){ return !!(S.compO[ci]&&S.compO[ci][oi]); }
+function compOFx(k){
+  let v=0;
+  COMP_OPT.forEach((o,oi)=>{ if(o.k!==k) return;
+    COMPS.forEach((c,ci)=>{ if(compUnlocked(ci)&&coOn(ci,oi)) v+=o.v; }); });
+  return v;
+}
 const RELICS=[
  {n:'완력의 팔찌', e:'💪', k:'atk',  per:0.10, max:100, d:'추가 공격력'},
  {n:'사냥꾼의 눈', e:'👁️', k:'critd',per:0.02, max:100, d:'치명 피해'},
@@ -1678,7 +1727,7 @@ function freshState(){
     sumCnt:{w:0,sk:0,sp:0,ac:0}, volS:0.6, volM:0.5,
     shopView:'sum', charView:0,
     weapons:{0:1}, wEq:0,
-    spirits:{}, spEq:-1, relics:{}, equipView:0,
+    spirits:{}, spEq:-1, relics:{}, equipView:0, compP:{}, compO:{}, compView:0, compSel:0, seen:{},
     skills:{0:1}, skEq:[0,-1,-1,-1,-1,-1,-1,-1],
     aw:{atk:0,hp:0,critd:0,skill:0,gold:0},
     rebirths:0, dao:0, tr:{atk:0,hp:0,gold:0,skill:0},
@@ -1728,13 +1777,13 @@ let buffAtk=0, buffAps=0; // 버프 스킬 잔여시간
 function rankOptSum(t){ let v=0; for(const o of (S.rankOpts||[])) if(o.t===t) v+=o.v; return v; }
 let buffAtkV=0.25, buffApsV=0.4;
 function heroAtk(){
-  let a=stVal('atk')*rankMult()*wEqMult()*wOwnMult()*spMult()*(1+S.aw.atk*0.04)*trMult('atk')*(1+rankOptSum('atk')/100)*(1+compLv(1)*0.03)*(1+relicFx('atk'));
+  let a=stVal('atk')*rankMult()*wEqMult()*wOwnMult()*spMult()*(1+S.aw.atk*0.04)*trMult('atk')*(1+rankOptSum('atk')/100)*(1+compLv(1)*0.03)*(1+relicFx('atk'))*(1+compPFx('atk')/100);
   if(buffAtk>0) a*=1+buffAtkV;
   if(adbOn('atk')) a*=2;
   if(boostOn()) a*=2; if(royalOn()) a*=2;
   return a;
 }
-function heroMaxHp(){ return stVal('hp')*rankMult()*(1+S.aw.hp*0.04)*trMult('hp')*(1+spFx('hp')/100)*(1+accFx('hp')/100)*(1+relicFx('hp')); }
+function heroMaxHp(){ return stVal('hp')*rankMult()*(1+S.aw.hp*0.04)*trMult('hp')*(1+spFx('hp')/100)*(1+accFx('hp')/100)*(1+relicFx('hp'))*(1+(compPFx('hp')+compOFx('hp'))/100); }
 /* 영물 보너스 4종 (원작 정령: 공격·체력·골드·경험치) */
 function spFx(kind){
   if(S.spEq<0||!S.spirits[S.spEq]) return 0;
@@ -1750,16 +1799,16 @@ function compCost(i){ return 200*Math.pow(1.12,compLv(i))*Math.pow(8,i); }
 function compUnlocked(i){ return S.maxClear>=COMPS[i].un; }
 /* 명중/회피 (원작: 고층 요괴 회피 — 명중 스탯 필수) */
 function enemyDodge(n){ return Math.min(35,(n-1)*0.12); }
-function hitChance(n){ return Math.min(100,100-enemyDodge(n)+S.spSt.acc*0.2+compLv(0)*0.3+relicFx('acc')*0.1); }
-function heroDodge(){ return Math.min(40,S.spSt.eva*0.1+relicFx('eva')*0.05); }
+function hitChance(n){ return Math.min(100,100-enemyDodge(n)+S.spSt.acc*0.2+compLv(0)*0.3+relicFx('acc')*0.1+(compPFx('acc')+compOFx('acc'))*0.1); }
+function heroDodge(){ return Math.min(40,S.spSt.eva*0.1+relicFx('eva')*0.05+(compPFx('eva')+compOFx('eva'))*0.05); }
 /* 스킬 숙련도 (원작: 스킬 20강마다 숙련도 → 전 스킬 피해 증가) */
 function skillMastery(){ let t=0; for(const k in S.skills) t+=S.skills[k]; return Math.floor(t/20); }
 function heroCrit(){ return Math.min(100,stVal('crit')+S.spSt.crit*0.1); }
-function heroCritD(){ return stVal('critd')+S.aw.critd*6+wEqCritD()+accFx('cd')+relicFx('critd')*100; }
-function heroAps(){ let a=stVal('aps')*(1+relicFx('aps')); if(buffAps>0) a*=1+buffApsV; return a; }
+function heroCritD(){ return stVal('critd')+S.aw.critd*6+wEqCritD()+accFx('cd')+relicFx('critd')*100+compPFx('critd')+compOFx('critd'); }
+function heroAps(){ let a=stVal('aps')*(1+relicFx('aps'))*(1+compPFx('aps')/100); if(buffAps>0) a*=1+buffApsV; return a; }
 function skillMult(i){ const lv=S.skills[i]||1;
-  return SKILLS[i].mult*(1+0.15*(lv-1))*(1+S.aw.skill*0.05)*trMult('skill')*(1+skillMastery()*0.05)*(1+relicFx('skill'))*(S.skAw[i]?1.8:1); }
-function goldMult(){ return (1+stVal('gget')/100)*(1+wEqGold()/100)*(1+S.aw.gold*0.04)*trMult('gold')*(1+S.spSt.gold*0.02)*(1+spFx('gold')/100)*(1+accFx('gold')/100)*(1+rankOptSum('gold')/100)*(1+compLv(2)*0.03)*(1+relicFx('gold'))*(adbOn('gold')?3:1)*(boostOn()?2:1)*(royalOn()?2:1); }
+  return SKILLS[i].mult*(1+0.15*(lv-1))*(1+S.aw.skill*0.05)*trMult('skill')*(1+skillMastery()*0.05)*(1+relicFx('skill'))*(1+compPFx('skill')/100)*(S.skAw[i]?1.8:1); }
+function goldMult(){ return (1+stVal('gget')/100)*(1+wEqGold()/100)*(1+S.aw.gold*0.04)*trMult('gold')*(1+S.spSt.gold*0.02)*(1+spFx('gold')/100)*(1+accFx('gold')/100)*(1+rankOptSum('gold')/100)*(1+compLv(2)*0.03)*(1+relicFx('gold'))*(1+(compPFx('gold')+compOFx('gold'))/100)*(adbOn('gold')?3:1)*(boostOn()?2:1)*(royalOn()?2:1); }
 function statCost(id,k){ const c=STATS.find(s=>s.id===id); const lv=S.st[id];
   return c.c0*Math.pow(c.cg,lv)*(Math.pow(c.cg,k)-1)/(c.cg-1); }
 function statMaxBuy(id){ const c=STATS.find(s=>s.id===id); const lv=S.st[id];
@@ -1778,7 +1827,7 @@ function rankCost(){ return {gold:300*Math.pow(3.5,S.rank)}; }
 function rankGateOk(){ return S.rank<RANK_MULTS.length&&S.maxClear>=RANK_GATES[S.rank]; }
 /* 검객 레벨·SP (처치 경험치) */
 function expNeed(lv){ return Math.floor(30*Math.pow(1.22,lv-1)); }
-function expFor(n,boss){ return Math.floor((2+n*0.7)*(boss?10:1)*(1+spFx('exp')/100)*(1+accFx('exp')/100)*(1+rankOptSum('exp')/100)*(1+relicFx('exp'))*(adbOn('exp')?3:1)); }
+function expFor(n,boss){ return Math.floor((2+n*0.7)*(boss?10:1)*(1+spFx('exp')/100)*(1+accFx('exp')/100)*(1+rankOptSum('exp')/100)*(1+relicFx('exp'))*(1+compPFx('exp')/100)*(adbOn('exp')?3:1)); }
 function gainExp(x){ S.exp+=x; }   // 레벨업은 LEVEL UP 버튼으로 (자동 상승 아님)
 function canLevel(){ return S.exp>=expNeed(S.lv); }
 function doLevelUp(){
@@ -1983,7 +2032,7 @@ function update(dt){
   if(W.bossDelay>0){ W.bossDelay-=dt; if(W.bossDelay<=0) startBoss(); }
   for(let i=0;i<8;i++) W.skCd[i]-=dt;
   buffAtk=Math.max(0,buffAtk-dt); buffAps=Math.max(0,buffAps-dt);
-  W.mana=Math.min(100,W.mana+12*(1+rankOptSum('mana')/100)*(1+accFx('mana')/100)*(1+compLv(3)*0.02)*dt); // 내공 회복
+  W.mana=Math.min(100,W.mana+12*(1+rankOptSum('mana')/100)*(1+accFx('mana')/100)*(1+compLv(3)*0.02)*(1+compPFx('mana')/100)*dt); // 내공 회복
   // 보스 제한시간
   if(W.mode==='boss'){
     W.bossTimer-=dt;
@@ -2086,7 +2135,7 @@ function update(dt){
   // 회복
   if(h.dead<=0){
     const inF=front&&front.state==='fight';
-    h.hp=Math.min(heroMaxHp(),h.hp+stVal('reg')*rankMult()*(1+relicFx('reg'))*(inF?1:5)*dt);
+    h.hp=Math.min(heroMaxHp(),h.hp+stVal('reg')*rankMult()*(1+relicFx('reg'))*(1+(compPFx('reg')+compOFx('reg'))/100)*(inF?1:5)*dt);
   }
   h.swing=Math.max(0,h.swing-dt*4.6); // 베는 동작 길이(약 0.22초) — 너무 빠르면 휘두른 게 안 보인다 h.hurt=Math.max(0,h.hurt-dt*4);
   if(W.running){ h.dustT-=dt; if(h.dustT<=0){ h.dustT=0.18;
@@ -3556,30 +3605,105 @@ function summonHTML(){
 }
 /* ═══════════ 동료 탭 ═══════════ */
 function buildComp(){
-  let h='<div class="subtab"><button class="on">동료</button><button style="opacity:.45;pointer-events:none">전직 (준비 중)</button></div>';
+  let h='<div class="subtab"><button class="on">동료</button>'
+       +'<button style="opacity:.45;pointer-events:none">전직 (준비 중)</button></div>';
   h+='<div class="compstage">';
   COMPS.forEach((c,i)=>{
     const un=compUnlocked(i), lv=compLv(i);
-    h+=`<div class="compfig ${un?'':'lockd'}">
+    h+=`<div class="compfig ${un?'':'lockd'}" ${un?`data-a="compdet" data-i="${i}" style="cursor:pointer"`:''}>
       <div class="clv">${un?'Lv.'+lv:'&nbsp;'}</div>
       <div class="cface">${c.e}</div>
       <div class="cnm">${un?c.n:'???'}</div>
-      <div class="cbar"><i style="width:${un?Math.min(100,lv%5/5*100+20):0}%"></i></div>
+      <div class="cbar"><i style="width:${un?Math.min(100,lv%5/5*100+20):0}%"></i><b>${un?(lv%5)+'/5':''}</b></div>
     </div>`;
   });
-  h+='</div><p class="demo-note" style="margin-bottom:6px">동료는 검객의 능력을 올려줍니다</p>';
+  h+='</div><p class="demo-note" style="margin-bottom:6px">동료를 눌러 자세히 보고 패시브를 단련하시오</p>';
   COMPS.forEach((c,i)=>{
     const un=compUnlocked(i), lv=compLv(i);
     h+=`<div class="card strow ${un?'':'locked'}">
       <div class="ico">${c.e}</div>
       <div class="mid">
-        <div class="nm">${c.n}<span class="lv" id="complv${i}">${un?lv+'성':''}</span></div>
-        <div class="sub">${un?c.d+' · '+c.line:'제'+c.un+'층 정복 시 합류'}</div>
+        <div class="nm">${un?COMP_JOB[i]+' · ':''}${c.n}<span class="lv" id="complv${i}">${un?lv+'성':''}</span></div>
+        <div class="sub">${un?c.d:'제'+c.un+'층 정복 시 합류'}</div>
       </div>
-      ${un?`<button class="btn holdbuy" data-a="compup" data-i="${i}" id="compbtn${i}">+1성<b>${fmt(compCost(i))}냥</b></button>`:'<span class="badge-done" style="background:#8B7f68">미합류</span>'}
+      ${un?`<button class="btn holdbuy" data-a="compup" data-i="${i}" id="compbtn${i}">+1성<b>${fmt(compCost(i))}냥</b></button>`
+          :'<span class="badge-done" style="background:#8B7f68">미합류</span>'}
     </div>`;
   });
   $('tab-comp').innerHTML=h;
+}
+/* 동료 상세 — 정보 / 승급 옵션 / 외형 */
+function compDetail(i,view){
+  if(i!=null) S.compSel=i;
+  if(view!=null) S.compView=view;
+  const ci=S.compSel, c=COMPS[ci], v=S.compView||0;
+  let h=`<div class="subtab cdtab">
+    ${['정보','승급 옵션','외형'].map((t,k)=>
+      `<button data-a="compview" data-i="${k}" class="${v===k?'on':''}">${t}</button>`).join('')}
+  </div>
+  <div class="cdhead">
+    <div class="small">${COMP_JOB[ci]}</div>
+    <div class="cdname">${c.n}</div>
+    <div class="cface big">${c.e}</div>
+    <div class="small">Lv.${compLv(ci)}</div>
+  </div>`;
+
+  if(v===0){
+    h+=`<div class="card" style="text-align:center;margin-bottom:6px">
+      <div class="small">STATUS</div><b style="color:var(--green)">${c.d}</b></div>`;
+    h+='<div class="sect">패시브</div>';
+    COMP_PASSIVE[ci].forEach((pp,pi)=>{
+      const lv=cpLv(ci,pi), cost=cpCost(ci,pi);
+      const cur=pp.pv*lv, nx=pp.pv*(lv+1);
+      const unit=(pp.k==='acc'||pp.k==='eva')?'':'%';
+      const can=S.gold>=cost.gold&&S.jade>=cost.jade;
+      h+=`<div class="card strow">
+        <div class="ico">${pp.e}</div>
+        <div class="mid">
+          <div class="nm">${pp.n}<span class="lv">Lv.${lv}</span></div>
+          <div class="vv"><b>${pp.d} +${cur.toFixed(1)}${unit}</b><span class="arw">→</span><b class="nx">+${nx.toFixed(1)}${unit}</b></div>
+        </div>
+        <button class="btn ${can?'':'off'}" data-a="cpup" data-i="${ci}_${pi}">강화
+          <b>${fmt(cost.gold)}냥 · 옥 ${cost.jade}</b></button>
+      </div>`;
+    });
+  }else if(v===1){
+    h+='<p class="demo-note">영석으로 잠긴 능력을 엽니다. 동료마다 따로 열어야 하오.</p>';
+    COMP_OPT.forEach((o,oi)=>{
+      const on=coOn(ci,oi);
+      h+=`<div class="card strow ${on?'':'locked'}">
+        <div class="mid"><div class="nm" style="color:${on?'var(--green)':'var(--red)'}">${o.n} +${o.v}${(o.k==='acc'||o.k==='eva')?'':'%'}</div></div>
+        ${on?'<span class="badge-done">해금</span>'
+            :`<button class="btn ${S.seok>=o.cost?'':'off'}" data-a="coopen" data-i="${ci}_${oi}">해금<b>영석 ${o.cost}</b></button>`}
+      </div>`;
+    });
+  }else{
+    h+='<p class="demo-note">외형은 차림새만 바꾸며 능력에는 영향이 없소.</p><div class="relgrid g4">';
+    for(let k=0;k<8;k++){
+      h+= k===0
+        ? `<div class="rel r2 eq"><div class="e">${c.e}</div><div class="n">기본</div><div class="v">착용 중</div></div>`
+        : `<div class="rel no r0"><div class="e">?</div><div class="n">???</div><div class="v">미획득</div></div>`;
+    }
+    h+='</div>';
+  }
+  h+='<button class="btn wide" data-a="close">닫기</button>';
+  showModal(h);
+}
+function cpUp(ci,pi){
+  const cost=cpCost(ci,pi);
+  if(S.gold<cost.gold||S.jade<cost.jade) return;
+  S.gold-=cost.gold; S.jade-=cost.jade;
+  if(!S.compP[ci]) S.compP[ci]={};
+  S.compP[ci][pi]=cpLv(ci,pi)+1;
+  snd('reward'); compDetail(); updateHeader();
+}
+function coOpen(ci,oi){
+  const o=COMP_OPT[oi];
+  if(coOn(ci,oi)||S.seok<o.cost) return;
+  S.seok-=o.cost;
+  if(!S.compO[ci]) S.compO[ci]={};
+  S.compO[ci][oi]=1;
+  snd('reward'); toast(COMPS[ci].n+' — '+o.n+' 해금!'); compDetail(); updateHeader();
 }
 function pull(kind,times){
   // 원작 가격: 장비/장신구/영물 50·500, 기술만 300·3000
@@ -4543,6 +4667,10 @@ function act(a,i){
     case 'tab': switchTab(i); break;
     case 'levelup': levelUp(); break;
     case 'eqview': S.equipView=+i; buildEquip(); break;
+    case 'compdet': compDetail(+i,0); break;
+    case 'compview': compDetail(null,+i); break;
+    case 'cpup': { const [a2,b2]=i.split('_').map(Number); cpUp(a2,b2); } break;
+    case 'coopen': { const [a3,b3]=i.split('_').map(Number); coOpen(a3,b3); } break;
     case 'relicup': relicUp(+i); break;
     case 'buymode': S.buyMode=+i; buildStat(); break;
     case 'buystat': buyStat(+i); break;
