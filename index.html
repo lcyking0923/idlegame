@@ -1064,7 +1064,13 @@ const MobSpr={
   _cfg:{},
   cfg(nm){ // 매 프레임 호출되므로 결과를 캐시 (객체를 새로 만들면 GC 부담)
     let c=this._cfg[nm];
-    if(c===undefined){ const v=MOB_SPR[nm]; c=this._cfg[nm]=v?(typeof v==='string'?{id:v,lift:0}:v):null; }
+    if(c===undefined){
+      // 51층부터는 이름 앞에 '심연 '이 붙는다. 전체 이름을 먼저 찾고,
+      // 없을 때만 접두사를 뗀다 — 던전의 '심연 요괴'는 그 자체가 정식 이름이라 떼면 안 된다.
+      let v=MOB_SPR[nm];
+      if(v===undefined&&nm.indexOf('심연 ')===0) v=MOB_SPR[nm.slice(3)];
+      c=this._cfg[nm]=v?(typeof v==='string'?{id:v,lift:0}:v):null;
+    }
     return c;
   },
   get(nm){
