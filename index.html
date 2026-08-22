@@ -1186,6 +1186,12 @@ const Fx={
     }).catch(()=>{});
   },
   has(nm){ return !!(this.img&&this.F&&this.F[nm]); },
+  _cnt:{},
+  count(base){ // base0, base1 ... 형태로 몇 장 있는지 (애니메이션 시트용)
+    if(!this.F) return 0;
+    if(this._cnt[base]==null){ let n=0; while(this.F[base+n]) n++; this._cnt[base]=n; }
+    return this._cnt[base];
+  },
   draw(nm,x,y,scale,alpha,ang,add){ // 중심 기준 + 가산합성(빛)
     if(!this.has(nm)) return false;
     const f=this.F[nm], sc=(scale||1)/this.sc;
@@ -1639,8 +1645,19 @@ function ring(x,y,color){ W.parts.push({x,y,vx:0,vy:0,t:0,color,r:-1}); }
 function coinFly(x,y,n){ for(let i=0;i<Math.min(n,7);i++) W.coins.push({x,y,vx:-70-Math.random()*100,vy:-150-Math.random()*110,t:0}); }
 function skillFx(i,k){ // 버프형은 주인공 위, 공격형은 앞쪽에
   if(!Fx.has('k'+i)) return;
-  const x=W.hero.x+(k.buff?6:64), y=W.G-(k.buff?46:38);
-  W.fx.push({type:'skfx',n:'k'+i,x,y,t:0,dur:0.5,sz:k.aoe?1.25:1});
+  // 기술 여러 개가 동시에 재사용 대기에서 풀리면 한꺼번에 터져 화면이 이펙트로 덮인다.
+  // 화면에 두 개까지만 두고, 오래된 것부터 밀어낸다.
+  for(let n=W.fx.filter(f=>f.type==='skfx').length; n>=2; n--){
+    const j=W.fx.findIndex(f=>f.type==='skfx');
+    if(j<0) break;
+    W.fx.splice(j,1);
+  }
+  // 공격 기술은 '적이 있는 자리'에서 터져야 한다. 주인공 위에 겹치면 베는 동작이 묻힌다.
+  const fe=frontEnemy();
+  const x=k.buff ? W.hero.x+6
+                 : Math.max(W.hero.x+72, Math.min(fe?fe.x:W.hero.x+86, W.hero.x+130));
+  const y=W.G-(k.buff?46:34);
+  W.fx.push({type:'skfx',n:'k'+i,x,y,t:0,dur:0.42,sz:k.aoe?1.1:0.9});
 }
 const SLASH_KINDS=['arc','diag','cross','claw'];
 function slashFx(x,y,ang,col,kind,sz){
@@ -2108,6 +2125,13 @@ function draw(){
     cx.beginPath(); cx.arc(p.x-9,G-38,15,-1,1); cx.stroke();
     cx.restore();
   }
+  // ── 기술 이펙트 (주인공 뒤) ──
+  // 주인공보다 나중에 그리면 베는 동작이 통째로 가려진다. 뒤에서 터지게 한다.
+  for(const f of W.fx){
+    if(f.type!=='skfx') continue;
+    const kp=f.t/f.dur;
+    Fx.draw(f.n,f.x,f.y,(f.sz||1)*(0.72+kp*0.5),Math.min(1,(1-kp)*1.5)*0.72);
+  }
   // 수호 영물
   if(S.spEq>=0) drawSpirit();
   // 영웅
@@ -2234,9 +2258,7 @@ function draw(){
       cx.strokeStyle='rgba(0,0,0,.8)'; cx.lineWidth=3.4; cx.strokeText(f.sub,-tw4/2,24);
       cx.fillStyle='#FFE9B8'; cx.fillText(f.sub,-tw4/2,24);
       cx.restore();
-    }else if(f.type==='skfx'){ // 기술 원화 이펙트 — 커지며 사라진다
-      const k2=f.t/f.dur;
-      Fx.draw(f.n,f.x,f.y,(f.sz||1)*(0.72+k2*0.5),Math.min(1,(1-k2)*1.6));
+    }else if(f.type==='skfx'){ /* 주인공 뒤에서 이미 그렸다 */
     }else if(f.type==='banner'){ // 스킬명 붓글씨 배너
       const sc=f.t<0.12?0.5+f.t/0.12*0.6:(f.t<0.25?1.1-(f.t-0.12)/0.13*0.1:1);
       cx.save(); cx.translate(W.w/2,64); cx.scale(sc,sc); cx.globalAlpha=Math.min(1,a*2);
@@ -2412,7 +2434,17 @@ function drawHero(h){
   cx.fillStyle='rgba(0,0,0,.32)'; cx.beginPath(); cx.ellipse(x+2,G+3,21,4.5,0,0,7); cx.fill();
   // 버프 오라 (사자후=황금 화염 / 질풍=푸른 바람)
   if(h.dead<=0&&(buffAtk>0||buffAps>0)&&Fx.has('aura_atk')){
-    Fx.draw(buffAtk>0?'aura_atk':'aura_aps', x+2, G-14, 0.62, 0.72+Math.sin(W.t*7)*0.14);
+    const gold=buffAtk>0;
+    const anim=gold?'auraA_atk':'auraA_aps';   // 애니메이션 시트(있으면)
+    const nFr=Fx.count(anim);
+    if(nFr){
+      Fx.draw(anim+(Math.floor(W.t*14)%nFr), x+2, G-14, 0.62, 0.9);
+    }else{
+      // 정지 이미지뿐이면 회전·맥동으로라도 흐르게 보이게 한다
+      const base=gold?'aura_atk':'aura_aps';
+      Fx.draw(base, x+2, G-12, 0.66+Math.sin(W.t*3.1)*0.05, 0.5, W.t*(gold?1.5:-2.1));
+      Fx.draw(base, x+2, G-18, 0.50+Math.sin(W.t*4.3+2)*0.05, 0.42, -W.t*(gold?2.4:1.7));
+    }
   }
   else if(h.dead<=0&&(buffAtk>0||buffAps>0)){
     cx.save(); cx.globalCompositeOperation='lighter';
