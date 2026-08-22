@@ -343,6 +343,14 @@ textarea.io{width:100%;height:90px;font-size:11px;border:1px solid var(--line);b
   background:url(assets/sprites/emblem.png?v=20260822d) center/contain no-repeat;
   filter:drop-shadow(0 6px 16px rgba(0,0,0,.6))}
 /* 제목판이 엠블럼 안쪽 판에 얹히도록 — 엠블럼은 가운데가 비어 있다 */
+/* 화자 초상 — 대사 왼쪽에 얼굴 */
+.storyline{display:flex;gap:9px;align-items:flex-start}
+.storyline .stext{flex:1;min-width:0}
+.storyline .who{font-family:var(--serif);font-weight:700;color:var(--red);
+  margin-bottom:4px;letter-spacing:2px}
+.storyline .portrait{width:64px;height:64px;flex:none;border-radius:8px;
+  background-size:cover;background-position:center top;background-color:#1A1424;
+  border:1.5px solid var(--brown2);box-shadow:0 2px 6px rgba(0,0,0,.4)}
 /* 스토리 컷신 — 대사 위에 장면 한 컷 */
 .cutscene{width:100%;aspect-ratio:3/2;border-radius:10px;margin-bottom:8px;
   background-size:cover;background-position:center;background-color:#120E1C;
@@ -491,6 +499,9 @@ function toast(msg){
   $('toasts').appendChild(t);setTimeout(()=>t.remove(),2700);
 }
 let modalQueue=[];
+/* 화자 초상 — 이름이 목록에 있으면 대사 옆에 얼굴을 띄운다 (내레이션은 없음) */
+const PORTRAIT={'스승':'master','검객':'hero','매향':'maehyang',
+                '구미호':'gumiho','이무기':'imugi','저승사자':'reaper'};
 let curStory=null, storyIdx=0;
 function queueStory(st){ queueModal(()=>{ curStory=st; storyIdx=0; renderStory(); }); }
 function renderStory(){
@@ -498,9 +509,12 @@ function renderStory(){
   const ln=st.lines[storyIdx];
   showModal(`<h2>${st.t}</h2>
     <div class="cutscene" style="background-image:url(assets/sprites/cut_${st.id}.jpg?v=20260822d)"></div>
-    <div class="card" style="min-height:104px">
-      ${ln[0]?`<div style="font-family:var(--serif);font-weight:700;color:var(--red);margin-bottom:4px;letter-spacing:2px">${ln[0]}</div>`:''}
-      <p style="font-size:13px;line-height:1.8;${ln[0]?'':'font-style:italic;color:var(--brown2)'}">${ln[1]}</p>
+    <div class="card storyline" style="min-height:104px">
+      ${PORTRAIT[ln[0]]?`<div class="portrait" style="background-image:url(assets/sprites/por_${PORTRAIT[ln[0]]}.png?v=20260822d)"></div>`:''}
+      <div class="stext">
+        ${ln[0]?`<div class="who">${ln[0]}</div>`:''}
+        <p style="font-size:13px;line-height:1.8;${ln[0]?'':'font-style:italic;color:var(--brown2)'}">${ln[1]}</p>
+      </div>
     </div>
     <div class="small" style="text-align:center">${storyIdx+1} / ${st.lines.length}</div>
     <button class="btn red wide" data-a="storynext">${storyIdx<st.lines.length-1?'▶ 계속':'⚔️ 검을 든다'}</button>`);
