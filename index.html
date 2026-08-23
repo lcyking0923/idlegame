@@ -186,11 +186,11 @@ header{flex:none;background:var(--ink2);border-bottom:2px solid var(--gold2)}
   border-radius:22px;padding:8px 20px;font-size:13px;font-weight:700;box-shadow:0 3px 10px rgba(0,0,0,.6);
   animation:pulse 1.2s ease-in-out infinite}
 @keyframes pulse{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.06)}}
-#questBtn,#mailBtn{position:absolute;left:8px;width:42px;height:42px;border-radius:50%;z-index:4;
+#questBtn,#mailBtn{position:absolute;right:8px;width:42px;height:42px;border-radius:50%;z-index:4;
   background:rgba(14,10,6,.78);border:2px solid var(--gold2);font-size:19px;
   box-shadow:0 3px 8px rgba(0,0,0,.55)}
-#questBtn{bottom:8px}
-#mailBtn{bottom:56px}
+#questBtn{top:8px}
+#mailBtn{top:56px}
 #questBtn .dot,#mailBtn .dot{position:absolute;top:-2px;right:-2px;width:11px;height:11px;border-radius:50%;
   background:var(--red);border:2px solid #100C08;display:none}
 #questBtn .dot.on,#mailBtn .dot.on{display:block}
@@ -4809,7 +4809,8 @@ function heroTitle(){
 }
 function updateHeader(){
   const now=Date.now();
-  $('goldV').textContent=fmt(S.gold)+'냥';
+  // 전장 위 냥은 줄임말(1.00조) 대신 자릿수 전부 — 참고 게임처럼
+  $('goldV').textContent=Math.floor(S.gold).toLocaleString('ko-KR');
   $('jadeV').textContent=fmt(S.jade);
   $('titleV').textContent=heroTitle();
   $('powV').textContent='전투력 '+fmt(dps());
