@@ -1,0 +1,120 @@
+{
+ "row_plate": {
+  "top": 19,
+  "right": 49,
+  "bottom": 47,
+  "left": 53
+ },
+ "icon_slot": {
+  "top": 22,
+  "right": 27,
+  "bottom": 27,
+  "left": 27
+ },
+ "btn_gold_on": {
+  "top": 39,
+  "right": 44,
+  "bottom": 38,
+  "left": 47
+ },
+ "btn_gold_press": {
+  "top": 28,
+  "right": 49,
+  "bottom": 31,
+  "left": 48
+ },
+ "btn_gold_off": {
+  "top": 18,
+  "right": 39,
+  "bottom": 32,
+  "left": 48
+ },
+ "btn_lv_on": {
+  "top": 33,
+  "right": 42,
+  "bottom": 48,
+  "left": 42
+ },
+ "btn_lv_off": {
+  "top": 41,
+  "right": 36,
+  "bottom": 41,
+  "left": 36
+ },
+ "tab_on": {
+  "top": 48,
+  "right": 46,
+  "bottom": 51,
+  "left": 53
+ },
+ "tab_off": {
+  "top": 19,
+  "right": 31,
+  "bottom": 21,
+  "left": 34
+ },
+ "chip_on": {
+  "top": 23,
+  "right": 36,
+  "bottom": 23,
+  "left": 35
+ },
+ "chip_off": {
+  "top": 25,
+  "right": 32,
+  "bottom": 26,
+  "left": 31
+ },
+ "bar_track": {
+  "top": 2,
+  "right": 16,
+  "bottom": 2,
+  "left": 16
+ },
+ "bar_exp": {
+  "top": 2,
+  "right": 17,
+  "bottom": 2,
+  "left": 17
+ },
+ "bar_hp": {
+  "top": 2,
+  "right": 16,
+  "bottom": 2,
+  "left": 16
+ },
+ "bar_mp": {
+  "top": 2,
+  "right": 16,
+  "bottom": 2,
+  "left": 16
+ },
+ "bar_boss": {
+  "top": 2,
+  "right": 16,
+  "bottom": 2,
+  "left": 16
+ },
+ "bar_green": {
+  "top": 2,
+  "right": 17,
+  "bottom": 2,
+  "left": 17
+ },
+ "hdr_plate": {
+  "top": 86,
+  "right": 89,
+  "bottom": 95,
+  "left": 89
+ },
+ "navbar": {
+  "top": 50,
+  "right": 67,
+  "bottom": 79,
+  "left": 106
+ },
+ "stat_icons": {
+  "cell": 96,
+  "n": 7
+ }
+}

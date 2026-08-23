@@ -14,6 +14,8 @@
   --red:#B93A2B; --red2:#93291D;
   --green:#3A6B52; --indigo:#31506E;
   --gold:#D9A441; --gold2:#B8842C; --goldL:#F2CE7B;
+  /* 흑단 판때기 위에 얹는 글자색 */
+  --uiTxt:#F0E2C2; --uiSub:#B79E74; --uiGood:#8FE3A8; --uiGold:#F2CE7B;
   --serif:'Gungsuh','GungsuhChe','Batang','BatangChe','AppleMyungjo','Noto Serif KR',serif;
   --sans:'Malgun Gothic','Apple SD Gothic Neo','Noto Sans KR',sans-serif;
 }
@@ -46,21 +48,21 @@ header{flex:none;background:var(--ink2);border-bottom:2px solid var(--gold2)}
 .expstrip span{position:absolute;inset:0;text-align:center;font-size:8.5px;line-height:11px;color:#EAF6FF;text-shadow:0 1px 2px #000;font-variant-numeric:tabular-nums}
 .hrow2{display:flex;gap:6px;padding:4px 10px 5px}
 /* 스테이지 배너 */
-#stageBanner{position:absolute;top:5px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:5px;z-index:4}
-#stageBanner .nav{width:24px;height:24px;border-radius:12px;background:rgba(14,10,6,.74);
-  border:1px solid var(--brown2);color:var(--goldL);font-size:11px}
+#stageBanner{position:absolute;top:4px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:4px;z-index:4}
+#stageBanner .nav{width:19px;height:19px;border-radius:10px;background:rgba(14,10,6,.74);
+  border:1px solid var(--brown2);color:var(--goldL);font-size:9px}
 #stageBanner .nav.off{opacity:.3;pointer-events:none}
-.sbname{background:linear-gradient(#3A2C1B,#241B12);border:1.5px solid var(--gold2);border-radius:6px;
-  padding:2px 14px;text-align:center;line-height:1.15;box-shadow:0 2px 6px rgba(0,0,0,.5)}
-.sbname small{display:block;font-size:8px;letter-spacing:2px;color:var(--gold2)}
-.sbname b{font-family:var(--serif);font-size:13px;color:var(--goldL);letter-spacing:1px;white-space:nowrap}
-#bossBtn{width:38px;height:34px;border-radius:8px;background:linear-gradient(#4A2018,#2E120C);
-  border:1.5px solid var(--red);color:#FFB4A0;font-size:14px;line-height:1;padding-top:2px}
-#bossBtn small{display:block;font-size:7px;font-weight:700;letter-spacing:1px}
+.sbname{background:linear-gradient(#3A2C1B,#241B12);border:1px solid var(--gold2);border-radius:5px;
+  padding:1px 10px;text-align:center;line-height:1.1;box-shadow:0 2px 5px rgba(0,0,0,.5)}
+.sbname small{display:block;font-size:6.5px;letter-spacing:1.5px;color:var(--gold2)}
+.sbname b{font-family:var(--serif);font-size:10.5px;color:var(--goldL);letter-spacing:.5px;white-space:nowrap}
+#bossBtn{width:30px;height:27px;border-radius:6px;background:linear-gradient(#4A2018,#2E120C);
+  border:1.5px solid var(--red);color:#FFB4A0;font-size:11px;line-height:1;padding-top:1px}
+#bossBtn small{display:block;font-size:6px;font-weight:700;letter-spacing:.5px}
 #bossBtn.ready{background:linear-gradient(#E06450,var(--red));color:#FFF0DC;border-color:var(--goldL);animation:pulse 1.2s infinite}
 #bossBtn.off{filter:grayscale(.6);opacity:.6;pointer-events:none}
-.killbar{position:absolute;top:44px;left:50%;transform:translateX(-50%);width:210px;height:13px;z-index:4;
-  background:#0E0A06;border:1.5px solid var(--gold2);border-radius:8px;overflow:visible}
+.killbar{position:absolute;top:35px;left:50%;transform:translateX(-50%);width:168px;height:9px;z-index:4;
+  background:#0E0A06;border:1px solid var(--gold2);border-radius:6px;overflow:visible}
 .killbar .fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--gold2),var(--goldL));transition:width .3s}
 .killbar .chest{position:absolute;right:-4px;top:-6px;font-size:11px;background:rgba(14,10,6,.85);
   border:1px solid var(--gold2);border-radius:9px;padding:1px 7px;color:#B6C9A8;font-variant-numeric:tabular-nums}
@@ -167,10 +169,14 @@ header{flex:none;background:var(--ink2);border-bottom:2px solid var(--gold2)}
 #stageBar .nav{width:26px;height:22px;border-radius:12px;background:var(--ink3);color:var(--goldL);font-size:12px;line-height:22px;text-align:center}
 #stageBar .nav.off{opacity:.3;pointer-events:none}
 #killsV{color:#B6C9A8;font-variant-numeric:tabular-nums;font-size:11px}
-#autoBossBtn{position:absolute;top:36px;right:8px;background:rgba(14,10,6,.74);border:1px solid var(--brown2);
-  border-radius:16px;padding:3px 9px;font-size:10px;font-weight:700;color:#CBB98F;z-index:4}
-#autoBossBtn.on{color:var(--goldL);border-color:var(--gold2)}
-#bossHud{position:absolute;top:34px;left:50%;transform:translateX(-50%);width:74%;text-align:center;z-index:4}
+/* 냥 — 참고 게임처럼 전장 위쪽 가운데 작은 숫자로만 */
+#goldFloat{position:absolute;top:54px;left:50%;transform:translateX(-50%);z-index:4;
+  display:flex;align-items:center;gap:3px;font-size:11px;font-weight:700;
+  color:#F2CE7B;text-shadow:0 1px 3px #000,0 0 6px rgba(0,0,0,.8);
+  font-variant-numeric:tabular-nums;pointer-events:none;white-space:nowrap}
+#goldFloat .coin{width:13px;height:13px}
+#goldFloat .coin .ic{--s:13px}
+#bossHud{position:absolute;top:72px;left:50%;transform:translateX(-50%);width:74%;text-align:center;z-index:4}
 #bossHud .bn{font-family:var(--serif);font-size:13px;color:#FFD9C2;text-shadow:0 1px 3px #000;letter-spacing:2px}
 #bossHud .bar{height:10px;border:1px solid #000;border-radius:6px;background:#2A1512;overflow:hidden;margin-top:2px}
 #bossHud .fill{height:100%;background:linear-gradient(90deg,#E06450,var(--red));width:100%}
@@ -180,12 +186,6 @@ header{flex:none;background:var(--ink2);border-bottom:2px solid var(--gold2)}
   border-radius:22px;padding:8px 20px;font-size:13px;font-weight:700;box-shadow:0 3px 10px rgba(0,0,0,.6);
   animation:pulse 1.2s ease-in-out infinite}
 @keyframes pulse{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.06)}}
-#adBoostBtn{position:absolute;right:8px;bottom:8px;width:46px;height:46px;border-radius:50%;z-index:4;
-  background:radial-gradient(circle at 35% 30%,#E8543F,var(--red) 60%,var(--red2));
-  border:2px solid var(--goldL);color:#FFF3D9;font-size:9px;font-weight:700;line-height:1.15;
-  box-shadow:0 3px 8px rgba(0,0,0,.55)}
-#adBoostBtn.off{filter:grayscale(.85);opacity:.75}
-#adBoostBtn .big{font-size:12px;display:block}
 #questBtn,#mailBtn{position:absolute;left:8px;width:42px;height:42px;border-radius:50%;z-index:4;
   background:rgba(14,10,6,.78);border:2px solid var(--gold2);font-size:19px;
   box-shadow:0 3px 8px rgba(0,0,0,.55)}
@@ -196,11 +196,20 @@ header{flex:none;background:var(--ink2);border-bottom:2px solid var(--gold2)}
 #questBtn .dot.on,#mailBtn .dot.on{display:block}
 #gearBtn{width:30px;height:30px;border-radius:8px;background:var(--ink3);border:1px solid var(--brown2);font-size:15px}
 .subtab{display:flex;gap:6px;margin:2px 0 7px}
-.subtab button{flex:1;background:var(--ink3);border:1px solid var(--brown2);color:#CBB98F;
-  border-radius:8px;padding:6px 0;font-size:12px;font-weight:700}
-.subtab button.on{background:var(--red);color:#FFF0DC;border-color:var(--red2)}
-.expbar{height:12px;border-radius:7px;background:#D8C9A4;border:1px solid var(--line);overflow:hidden;margin:5px 0}
-.expbar .fill{height:100%;background:linear-gradient(90deg,var(--indigo),#5C87B5);transition:width .3s}
+.subtab button{flex:1;height:46px;font-size:12px;font-weight:700;color:#C0AA80;
+  background:none;border-radius:0;padding:0;box-sizing:border-box;
+  border-style:solid;border-color:transparent;border-width:14px 14px 15px 16px;
+  border-image:url(assets/ui/tab_off.png) 19 31 21 34 fill / 14px 14px 15px 16px stretch}
+.subtab button.on{color:#FFF2D8;text-shadow:0 1px 2px rgba(0,0,0,.55);
+  border-image:url(assets/ui/tab_on.png) 48 46 51 53 fill / 14px 14px 15px 16px stretch}
+.expbar{position:relative;height:15px;margin:5px 0;box-sizing:border-box;
+  border-style:solid;border-color:transparent;border-width:1px 7px;
+  border-image:url(assets/ui/bar_track.png) 2 16 2 16 fill / 1px 7px stretch}
+.expbar .fill{position:absolute;left:0;top:0;bottom:0;box-sizing:border-box;transition:width .3s;
+  border-style:solid;border-color:transparent;border-width:1px 7px;
+  border-image:url(assets/ui/bar_exp.png) 2 17 2 17 fill / 1px 7px stretch}
+.expbar.hp .fill{border-image:url(assets/ui/bar_hp.png) 2 16 2 16 fill / 1px 7px stretch}
+.expbar.mp .fill{border-image:url(assets/ui/bar_mp.png) 2 16 2 16 fill / 1px 7px stretch}
 #tracker{flex:none;margin:5px 10px 0;padding:5px 11px;border-radius:10px;
   background:var(--ink3);border:1px solid var(--brown2);display:flex;align-items:center;gap:8px;
   font-size:11px;color:#E4D5B4;cursor:pointer}
@@ -226,18 +235,38 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .btn.wide{display:block;width:100%;margin-top:6px}
 .small{font-size:11px;color:var(--brown2)}
 .buybar{display:flex;gap:6px;margin:2px 0 7px}
-.buybar button{flex:1;background:var(--ink3);border:1px solid var(--brown2);color:#CBB98F;
-  border-radius:8px;padding:5px 0;font-size:12px;font-weight:700}
-.buybar button.on{background:var(--gold);color:#3A2A0E;border-color:var(--gold2)}
+.buybar button{flex:1;height:32px;font-size:12px;font-weight:700;color:#BCA57C;
+  background:none;border-radius:0;padding:0;box-sizing:border-box;
+  border-style:solid;border-color:transparent;border-width:8px 12px 8px 11px;
+  border-image:url(assets/ui/chip_off.png) 25 32 26 31 fill / 8px 12px 8px 11px stretch}
+.buybar button.on{color:#3A2A0E;text-shadow:0 1px 0 rgba(255,246,214,.5);
+  border-image:url(assets/ui/chip_on.png) 23 36 23 35 fill / 8px 12px 8px 11px stretch}
 .strow{display:flex;align-items:center;gap:9px}
-.strow .ico{width:38px;height:38px;flex:none;border-radius:10px;font-size:21px;text-align:center;line-height:38px;
-  background:linear-gradient(#FBF3DC,#EFE0BC);border:1px solid var(--line)}
+/* 흑단 판때기 — 원화를 9분할해 어떤 높이로 늘려도 모서리 단청이 안 뭉개진다 */
+.card.strow{background:none;box-shadow:none;color:var(--uiTxt);border-radius:0;
+  border-style:solid;border-color:transparent;border-width:9px 22px 21px 24px;
+  border-image:url(assets/ui/row_plate.png) 19 49 47 53 fill / 9px 22px 21px 24px stretch;
+  padding:2px 5px;margin-bottom:5px;min-height:46px}
+.strow .ico{width:48px;height:48px;flex:none;font-size:21px;box-sizing:border-box;
+  display:flex;align-items:center;justify-content:center;background:none;border-radius:0;
+  border-style:solid;border-color:transparent;border-width:7px 9px 9px 9px;
+  border-image:url(assets/ui/icon_slot.png) 22 27 27 27 fill / 7px 9px 9px 9px stretch}
 .strow .mid{flex:1;min-width:0}
-.strow .nm{font-family:var(--serif);font-size:13px;font-weight:700;color:#33240F}
-.strow .nm .lv{color:var(--red);font-size:11px;margin-left:4px}
-.strow .vv{font-size:11px;color:var(--green);font-weight:700;font-variant-numeric:tabular-nums}
-.strow .sub{font-size:10px;color:var(--brown2)}
-.strow .btn{width:102px;flex:none;padding:5px 6px;font-size:11px}
+.strow .nm{font-family:var(--serif);font-size:13px;font-weight:700;color:var(--uiTxt)}
+.strow .nm .lv{color:var(--uiGold);font-size:11px;margin-left:4px}
+.strow .vv{font-size:11px;color:var(--uiGood);font-weight:700;font-variant-numeric:tabular-nums}
+.strow .sub{font-size:10px;color:var(--uiSub)}
+.strow .small{color:var(--uiSub)}
+.strow .btn{width:112px;height:54px;flex:none;font-size:11px;line-height:1.25;
+  color:#4A2F06;text-shadow:0 1px 0 rgba(255,242,205,.55);
+  background:none;box-shadow:none;border-radius:0;padding:0 2px;box-sizing:border-box;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border-style:solid;border-color:transparent;border-width:14px 16px 14px 17px;
+  border-image:url(assets/ui/btn_gold_on.png) 39 44 38 47 fill / 14px 16px 14px 17px stretch}
+.strow .btn:active{transform:none;
+  border-image:url(assets/ui/btn_gold_press.png) 28 49 31 48 fill / 14px 16px 14px 17px stretch}
+.strow .btn.off{color:#3B342A;text-shadow:none;background:none;box-shadow:none;
+  border-image:url(assets/ui/btn_gold_off.png) 18 39 32 48 fill / 14px 16px 14px 17px stretch}
 .strow .btn b{font-size:12px;display:block;font-variant-numeric:tabular-nums}
 .strow.locked{opacity:.75}
 .togglebar{display:flex;gap:6px;margin-bottom:7px}
@@ -271,27 +300,45 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .profile::after{content:'';position:absolute;inset:0;border-radius:8px;pointer-events:none;
   background:linear-gradient(180deg,rgba(255,225,170,.16),rgba(0,0,0,.28))}
 /* 레벨업 줄 — 참고 게임처럼 큰 초록 버튼을 상시 노출 */
-.lvrow{display:flex;align-items:center;gap:10px}
+.card.lvrow{display:flex;align-items:center;gap:10px;color:var(--uiTxt);
+  background:none;box-shadow:none;border-radius:0;box-sizing:border-box;
+  border-style:solid;border-color:transparent;border-width:19px 20px 21px 20px;
+  border-image:url(assets/ui/hdr_plate.png) 86 89 95 89 fill / 19px 20px 21px 20px stretch;
+  padding:0;margin-bottom:6px}
+.lvrow .ico{width:52px;height:52px;flex:none;box-sizing:border-box;font-size:0;
+  background:url(assets/sprites/por_hero_face.png) center/cover;
+  border-style:solid;border-color:transparent;border-width:8px 10px 10px 10px;
+  border-image:url(assets/ui/icon_slot.png) 22 27 27 27 / 8px 10px 10px 10px stretch}
 .lvrow .lvmid{flex:1;min-width:0}
-.lvrow .pct{float:right;color:var(--green);font-weight:700}
-.lvbtn{flex:none;width:82px;padding:9px 0;border-radius:9px;font-weight:800;font-size:12px;
-  line-height:1.15;letter-spacing:.5px;color:#12301E;
-  background:linear-gradient(#8FE3A8,#4FBE79);border:2px solid #2E8B57;
-  box-shadow:0 3px 0 #2E8B57}
+.lvrow .nm{color:var(--uiTxt)}
+.lvrow .small{color:var(--uiSub)}
+.lvrow .pct{float:right;color:var(--uiGood);font-weight:700}
+.lvbtn{flex:none;width:88px;height:58px;font-weight:800;font-size:12px;box-sizing:border-box;
+  line-height:1.15;letter-spacing:.5px;color:#0E2A18;text-shadow:0 1px 0 rgba(210,255,225,.5);
+  background:none;border-radius:0;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  border-style:solid;border-color:transparent;border-width:12px 15px 17px 15px;
+  border-image:url(assets/ui/btn_lv_on.png) 33 42 48 42 fill / 12px 15px 17px 15px stretch}
 .lvbtn.rdy{animation:lvpulse 1.1s ease-in-out infinite}
-.lvbtn.off{filter:grayscale(.75);opacity:.55;pointer-events:none;box-shadow:0 3px 0 #6B6B5E}
+.lvbtn.off{color:#4A4A42;text-shadow:none;pointer-events:none;
+  border-image:url(assets/ui/btn_lv_off.png) 41 36 41 36 fill / 12px 15px 17px 15px stretch}
 @keyframes lvpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 /* 무맥 진행바 */
-.pbar2{position:relative;height:11px;margin-top:4px;border-radius:6px;background:#2A2118;overflow:hidden}
-.pbar2 i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#4FBE79,#8FE3A8)}
-.pbar2 b{position:absolute;inset:0;font-size:8px;line-height:11px;color:#fff;text-shadow:0 1px 1px #000}
+.pbar2{position:relative;height:14px;margin-top:4px;box-sizing:border-box;
+  border-style:solid;border-color:transparent;border-width:1px 7px;
+  border-image:url(assets/ui/bar_track.png) 2 16 2 16 fill / 1px 7px stretch}
+.pbar2 i{position:absolute;left:0;top:0;bottom:0;box-sizing:border-box;
+  border-style:solid;border-color:transparent;border-width:1px 7px;
+  border-image:url(assets/ui/bar_green.png) 2 17 2 17 fill / 1px 7px stretch}
+.pbar2 b{position:absolute;inset:0;font-size:8px;line-height:14px;text-align:center;
+  color:#fff;text-shadow:0 1px 2px #000}
 /* 지역 선택 */
 .regnav{display:flex;align-items:center;gap:7px;margin-bottom:7px}
 .regnav .btn{width:42px;flex:none}
 .regcard{flex:1;border-radius:9px;border:1.5px solid var(--gold2);padding:9px 6px;
   text-align:center;color:var(--goldL)}
 .regcard b{display:block;font-family:var(--serif);font-size:14px}
-.strow.now{border-color:var(--gold2);box-shadow:0 0 0 2px rgba(217,164,65,.35)}
+.card.strow.now{filter:drop-shadow(0 0 4px rgba(242,206,123,.75))}
 /* 절전모드 */
 #powerScr[hidden]{display:none}   /* display:flex가 hidden을 덮어써 안 닫히던 문제 */
 #powerScr{position:fixed;inset:0;z-index:60;background:#000;color:#7A7A7A;
@@ -347,8 +394,8 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .subtab.eqtab button{font-size:12px}
 /* 강화 수치: 지금 → 올린 뒤 */
 .strow .vv b{font-variant-numeric:tabular-nums}
-.strow .vv .arw{margin:0 5px;color:var(--brown2)}
-.strow .vv .nx{color:var(--green)}
+.strow .vv .arw{margin:0 5px;color:var(--uiSub)}
+.strow .vv .nx{color:var(--uiGood)}
 /* 아이콘 스프라이트 — 이모지 자리에 원화 아이콘을 넣는다. 파일이 없으면 이모지가 그대로 남는다 */
 .ic{display:inline-block;vertical-align:middle;background-image:url(assets/sprites/icons.png?v=20260822f);
   background-repeat:no-repeat;image-rendering:auto;width:var(--s);height:var(--s);
@@ -362,7 +409,10 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .jadeic .ic{--s:17px}
 .skslot .ic{--s:26px}
 .btn .ic{--s:20px}
-.strow .ico .ic{--s:38px}
+.strow .ico .ic{--s:30px}
+/* 강화 스탯 아이콘 7종 (assets/ui/stat_icons.png) */
+.sic{display:block;width:32px;height:32px;background:url(assets/ui/stat_icons.png) 0 0/700% 100%;
+  background-position:calc(var(--si)*100%/6) 0}
 .rel .n{font-size:9.5px;font-weight:700;color:#33240F;line-height:1.2;margin-top:2px}
 .rel .v{font-size:9px;color:var(--indigo);font-weight:700}
 /* 등급 테두리 — 9분할(border-image)로 모서리 장식이 늘어나지 않게 */
@@ -394,7 +444,10 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .statgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px;font-size:12px}
 .statgrid .k{color:var(--brown2)}
 .statgrid .v{font-weight:700;text-align:right;font-variant-numeric:tabular-nums;color:#33240F}
-nav{flex:none;display:flex;background:#100C08;border-top:2px solid var(--gold2);padding-bottom:env(safe-area-inset-bottom)}
+nav{flex:none;display:flex;background:none;box-sizing:border-box;
+  padding-bottom:env(safe-area-inset-bottom);
+  border-style:solid;border-color:transparent;border-width:13px 17px 21px 28px;
+  border-image:url(assets/ui/navbar.png) 50 67 79 106 fill / 13px 17px 21px 28px stretch}
 nav button{flex:1;padding:6px 0 7px;text-align:center;color:#8F7C5C;font-size:10px;font-weight:700;position:relative}
 nav button .e{display:block;font-size:18px;line-height:1.25;filter:grayscale(1) opacity(.7)}
 /* 탭 아이콘 6종 가로 스프라이트 — 6칸이므로 위치는 20%씩 */
@@ -403,7 +456,9 @@ nav button .e.tabi{width:24px;height:24px;margin:0 auto 1px;font-size:0;
   background-size:600% 100%;background-position:calc(var(--ti)*20%) 0}
 nav button.on{color:var(--goldL)}
 nav button.on .e{filter:none}
-nav button.on::before{content:'';position:absolute;top:0;left:20%;right:20%;height:3px;background:var(--red);border-radius:0 0 3px 3px}
+nav button.on::before{content:'';position:absolute;inset:-13px 8% -21px;pointer-events:none;
+  background:linear-gradient(180deg,rgba(242,206,123,0) 18%,rgba(242,206,123,.30) 82%,rgba(255,228,150,.95) 96%,rgba(255,228,150,0) 100%);
+  border-radius:6px}
 nav button .dot{position:absolute;top:3px;right:20%;width:9px;height:9px;border-radius:50%;background:var(--red);border:1.5px solid #100C08;display:none}
 nav button .dot.on{display:block}
 #overlay{position:fixed;inset:0;background:rgba(10,7,4,.78);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px}
@@ -506,7 +561,6 @@ textarea.io{width:100%;height:90px;font-size:11px;border:1px solid var(--line);b
         <div class="pname" id="pName">무명 검객</div>
         <div class="ptitle"><span id="titleV">무품</span> · <span id="powV">전투력 0</span></div>
       </div>
-      <div class="cur"><span class="coin"></span><b id="goldV">0</b></div>
       <div class="cur" style="cursor:pointer" data-a="tab" data-i="shop"><span class="jadeic"></span><b id="jadeV">0</b><span class="plus">+</span></div>
       <button id="menuBtn" data-a="menumodal">☰</button>
     </div>
@@ -522,12 +576,10 @@ textarea.io{width:100%;height:90px;font-size:11px;border:1px solid var(--line);b
       <button id="bossBtn" data-a="bossgo">💀<small>BOSS</small></button>
     </div>
     <div class="killbar"><div class="fill" id="killFill"></div><span class="chest" id="killsV">0/8</span></div>
-    <button id="autoBossBtn" data-a="autoboss">자동도전 켬</button>
+    <div id="goldFloat"><span class="coin"></span><b id="goldV">0</b></div>
     <div id="bossHud" hidden><div class="bn" id="bossNm"></div><div class="bar"><div class="fill" id="bossFill"></div></div><div class="bt" id="bossTm"></div></div>
-    <button id="adBoostBtn" data-a="adbuffs"><span class="big">📺</span>광고 아이템</button>
     <div id="sideBanner">
       <button class="sbn hot" data-a="adbuffs"><b>HOT</b>TIME</button>
-      <button class="sbn evt" data-a="questmodal"><b>EVENT</b></button>
     </div>
     <button id="questBtn" data-a="questmodal">👑<span class="dot" id="dot-quest"></span></button>
     <button id="mailBtn" data-a="mailmodal">📬<span class="dot" id="dot-mail"></span></button>
@@ -2044,6 +2096,11 @@ function spawnEnemy(def,boss,x,n){
     state:'walk',atkT:1.4+Math.random(),lunge:0,hitF:0,dieT:0,bob:Math.random()*7,frozen:0,
   });
 }
+function bossGo(){
+  // 실패해서 자동도전이 꺼져 있어도, 이 버튼을 누르면 다시 붙는다.
+  if(W.mode!=='farm'||S.stage!==S.maxClear+1||S.kills<8){ toast('아직 요괴를 더 베어야 하오'); return; }
+  startBoss();
+}
 function startBoss(){
   if(S.stage!==S.maxClear+1||S.kills<8||W.mode!=='farm') return;
   W.enemies=[]; W.mode='boss'; W.bossTimer=40;
@@ -2055,10 +2112,17 @@ function startBoss(){
 }
 function frontEnemy(){ return W.enemies.find(e=>e.state!=='die'); }
 function engageX(idx,e){ return W.hero.x+(e&&e.boss?80:52)+idx*38; } // 5마리까지 화면에 들어오도록 간격 축소
-function dmgText(x,y,txt,color,big){
-  // 큰 타격은 화면 가운데 쪽에서 크게 터지도록 x를 중앙으로 당긴다
-  const px=big? W.w*0.5+(Math.random()-0.5)*40 : x;
-  W.dmgs.push({x:px,y,txt,color:color||'#FFE9B8',t:0,big:!!big,vx:(Math.random()-0.5)*(big?8:22)});
+function dmgText(x,y,txt,color,big,stream){
+  // 피해 숫자는 참고 게임처럼 화면 가운데에 위아래로 어긋나며 쭉 쌓인다.
+  // 자리를 6칸으로 돌려 써서 연속 타격이 완전히 겹쳐 보이지 않게 한다.
+  let px=x, py=y;
+  if(stream||big){
+    W.dmgSlot=((W.dmgSlot||0)+1)%6;
+    px=W.w*0.5+(W.dmgSlot%2?1:-1)*(5+Math.random()*24);
+    py=100+W.dmgSlot*13;
+  }
+  W.dmgs.push({x:px,y:py,txt,color:color||'#FFE9B8',t:0,big:!!big,stream:!!stream,
+               vx:(Math.random()-0.5)*(big?8:12)});
   if(W.dmgs.length>44) W.dmgs.shift();
 }
 function burst(x,y,color,n){
@@ -2105,7 +2169,7 @@ function hitEnemy(e,dmg,opt){
   const ex=e.x, ey=W.G-e.size*0.7;
   const tag=elm>=2?'약점! ':(crit?'회심! ':'');
   const col=elm>=2?'#FFD24A':(elm<1?'#9FB2C4':(crit?'#FF4A3A':'#FFF2CC'));
-  dmgText(ex+(Math.random()-.5)*22,ey-14,tag+fmt(d),col,crit||elm>=2);
+  dmgText(ex,ey-14,tag+fmt(d),col,crit||elm>=2,true);
   burst(ex,ey,crit?'#FF9A66':'#F2CE7B',crit?9:4);
   const pan=(e.x/W.w-0.5)*0.7;
   if(crit){ W.cam.shake=Math.max(W.cam.shake,e.boss?5:3); W.hitStop=Math.max(W.hitStop,0.045); ring(ex,ey,'255,170,110'); snd('crit',pan); W.hero.swBig=1; }
@@ -2126,7 +2190,6 @@ function killEnemy(e){
   if(S.wq) S.wq.kills++;
   gainExp(expFor(W.mode==='dungeon'?curStageN():S.stage,e.boss));
   coinFly(e.x,W.G-20,e.boss?7:4);
-  dmgText(e.x,W.G-e.size-16,'+'+fmt(g)+'냥','#F2CE7B');
   burst(e.x,W.G-e.size*0.6,'#C9B07C',e.boss?20:8);
   ring(e.x,W.G-e.size*0.6,'242,206,123');
   W.cam.punch=Math.max(W.cam.punch,e.boss?0.05:0.02);
@@ -2145,6 +2208,7 @@ function killEnemy(e){
       if(rankGateOk()) dmgText(W.w/2,150,'🏯 승급전 개방! 모험 탭에서 도전','#FF9A66',true);
     }
     S.stage=Math.min(S.stage+1,S.maxClear+1); S.kills=0;
+    S.autoBoss=true;                       // 잡았으면 다음 보스는 알아서 나온다
     W.mode='farm'; $('bossHud').hidden=true;
     toast('👹 '+e.nm+' 격파! '+S.stage+'층으로');
     if(first){
@@ -2161,7 +2225,7 @@ function heroDie(){
   h.dead=2.5; h.hp=0; snd('lose');
   if(W.mode==='boss'){
     W.mode='farm'; S.autoBoss=false; $('bossHud').hidden=true;
-    toast('☠️ 패배… 수련 후 재도전하시오 (자동도전 해제)');
+    toast('☠️ 패배… 위 💀 BOSS 를 눌러 다시 도전하시오');
   }else if(W.mode==='dungeon'){ endDungeon(false); }
   W.enemies=[]; W.spawnT=1.2;
   updateSceneUI();
@@ -2182,7 +2246,7 @@ function update(dt){
     W.bossTimer-=dt;
     if(W.bossTimer<=0){
       W.mode='farm'; S.autoBoss=false; W.enemies=[]; $('bossHud').hidden=true;
-      toast('⏳ 시간 초과… 보스가 물러갔다 (자동도전 해제)'); W.spawnT=0.8; updateSceneUI();
+      toast('⏳ 시간 초과… 위 💀 BOSS 를 눌러 다시 도전하시오'); W.spawnT=0.8; updateSceneUI();
     }
   }
   if(W.mode==='dungeon'){
@@ -2758,10 +2822,10 @@ function draw(){
     // 튀어올랐다 가라앉는 탄성 — 큰 타격일수록 크게 부푼다
     const pop=d.t<0.1?0.55+d.t/0.1*0.75:(d.t<0.24?1.3-(d.t-0.1)/0.14*0.3:1);
     cx.save(); cx.translate(d.x,d.y); cx.globalAlpha=a;
-    let px=d.big?34:17;                       // 기본 글자 크기
+    let px=d.big?34:(d.stream?25:17);         // 기본 글자 크기
     cx.font='900 '+px+'px "Malgun Gothic",sans-serif';
     let tw=cx.measureText(d.txt).width;
-    const cap=W.w*(d.big?0.92:0.55);          // 큰 타격은 화면 폭의 92%까지 차오른다
+    const cap=W.w*(d.big?0.92:(d.stream?0.72:0.55)); // 큰 타격은 화면 폭의 92%까지 차오른다
     const fit=Math.min(1,cap/Math.max(1,tw));
     cx.scale(pop*fit,pop*fit); tw=tw;
     cx.lineJoin='round';
@@ -3330,11 +3394,10 @@ function updateSceneUI(){
   $('killFill').style.width=(W.mode==='boss'?100:frontier?S.kills/8*100:100)+'%';
   $('stPrev').classList.toggle('off',S.stage<=1||W.mode!=='farm');
   $('stNext').classList.toggle('off',S.stage>=S.maxClear+1||W.mode!=='farm');
-  $('autoBossBtn').textContent='자동도전 '+(S.autoBoss?'켬':'끔');
-  $('autoBossBtn').classList.toggle('on',S.autoBoss);
   const bb=$('bossBtn');
-  bb.classList.toggle('ready',W.mode==='farm'&&frontier&&S.kills>=8);
-  bb.classList.toggle('off',!(W.mode==='farm'&&frontier&&S.kills>=8));
+  const canBoss=W.mode==='farm'&&frontier&&S.kills>=8;
+  bb.classList.toggle('ready',canBoss);
+  bb.classList.toggle('off',!canBoss);
   if(W.mode==='boss'&&W.enemies[0]){
     $('bossFill').style.width=Math.max(0,W.enemies[0].hp/W.enemies[0].maxhp*100)+'%';
     $('bossTm').textContent=Math.ceil(W.bossTimer)+'초';
@@ -3424,7 +3487,7 @@ function buildStat(){
     `<button data-a="buymode" data-i="${i}" class="${S.buyMode===i?'on':''}">${m}</button>`).join('')+'</div>';
   STATS.forEach((c,i)=>{
     h+=`<div class="card strow">
-      <div class="ico">${ic('t',i,c.e)}</div>
+      <div class="ico"><i class="sic" style="--si:${i}"></i></div>
       <div class="mid">
         <div class="nm">${c.n}<span class="lv" id="stlv${i}"></span></div>
         <div class="vv" id="stvv${i}"></div>
@@ -4038,8 +4101,8 @@ function mumakModal(){
       <b style="color:var(--goldL);font-family:var(--serif);font-size:15px">
         ${eq>=0&&mkCnt(eq)?MUMAK[eq].n:'없음'}</b>
       <div class="small" style="margin-top:3px">
-        장착 효과 <b style="color:var(--green)">공·체 +${mkEquipFx()}%</b> ·
-        보유 효과 <b style="color:var(--green)">+${mkOwnFx().toFixed(1)}%</b></div>
+        장착 효과 <b style="color:var(--uiGood)">공·체 +${mkEquipFx()}%</b> ·
+        보유 효과 <b style="color:var(--uiGood)">+${mkOwnFx().toFixed(1)}%</b></div>
     </div>`;
   MUMAK.forEach((m,i)=>{
     const c=mkCnt(i), can=c>=5&&i<MUMAK.length-1;
@@ -4072,7 +4135,7 @@ function rankAbilModal(){
     const on=raOn(i), gated=S.rank<a.need;
     h+=`<div class="card strow ${on?'':'locked'}">
       <div class="mid">
-        <div class="nm" style="color:${on?'var(--green)':(gated?'var(--brown2)':'var(--red)')}">
+        <div class="nm" style="color:${on?'var(--uiGood)':(gated?'var(--uiSub)':'#E8836F')}">
           ${a.n} +${a.v}${(a.k==='acc'||a.k==='eva')?'':'%'}</div>
         ${gated?`<div class="sub">${RANKS[a.need]} 품계부터 열립니다</div>`:''}
       </div>
@@ -5059,10 +5122,7 @@ function act(a,i){
     case 'buymode': S.buyMode=+i; buildStat(); break;
     case 'buystat': buyStat(+i); break;
     case 'autoskill': S.autoSkill=!S.autoSkill; buildSkill(); break;
-    case 'autoboss': S.autoBoss=!S.autoBoss;
-      if(S.autoBoss&&S.stage===S.maxClear+1&&S.kills>=8&&W.mode==='farm') W.bossDelay=0.3;
-      updateSceneUI(); break;
-    case 'bossgo': startBoss(); break;
+    case 'bossgo': bossGo(); break;
     case 'stmove': moveStage(+i); break;
     case 'slotpick': slotTap(+i); break;        // 탭=시전 / 길게=장착 교체
     case 'slotedit': slotPick(+i); break;
