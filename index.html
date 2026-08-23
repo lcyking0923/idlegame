@@ -120,7 +120,7 @@ header{flex:none;background:var(--ink2);border-bottom:2px solid var(--gold2)}
   background:linear-gradient(#241C25 0%,#38273a 55%,#5B4530 56%,#4A3826 100%);border:2px solid var(--gold2);margin-bottom:8px}
 .compfig{text-align:center;width:23%}
 .compfig .clv{font-size:10px;color:var(--goldL);font-weight:700}
-.compfig .cface{font-size:34px;line-height:1.15;filter:drop-shadow(0 3px 3px rgba(0,0,0,.5))}
+.compfig .cface{width:56px;height:56px;margin:0 auto;filter:drop-shadow(0 3px 3px rgba(0,0,0,.5))}
 .compfig.lockd .cface{filter:grayscale(1) brightness(.4)}
 .compfig .cnm{font-size:10px;color:#F1E5C9;font-weight:700}
 .compfig .cbar{height:5px;border-radius:3px;background:#0E0A06;margin-top:3px;overflow:hidden}
@@ -413,6 +413,10 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 /* 강화 스탯 아이콘 7종 (assets/ui/stat_icons.png) */
 .sic{display:block;width:32px;height:32px;background:url(assets/ui/stat_icons.png) 0 0/700% 100%;
   background-position:calc(var(--si)*100%/6) 0}
+/* 동료 초상 — 인게임 스프라이트 대기 자세를 잘라 쓴다 */
+.cfi{display:block;width:100%;height:100%;background:url(assets/ui/comp_face.png) 0 0/400% 100%;
+  background-position:calc(var(--ci)*100%/3) 0}
+.strow .ico .cfi{width:30px;height:30px}
 .rel .n{font-size:9.5px;font-weight:700;color:#33240F;line-height:1.2;margin-top:2px}
 .rel .v{font-size:9px;color:var(--indigo);font-weight:700}
 /* 등급 테두리 — 9분할(border-image)로 모서리 장식이 늘어나지 않게 */
@@ -3905,7 +3909,7 @@ function buildComp(){
     const un=compUnlocked(i), lv=compLv(i);
     h+=`<div class="compfig ${un?'':'lockd'}" ${un?`data-a="compdet" data-i="${i}" style="cursor:pointer"`:''}>
       <div class="clv">${un?'Lv.'+lv:'&nbsp;'}</div>
-      <div class="cface">${c.e}</div>
+      <div class="cface"><i class="cfi" style="--ci:${i}"></i></div>
       <div class="cnm">${un?c.n:'???'}</div>
       <div class="cbar"><i style="width:${un?Math.min(100,lv%5/5*100+20):0}%"></i><b>${un?(lv%5)+'/5':''}</b></div>
     </div>`;
@@ -3914,7 +3918,7 @@ function buildComp(){
   COMPS.forEach((c,i)=>{
     const un=compUnlocked(i), lv=compLv(i);
     h+=`<div class="card strow ${un?'':'locked'}">
-      <div class="ico">${c.e}</div>
+      <div class="ico"><i class="cfi" style="--ci:${i}"></i></div>
       <div class="mid">
         <div class="nm">${un?COMP_JOB[i]+' · ':''}${c.n}<span class="lv" id="complv${i}">${un?lv+'성':''}</span></div>
         <div class="sub">${un?c.d:'제'+c.un+'층 정복 시 합류'}</div>
