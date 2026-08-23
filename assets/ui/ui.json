@@ -116,5 +116,47 @@
  "stat_icons": {
   "cell": 96,
   "n": 7
+ },
+ "map_ico": {
+  "cols": 5,
+  "rows": 1,
+  "cell": 96,
+  "n": 5
+ },
+ "relic_ico": {
+  "cols": 5,
+  "rows": 2,
+  "cell": 88,
+  "n": 10
+ },
+ "mumak_ico": {
+  "cols": 4,
+  "rows": 2,
+  "cell": 88,
+  "n": 8
+ },
+ "card_ico": {
+  "cols": 4,
+  "rows": 1,
+  "cell": 72,
+  "n": 4
+ },
+ "rabil_ico": {
+  "cols": 4,
+  "rows": 2,
+  "cell": 88,
+  "n": 8
+ },
+ "ticket_ico": {
+  "cols": 3,
+  "rows": 1,
+  "cell": 56,
+  "n": 3
+ },
+ "costume": {
+  "cols": 4,
+  "rows": 2,
+  "cell": 120,
+  "n": 8
  }
 }

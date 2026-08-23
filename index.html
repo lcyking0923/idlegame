@@ -109,7 +109,7 @@ header{flex:none;background:var(--ink2);border-bottom:2px solid var(--gold2)}
   font-family:var(--serif);font-size:15px;letter-spacing:4px;color:#3A2A14;
   background:linear-gradient(#F5E7C2,#E8D5A8);border:1.5px solid #8A6E42;border-radius:4px;padding:2px 18px}
 .mapnode{position:absolute;transform:translate(-50%,-50%);text-align:center;cursor:pointer}
-.mapnode .mico{width:44px;height:44px;border-radius:50%;margin:0 auto;font-size:21px;line-height:42px;
+.mapnode .mico{width:46px;height:46px;border-radius:50%;margin:0 auto;font-size:21px;line-height:42px;padding:4px;box-sizing:border-box;
   background:linear-gradient(#3A2C1B,#241B12);border:2px solid var(--gold2);color:#fff;
   box-shadow:0 3px 8px rgba(0,0,0,.4)}
 .mapnode .mnm{margin-top:3px;background:rgba(20,14,8,.85);color:#F1E5C9;font-size:10px;font-weight:700;
@@ -229,10 +229,13 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
   background:linear-gradient(#F5D98A,var(--gold));color:#4A3208;border:1px solid var(--gold2);
   box-shadow:0 2px 0 var(--gold2);font-size:12px;line-height:1.3}
 .btn:active{transform:translateY(1px);box-shadow:0 1px 0 var(--gold2)}
-.btn.off{background:#CBBFa6;color:#8B7f68;border-color:#B3A688;box-shadow:0 2px 0 #B3A688;pointer-events:none}
+
 .btn.red{background:linear-gradient(#E06450,var(--red));color:#FFF0DC;border-color:var(--red2);box-shadow:0 2px 0 var(--red2)}
 .btn.green{background:linear-gradient(#5B8F72,var(--green));color:#EDF5E8;border-color:#2C523F;box-shadow:0 2px 0 #2C523F}
 .btn.wide{display:block;width:100%;margin-top:6px}
+/* .off 는 색 규칙(.red/.green)보다 뒤에 와야 회색이 이긴다 */
+.btn.off,.btn.red.off,.btn.green.off{background:#6E6558;color:#A99F8D;border-color:#57503F;
+  box-shadow:0 2px 0 #57503F;pointer-events:none;text-shadow:none}
 .small{font-size:11px;color:var(--brown2)}
 .buybar{display:flex;gap:6px;margin:2px 0 7px}
 .buybar button{flex:1;height:32px;font-size:12px;font-weight:700;color:#BCA57C;
@@ -270,8 +273,12 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .strow .btn b{font-size:12px;display:block;font-variant-numeric:tabular-nums}
 .strow.locked{opacity:.75}
 .togglebar{display:flex;gap:6px;margin-bottom:7px}
-.togglebar button{flex:1;background:var(--ink3);border:1px solid var(--brown2);color:#CBB98F;border-radius:8px;padding:6px 0;font-size:11px;font-weight:700}
-.togglebar button.on{background:var(--green);color:#EDF5E8;border-color:#2C523F}
+.togglebar button{flex:1;height:42px;font-size:11px;font-weight:700;color:#C0AA80;
+  background:none;border-radius:0;padding:0;box-sizing:border-box;
+  border-style:solid;border-color:transparent;border-width:13px 13px 14px 15px;
+  border-image:url(assets/ui/tab_off.png) 19 31 21 34 fill / 13px 13px 14px 15px stretch}
+.togglebar button.on{color:#FFF2D8;
+  border-image:url(assets/ui/tab_on.png) 48 46 51 53 fill / 13px 13px 14px 15px stretch}
 .prest{background:linear-gradient(#2E2317,#241B12);border:1.5px solid var(--gold2);color:var(--paper)}
 .prest h3{color:var(--goldL)}
 .prest .small{color:#B8A47D}
@@ -350,12 +357,21 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 #powerScr .psoff{position:absolute;bottom:9vh;padding:16px 26px;border-radius:12px;
   background:#141414;border:1px solid #333;color:#666;font-size:11px;line-height:1.5}
 /* 승급 티어 목록 */
-.rankrow{display:flex;align-items:center;gap:8px;padding:7px 9px}
+.card.rankrow{display:flex;align-items:center;gap:8px;color:var(--uiTxt);
+  background:none;box-shadow:none;border-radius:0;padding:2px 5px;margin-bottom:5px;min-height:44px;
+  border-style:solid;border-color:transparent;border-width:9px 22px 21px 24px;
+  border-image:url(assets/ui/row_plate.png) 19 49 47 53 fill / 9px 22px 21px 24px stretch}
 .rankrow .mid{flex:1;min-width:0}
-.rankrow .rmark{width:18px;flex:none;text-align:center;font-weight:800;color:var(--green)}
+.rankrow .nm{font-family:var(--serif);font-size:13px;font-weight:700;color:var(--uiTxt)}
+.rankrow .nm .lv{color:var(--uiGold);font-size:11px;margin-left:4px}
+.rankrow .vv{font-size:11px;color:var(--uiGood);font-weight:700}
+.rankrow .vv .arw{margin:0 5px;color:var(--uiSub)}
+.rankrow .small{color:var(--uiSub)}
+.rankrow .rmark{width:16px;flex:none;text-align:center;font-weight:800;color:#8FE3A8}
 .rankrow .rstate{flex:none}
-.rankrow.done{opacity:.62}
-.rankrow.now{border-color:var(--gold2);box-shadow:0 0 0 2px rgba(217,164,65,.35)}
+.rankrow .rstate .btn{width:98px;padding:6px 4px;line-height:1.2}
+.rankrow.done{opacity:.55}
+.card.rankrow.now{filter:drop-shadow(0 0 4px rgba(242,206,123,.75))}
 /* 외형 미리보기 · 기본 정보 초상 */
 .pvcv{display:block;width:100%;height:172px}
 .mface{width:46px;height:46px;margin:3px auto;border-radius:9px;
@@ -411,6 +427,10 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .btn .ic{--s:20px}
 .strow .ico .ic{--s:30px}
 /* 강화 스탯 아이콘 7종 (assets/ui/stat_icons.png) */
+.ga{display:block;width:100%;height:100%;background-repeat:no-repeat}
+.tkw{display:inline-block;width:15px;height:15px;vertical-align:-3px;margin-left:5px}
+.cci{display:inline-block;width:14px;height:14px;vertical-align:-3px;margin-right:2px}
+.costg .e{width:52px;height:52px;margin:0 auto}
 .sic{display:block;width:32px;height:32px;background:url(assets/ui/stat_icons.png) 0 0/700% 100%;
   background-position:calc(var(--si)*100%/6) 0}
 /* 동료 초상 — 인게임 스프라이트 대기 자세를 잘라 쓴다 */
@@ -1547,6 +1567,18 @@ function frCls(r,max){ // 등급 → 테두리 클래스
   const i=Math.max(0,Math.min(4,Math.round(r*4/Math.max(1,max))));
   return 'fr fr'+i;
 }
+/* 격자 아틀라스 한 칸 — 칸 수를 알고 있으니 좌표는 여기서 계산한다 */
+const COSTUME_N=['무명 삼베','사냥꾼 가죽','소복','궁중 궁수복','야행복','청라의','나그네 도롱이','천의'];
+const ATLAS={map:['map_ico',5,1], relic:['relic_ico',5,2], mumak:['mumak_ico',4,2],
+             card:['card_ico',4,1], rabil:['rabil_ico',4,2], ticket:['ticket_ico',3,1],
+             costume:['costume',4,2]};
+function gi(kind,i){
+  const a=ATLAS[kind]; if(!a) return '';
+  const c=a[1], r=a[2], x=i%c, y=Math.floor(i/c);
+  return '<i class="ga" style="background-image:url('+av('assets/ui/'+a[0]+'.png')
+    +');background-size:'+(c*100)+'% '+(r*100)+'%;background-position:'
+    +(c>1?x*100/(c-1):0)+'% '+(r>1?y*100/(r-1):0)+'%"></i>';
+}
 function ic(kind,idx,emoji){
   const m=ICONS&&ICONS.map[kind]&&ICONS.map[kind][idx];
   if(!m) return emoji||'';
@@ -1925,7 +1957,7 @@ function freshState(){
     weapons:{0:1}, wEq:0,
     spirits:{}, spEq:-1, relics:{}, equipView:0, compP:{}, compO:{}, compView:0, compSel:0, seen:{},
     cards:{0:0,1:0,2:0,3:0}, skAuto:{}, regionPage:0,
-    mumak:{}, mumakEq:-1, rankAbil:{},
+    mumak:{}, mumakEq:-1, rankAbil:{}, compSkin:{},
     skills:{0:1}, skEq:[0,-1,-1,-1,-1,-1,-1,-1],
     aw:{atk:0,hp:0,critd:0,skill:0,gold:0},
     rebirths:0, dao:0, tr:{atk:0,hp:0,gold:0,skill:0},
@@ -3579,7 +3611,7 @@ function buildSkill(){
       <div class="sub">총 스킬 레벨 20마다 +1 · 전 기술 피해 +${skillMastery()*5}%</div>
     </div>
     <div class="cardhold">${CARD_N.map((nm,r)=>
-      `<span class="cchip rar${r}">${nm} <b>${cardN(r)}</b></span>`).join('')}</div>
+      `<span class="cchip rar${r}"><i class="cci">${gi('card',r)}</i>${nm} <b>${cardN(r)}</b></span>`).join('')}</div>
   </div>`;
   h+=`<div class="togglebar">
     <button data-a="cardfuse">비급 합성</button>
@@ -3636,7 +3668,7 @@ function skillDetail(i){
 function skillLearnModal(){
   let h='<h2>기술 배우기</h2><p class="small" style="text-align:center">비급과 냥으로 새 기술을 익히오</p>';
   h+=`<div class="cardhold mid2">${CARD_N.map((nm,r)=>
-    `<span class="cchip rar${r}">${nm} <b>${cardN(r)}</b></span>`).join('')}</div>`;
+    `<span class="cchip rar${r}"><i class="cci">${gi('card',r)}</i>${nm} <b>${cardN(r)}</b></span>`).join('')}</div>`;
   let any=false;
   SKILLS.forEach((k,i)=>{
     if(S.skills[i]) return;
@@ -3661,12 +3693,13 @@ function cardFuseModal(){
   let h='<h2>비급 합성</h2><p class="small" style="text-align:center">같은 등급 5장을 모아 윗 등급 1장으로</p>';
   CARD_N.forEach((nm,r)=>{
     if(r>=3){
-      h+=`<div class="card strow"><div class="mid"><div class="nm rar3">${nm} 비급</div>
+      h+=`<div class="card strow"><div class="ico">${gi('card',r)}</div><div class="mid"><div class="nm rar3">${nm} 비급</div>
         <div class="sub">보유 ${cardN(r)}장 — 최상위</div></div></div>`;
       return;
     }
     const n5c=cardN(r);
     h+=`<div class="card strow">
+      <div class="ico">${gi('card',r)}</div>
       <div class="mid">
         <div class="nm rar${r}">${nm} 비급<span class="lv">${n5c}장</span></div>
         <div class="vv"><b>${nm} 5장</b><span class="arw">→</span><b class="nx">${CARD_N[r+1]} 1장</b></div>
@@ -3768,7 +3801,7 @@ function buildEquip(){
       const pf=(r.k==='acc'||r.k==='eva')?'':'%';
       const fm=v2=>(r.k==='acc'||r.k==='eva')?Math.round(v2):(v2*100).toFixed(1);
       h+=`<div class="card strow">
-        <div class="ico">${r.e}</div>
+        <div class="ico">${gi('relic',i)}</div>
         <div class="mid">
           <div class="nm">${r.n}<span class="lv">Lv.${lv}</span>
             <span class="small" style="color:var(--brown2)"> / ${r.max}</span></div>
@@ -3975,11 +4008,23 @@ function compDetail(i,view){
       </div>`;
     });
   }else{
-    h+='<p class="demo-note">외형은 차림새만 바꾸며 능력에는 영향이 없소.</p><div class="relgrid g4">';
-    for(let k=0;k<8;k++){
-      h+= k===0
-        ? `<div class="rel r2 eq"><div class="e">${c.e}</div><div class="n">기본</div><div class="v">착용 중</div></div>`
-        : `<div class="rel no r0"><div class="e">?</div><div class="n">???</div><div class="v">미획득</div></div>`;
+    h+='<p class="demo-note">외형은 차림새만 바꾸며 능력에는 영향이 없소.</p><div class="relgrid g4 costg">';
+    if(i===0){                                   // 매향 코스튬 8벌 (원화 있음)
+      const sel=(S.compSkin&&S.compSkin[i])||0;
+      COSTUME_N.forEach((cn,k)=>{
+        const un=k===0||compLv(i)>=k*3;
+        h+=`<div class="rel ${un?'r2':'no r0'} ${sel===k?'eq':''}"
+             ${un?`data-a="cskin" data-i="${i}_${k}" style="cursor:pointer"`:''}>
+          <div class="e">${un?gi('costume',k):'?'}</div>
+          <div class="n">${un?cn:'???'}</div>
+          <div class="v">${sel===k?'착용 중':un?'보유':(k*3)+'성 해금'}</div></div>`;
+      });
+    }else{
+      for(let k=0;k<8;k++){
+        h+= k===0
+          ? `<div class="rel r2 eq"><div class="e"><i class="cfi" style="--ci:${i}"></i></div><div class="n">기본</div><div class="v">착용 중</div></div>`
+          : `<div class="rel no r0"><div class="e">?</div><div class="n">???</div><div class="v">원화 준비 중</div></div>`;
+      }
     }
     h+='</div>';
   }
@@ -4048,7 +4093,7 @@ function pull(kind,times){
   let h='<h2>소환!</h2><div class="pullres">';
   results.forEach((r,idx)=>{
     h+=`<div class="rel r${r.rr}" style="animation-delay:${idx*0.07}s">
-      <div class="e">${r.e}</div><div class="n">${r.n}</div><div class="v rar${r.rr}">${r.rn}</div></div>`;
+      <div class="e">${gi('relic',i)}</div><div class="n">${r.n}</div><div class="v rar${r.rr}">${r.rn}</div></div>`;
   });
   h+='</div><button class="btn wide" data-a="close">거두기</button>';
   showModal(h);
@@ -4090,7 +4135,9 @@ function promoHTML(){
       </div>
       <div class="rstate">${
         done ? '<span class="badge-done">승급 완료</span>'
-        : isNext ? `<button class="btn red ${rankGateOk()&&S.gold>=rc.gold?'':'off'}" data-a="rankgo">승급 도전</button>`
+        : isNext ? (rankGateOk()
+            ? `<button class="btn red ${S.gold>=rc.gold?'':'off'}" data-a="rankgo">승급 도전<b style="display:block;font-size:10px">${fmt(rc.gold)}냥</b></button>`
+            : `<span class="small">${gate}층 정복 필요</span>`)
         : `<span class="small">권장 ${gate}층</span>`}</div>
     </div>`;
   }
@@ -4111,7 +4158,7 @@ function mumakModal(){
   MUMAK.forEach((m,i)=>{
     const c=mkCnt(i), can=c>=5&&i<MUMAK.length-1;
     h+=`<div class="card strow ${c?'':'locked'}">
-      <div class="ico">${['🥋','🗡️','⚔️','🛡️','🏹','🎖️','👑','🐉'][i]}</div>
+      <div class="ico">${gi('mumak',i)}</div>
       <div class="mid">
         <div class="nm">${i+1}단계 ${m.n}${eq===i&&c?'<span class="lv">장착중</span>':''}</div>
         <div class="sub">장착 효과 : 공·체 +${m.pv}% · 보유 효과 +${(m.pv*0.25).toFixed(1)}%</div>
@@ -4138,6 +4185,7 @@ function rankAbilModal(){
   RANK_ABIL.forEach((a,i)=>{
     const on=raOn(i), gated=S.rank<a.need;
     h+=`<div class="card strow ${on?'':'locked'}">
+      <div class="ico">${gi('rabil',i)}</div>
       <div class="mid">
         <div class="nm" style="color:${on?'var(--uiGood)':(gated?'var(--uiSub)':'#E8836F')}">
           ${a.n} +${a.v}${(a.k==='acc'||a.k==='eva')?'':'%'}</div>
@@ -4215,14 +4263,16 @@ function buildAdvent(){
   dgTicketReset();
   let h=`<div class="advmap">
     <div class="mtitle">팔도 요괴 지도</div>
-    ${mapNode(24,32,'💰','황금곳간','gold')}
-    ${mapNode(72,26,'📚','무과 시험장','trial')}
-    ${mapNode(50,52,'🔷','심연 균열','rift')}
-    ${mapNode(24,76,'🏯','승급 시험','promo',rankGateOk())}
-    ${mapNode(76,74,'🔮','윤회의 문','rebirth',daoGain()>0)}
+    ${mapNode(24,32,gi('map',0),'황금곳간','gold')}
+    ${mapNode(72,26,gi('map',1),'무과 시험장','trial')}
+    ${mapNode(50,52,gi('map',2),'심연 균열','rift')}
+    ${mapNode(24,76,gi('map',3),'승급 시험','promo',rankGateOk())}
+    ${mapNode(76,74,gi('map',4),'윤회의 문','rebirth',daoGain()>0)}
     <button class="btn" data-a="storylog" style="position:absolute;left:8px;bottom:8px;padding:5px 12px;font-size:11px">📜 스토리</button>
     <button class="btn" data-a="regionsel" style="position:absolute;left:8px;top:8px;padding:5px 12px;font-size:11px">🗺️ 지역 선택</button>
-    <div style="position:absolute;right:8px;bottom:8px;background:rgba(20,14,8,.85);color:#F1E5C9;font-size:10px;border-radius:10px;padding:3px 10px;border:1px solid #6E5E44">입장권 💰${S.tickets.gold} 📚${S.tickets.trial} 🔷${S.tickets.rift}</div>
+    <div style="position:absolute;right:8px;bottom:8px;background:rgba(20,14,8,.85);color:#F1E5C9;font-size:10px;border-radius:10px;padding:3px 10px;border:1px solid #6E5E44"><span class="tkw">${gi('ticket',0)}</span>${S.tickets.gold}
+      <span class="tkw">${gi('ticket',1)}</span>${S.tickets.trial}
+      <span class="tkw">${gi('ticket',2)}</span>${S.tickets.rift}</div>
   </div>`;
   h+='<div class="sect">심법 수련 <span style="letter-spacing:0">— 보유 영석 '+fmt(S.seok)+'</span></div>';
   AWAKEN.forEach((a,i)=>{
@@ -4290,7 +4340,8 @@ function storyLogModal(){
 }
 function tryRankUp(){
   const rc=rankCost();
-  if(!rankGateOk()||S.gold<rc.gold) return;
+  if(!rankGateOk()){ toast('제'+RANK_GATES[S.rank]+'층을 먼저 정복해야 하오'); return; }
+  if(S.gold<rc.gold){ toast('냥이 모자라오 ('+fmt(rc.gold)+' 필요)'); return; }
   if(W.mode!=='farm'){ toast('전투 중에는 도전할 수 없소'); return; }
   S.gold-=rc.gold;
   // 승급전: 게이트 층 기준의 시험관 보스 (원작처럼 전투로 승급)
@@ -5101,6 +5152,9 @@ function act(a,i){
     case 'levelup': levelUp(); break;
     case 'eqview': S.equipView=+i; buildEquip(); break;
     case 'compdet': compDetail(+i,0); break;
+    case 'cskin': { const [ci,k]=String(i).split('_').map(Number);
+      if(!S.compSkin) S.compSkin={};
+      S.compSkin[ci]=k; snd('reward'); compDetail(ci,2); } break;
     case 'skdet': skillDetail(+i); break;
     case 'skauto': S.skAuto[+i]=(S.skAuto[+i]===0?1:0); skillDetail(+i); break;
     case 'skslotpick': { const fi=S.skEq.findIndex((v,k)=>v<0&&!(SLOT_GATES[k]>0&&S.maxClear<SLOT_GATES[k]));
