@@ -6,6 +6,13 @@
 <title>조선검객 키우기</title>
 <link rel="icon" href="assets/sprites/favicon.png?v=20260822f">
 <link rel="apple-touch-icon" href="assets/sprites/appicon.png?v=20260822f">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#16110C">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="조선검객">
+<meta name="description" content="조선시대 방치형 액션 RPG — 요괴를 베고 품계를 올리시오">
 <style>
 :root{
   --ink:#16110C; --ink2:#221A11; --ink3:#2C2216;
@@ -5570,6 +5577,7 @@ window.addEventListener('resize',sizeCanvas);
     document.body.appendChild(d);
   }
 
+  let beatFail=0;
   async function beat(){
     if(kicked) return;
     try{
@@ -5589,11 +5597,15 @@ window.addEventListener('resize',sizeCanvas);
           mailList=d.mails.slice();
         }
       }
-    }catch(e){}
+      beatFail=0;
+    }catch(e){
+      // 정적 호스팅에는 관제소 서버가 없다 — 몇 번 실패하면 조용히 접는다
+      if(++beatFail>=3&&beatTimer){ clearInterval(beatTimer); beatTimer=null; }
+    }
   }
   beat();
   beatTimer=setInterval(beat,5000);
-  document.addEventListener('visibilitychange',()=>{ if(!document.hidden) beat(); });
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden&&beatTimer) beat(); });
   window.addEventListener('beforeunload',()=>{
     try{ navigator.sendBeacon('/api/bye',JSON.stringify({pid:PID})); }catch(e){}
   });

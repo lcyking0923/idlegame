@@ -1,0 +1,26 @@
+{
+  "name": "조선검객 키우기",
+  "short_name": "조선검객",
+  "description": "조선시대 방치형 액션 RPG",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#16110C",
+  "theme_color": "#16110C",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "assets/sprites/icon192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/sprites/appicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
