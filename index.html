@@ -440,6 +440,8 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .mkhead{display:flex;align-items:center;gap:10px;margin-bottom:7px}
 .mkhead .mkface{width:52px;height:52px;flex:none}
 .mkhead .mid{flex:1;min-width:0}
+.curi{display:inline-block;width:20px;height:20px;vertical-align:-5px;margin-right:3px}
+.curi.sm{width:15px;height:15px;vertical-align:-3px;margin-right:1px}
 .mklock{display:block;width:100%;height:100%;border-radius:9px;background:#1E1812;
   color:#5E5344;font-size:20px;font-weight:800;text-align:center;line-height:44px}
 .probgrid{display:grid;grid-template-columns:1fr auto 1fr auto;gap:3px 8px;
@@ -1641,7 +1643,7 @@ RankIcoImg.src='assets/ui/rank_ico.png';
 const Mk20Img=new Image();
 Mk20Img.onload=()=>{ W.mk20Ok=1; };
 Mk20Img.src='assets/ui/mumak20.png';
-const ATLAS={rank:['rank_ico',4,4], mk20:['mumak20',4,5], map:['map_ico',5,1], relic:['relic_ico',5,2], mumak:['mumak_ico',4,2],
+const ATLAS={rank:['rank_ico',4,4], mk20:['mumak20',5,4], cur2:['cur2',2,1], map:['map_ico',5,1], relic:['relic_ico',5,2], mumak:['mumak_ico',4,2],
              card:['card_ico',4,1], rabil:['rabil_ico',4,2], ticket:['ticket_ico',3,1],
              costume:['costume',4,2]};
 function gi(kind,i){
@@ -4614,7 +4616,7 @@ function mumakModal(){
         보유 효과 : 승급 공격력/체력 <b style="color:var(--uiGood)">+${fmt(Math.round(mkOwnFx()))}%</b></div>
       </div>
     </div>
-    <div class="card" style="text-align:center;padding:5px">벼림돌 <b style="color:#D8A8F0">${fmt(S.mkCube||0)}</b> · 옥 <b style="color:var(--goldL)">${fmt(S.jade)}</b>
+    <div class="card" style="text-align:center;padding:5px"><span class="curi">${gi('cur2',1)}</span><b style="color:#D8A8F0">${fmt(S.mkCube||0)}</b> · 옥 <b style="color:var(--goldL)">${fmt(S.jade)}</b>
       <button class="btn" data-a="mkprob" style="padding:2px 10px;font-size:10px;margin-left:8px">확률표</button></div>`;
   MUMAK.forEach((m,i)=>{
     const c=mkCnt(i), can=c>=5&&i<MUMAK.length-1;
@@ -4653,7 +4655,7 @@ function mkEnhModal(i){
       <div class="small">벼림돌로 벼릴수록 장착·보유 효과가 오르오</div></div></div>
     <div class="card"><div class="vv" style="text-align:center">
       장착 효과 <b>+${fmt(Math.round(mkVal(i)))}%</b><span class="arw">→</span><b class="nx">+${fmt(Math.round(mkBase(i)*(1+0.02*(lv+1))))}%</b></div></div>
-    <div class="card" style="text-align:center">보유 벼림돌 <b style="color:#D8A8F0">${fmt(S.mkCube||0)}</b></div>
+    <div class="card" style="text-align:center"><span class="curi">${gi('cur2',1)}</span>보유 벼림돌 <b style="color:#D8A8F0">${fmt(S.mkCube||0)}</b></div>
     <button class="btn red wide ${(S.mkCube||0)>=cost?'':'off'}" data-a="mkenhdo" data-i="${i}">강화 <b>벼림돌 ${fmt(cost)}</b></button>
     <button class="btn wide" data-a="mumak">돌아가기</button>`);
 }
@@ -4687,10 +4689,10 @@ function rankAbilModal(page){
               :'<div class="nm" style="color:var(--uiSub)">비어 있는 힘</div>')
           : `<div class="nm" style="color:var(--uiSub)">🔒 ${TIERS[i+1].n} 정복 시 해금</div>`}
       </div>
-      ${open?`<button class="btn ${(S.dice||0)>=30?'':'off'}" data-a="raroll" data-i="${i}">🎲 던지기<b>주령구 30</b></button>`:''}
+      ${open?`<button class="btn ${(S.dice||0)>=30?'':'off'}" data-a="raroll" data-i="${i}"><span class="curi sm">${gi('cur2',0)}</span>던지기<b>주령구 30</b></button>`:''}
     </div>`;
   }
-  h+=`<div class="card" style="text-align:center">보유 주령구 <b style="color:#6FE0E8">${fmt(S.dice||0)}</b>
+  h+=`<div class="card" style="text-align:center"><span class="curi">${gi('cur2',0)}</span>보유 주령구 <b style="color:#6FE0E8">${fmt(S.dice||0)}</b>
     <div class="small" style="font-size:9px">승급 성공 +80 · 보스 첫 격파 +3</div></div>
     <button class="btn wide" data-a="raprob">색상별 확률·수치 표</button>
     <button class="btn wide" data-a="close">닫기</button>`;

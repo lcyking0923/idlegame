@@ -164,5 +164,15 @@
   "rows": 4,
   "cell": 96,
   "n": 16
+ },
+ "mumak20": {
+  "cols": 5,
+  "rows": 4,
+  "cell": 96
+ },
+ "cur2": {
+  "cols": 2,
+  "rows": 1,
+  "cell": 72
  }
 }
