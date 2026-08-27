@@ -436,6 +436,23 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .costg .e{width:52px;height:52px;margin:0 auto}
 .sic{display:block;width:32px;height:32px;background:url(assets/ui/stat_icons.png) 0 0/700% 100%;
   background-position:calc(var(--si)*100%/6) 0}
+/* 스킬 격자 */
+.skgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:4px}
+.skcell{position:relative;border-radius:10px;padding:6px 3px 5px;text-align:center;cursor:pointer;
+  background:linear-gradient(#241C13,#191209);border:1.5px solid var(--rc,#6E5E44)}
+.skcell.no{filter:grayscale(.8);opacity:.62}
+.skcell .ic2{width:40px;height:40px;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:24px}
+.skcell .ic2 .ga{width:40px;height:40px}
+.skcell .n{font-size:9px;font-weight:700;color:#E4D5B4;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.skcell .c{font-size:8.5px;color:var(--uiSub);min-height:11px}
+.skcell .c .pp{color:#F2A64B;font-weight:800}
+.skcell .eb{position:absolute;top:-4px;left:-4px;background:var(--green);color:#EDF5E8;
+  font-size:9px;font-weight:800;border-radius:6px;padding:1px 5px;border:1.5px solid #12301E}
+.skcell .cb{position:relative;height:8px;margin-top:3px;border-radius:4px;background:#100C08;overflow:hidden}
+.skcell .cb i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#4FBE79,#8FE3A8)}
+.skcell .cb b{position:absolute;inset:0;font-size:7px;line-height:8px;color:#fff;text-shadow:0 1px 1px #000}
+.skslot .plab{position:absolute;left:0;right:0;bottom:0;font-size:6.5px;font-weight:800;letter-spacing:.5px;
+  background:rgba(20,14,8,.85);color:#F2A64B;border-radius:0 0 7px 7px;padding:1px 0}
 /* 무맥·승급 능력 */
 .mkhead{display:flex;align-items:center;gap:10px;margin-bottom:7px}
 .mkhead .mkface{width:52px;height:52px;flex:none}
@@ -1640,10 +1657,13 @@ const COSTUME_N=['무명 삼베','사냥꾼 가죽','소복','궁중 궁수복',
 const RankIcoImg=new Image();
 RankIcoImg.onload=()=>{ W.rankIcoOk=1; if(S&&S.growView===2&&S.charView===0) buildStat&&buildStat(); };
 RankIcoImg.src='assets/ui/rank_ico.png';
+const Sk28Img=new Image();
+Sk28Img.onload=()=>{ W.sk28Ok=1; };
+Sk28Img.src='assets/ui/skill_ico.png';
 const Mk20Img=new Image();
 Mk20Img.onload=()=>{ W.mk20Ok=1; };
 Mk20Img.src='assets/ui/mumak20.png';
-const ATLAS={rank:['rank_ico',4,4], mk20:['mumak20',5,4], cur2:['cur2',2,1], map:['map_ico',5,1], relic:['relic_ico',5,2], mumak:['mumak_ico',4,2],
+const ATLAS={rank:['rank_ico',4,4], mk20:['mumak20',5,4], cur2:['cur2',2,1], sk28:['skill_ico',4,7], map:['map_ico',5,1], relic:['relic_ico',5,2], mumak:['mumak_ico',4,2],
              card:['card_ico',4,1], rabil:['rabil_ico',4,2], ticket:['ticket_ico',3,1],
              costume:['costume',4,2]};
 function gi(kind,i){
@@ -1744,7 +1764,7 @@ const RANK_OPTS=[
  {t:'mana',v:10,n:'내공 회복 +10%',w:10},
 ];
 // 스킬 내공(마나) 소모 — 등급별 (원작: 스킬은 마나를 쓰고, 마나 회복이 중요)
-const SK_COST=[18,22,28,38];
+const SK_COST=[18,22,28,38]; // (구) — 새 스킬은 개별 mp 필드를 쓴다
 /* 장신구 12종 4등급 (원작: 별도 소환 배너, 체력·치명피해·냥·경험치·내공 보조) */
 const ACCS=[
  {n:'짚신 부적',e:'🥿',r:0,fx:{hp:6}},{n:'엽전 노리개',e:'🪙',r:0,fx:{gold:5}},{n:'무명 머리끈',e:'🎗️',r:0,fx:{exp:5}},
@@ -1828,15 +1848,46 @@ const SPIRITS=[
  {n:'백호',e:'🐯',r:2,body:'cat',c:'#D8D0C0'},{n:'해태',e:'🦁',r:2,body:'cat',c:'#C0A040'},{n:'현무',e:'🐢',r:2,body:'fox',c:'#3E6E5E'},
  {n:'봉황',e:'🦚',r:3,body:'bird',c:'#C04A58'},{n:'기린',e:'🦄',r:3,body:'fox',c:'#B08A3E'},{n:'청룡',e:'🐉',r:3,body:'serp',c:'#3E7A9A'},
 ];
+/* 원작 스킬 체계 사본 — 7등급(민급~불멸)·패시브·개별 MP.
+   대기시간·MP는 공략 수치 그대로 (전광석화 0.5초/MP10, 신속 5초/MP20,
+   블리자드 10초/MP35, 마수사냥 33초/MP55, 불기둥 10초/MP40, 레이브 60초/MP50).
+   인덱스 0~7은 옛 저장과 호환되도록 그대로 둔다 */
+const SK_RAR=[{n:'민급',w:40},{n:'상급',w:27},{n:'희귀',w:18},{n:'영웅',w:10},{n:'전설',w:4.2},{n:'신화',w:0.8},{n:'불멸',w:0}];
+const SK_RC=['#C8BFA8','#8FE3A8','#6FBBFF','#B86AE8','#F2CE7B','#FF6A5A','#FF9A3C'];
 const SKILLS=[
- {n:'삼연격',   e:'⚔️',r:0,cd:8, mult:1.4,hits:3,aoe:false,el:null,d:'세 번 연달아 벤다 (무속성)'},
- {n:'사자후',   e:'🗣️',r:0,cd:20,buff:'atk',bv:0.25,bd:10,d:'10초간 공격력 +25%'},
- {n:'검기 방출',e:'🌪️',r:1,cd:5, mult:2.5,hits:1,aoe:false,el:'wind',d:'바람 검기를 날린다'},
- {n:'화염참',   e:'🔥',r:1,cd:10,mult:3.2,hits:1,aoe:true, el:'fire',d:'화염이 적 전체를 벤다'},
- {n:'질풍가도', e:'💨',r:1,cd:25,buff:'aps',bv:0.4,bd:8,d:'8초간 공격 속도 +40%'},
- {n:'회천검무', e:'🌀',r:2,cd:15,mult:7,  hits:1,aoe:true, el:'wind',d:'회오리가 전체를 휩쓴다'},
- {n:'빙백검',   e:'❄️',r:2,cd:18,mult:5,  hits:1,aoe:true, el:'water',d:'혹한이 전체를 베고 2초 결빙'},
- {n:'뇌격일섬', e:'⚡',r:3,cd:32,mult:22, hits:1,aoe:true, el:'fire',d:'하늘불의 일격이 전체를 꿰뚫는다'},
+ {n:'삼연격',   e:'⚔️',r:0,cd:8, mp:10,mult:1.4,hits:3,aoe:false,el:null,d:'세 번 연달아 벤다 (무속성)'},
+ {n:'사자후',   e:'🗣️',r:1,cd:20,mp:14,buff:'atk',bv:0.25,bd:10,d:'10초간 공격력 +25%'},
+ {n:'검기 방출',e:'🌪️',r:1,cd:5, mp:14,mult:2.5,hits:1,aoe:false,el:'wind',d:'바람 검기를 날린다'},
+ {n:'화염참',   e:'🔥',r:1,cd:10,mp:14,mult:3.2,hits:1,aoe:true, el:'fire',d:'화염이 적 전체를 벤다'},
+ {n:'질풍가도', e:'💨',r:1,cd:25,mp:14,buff:'aps',bv:0.4,bd:8,d:'8초간 공격 속도 +40%'},
+ {n:'회천검무', e:'🌀',r:2,cd:15,mp:18,mult:7,  hits:1,aoe:true, el:'wind',d:'회오리가 전체를 휩쓴다'},
+ {n:'빙백검',   e:'❄️',r:2,cd:18,mp:18,mult:5,  hits:1,aoe:true, el:'water',d:'혹한이 전체를 베고 2초 결빙'},
+ {n:'뇌격일섬', e:'⚡',r:3,cd:32,mp:22,mult:22, hits:1,aoe:true, el:'fire',d:'하늘불의 일격이 전체를 꿰뚫는다'},
+ // ── 민급 속성 3종 ──
+ {n:'불티 베기', e:'🔥',r:0,cd:6, mp:10,mult:1.6,hits:1,aoe:false,el:'fire', d:'불티를 실어 벤다'},
+ {n:'물결 베기', e:'💧',r:0,cd:6, mp:10,mult:1.6,hits:1,aoe:false,el:'water',d:'물결을 실어 벤다'},
+ {n:'돌팔매',   e:'🪨',r:0,cd:6, mp:10,mult:1.6,hits:1,aoe:false,el:'earth',d:'땅기운 돌덩이를 던진다'},
+ // ── 희귀 패시브 (원작: 가속의 검·땅의 의지·타오르는 검) ──
+ {n:'가속검결', e:'🌀',r:2,p:{k:'aps',v:2, per:'atk',n:5, cap:30},d:'전투 돌입 후 5회 공격마다 공격 속도 +2% (최대 30중첩)'},
+ {n:'대지결의', e:'⛰️',r:2,p:{k:'atk',v:3, per:'atk',n:7, cap:30},d:'전투 돌입 후 7회 공격마다 공격력 +3% (최대 30중첩)'},
+ {n:'작열검심', e:'🔥',r:2,p:{k:'atk',v:4, per:'sec',n:5, cap:30},d:'전투 돌입 후 5초마다 공격력 +4% (최대 30중첩)'},
+ // ── 영웅 (원작: 전광석화·굽이치는 칼날·바람의 검·강철의 의지) ──
+ {n:'섬광행보', e:'⚡',r:3,cd:0.5,mp:10,mult:3.5,hits:1,aoe:true,el:'wind',d:'번개처럼 돌진하며 적 전체를 벤다'},
+ {n:'유수검세', e:'🌊',r:3,p:{k:'aps',v:3, per:'sec',n:4, cap:30},d:'전투 돌입 후 4초마다 공격 속도 +3% (최대 30중첩)'},
+ {n:'풍행검',   e:'🍃',r:3,p:{k:'aps',v:15,per:'flat'},d:'공격 속도 +15% (상시)'},
+ {n:'철심장',   e:'🛡️',r:3,p:{k:'atk',v:20,per:'flat'},d:'전체 공격력 +20% (상시)'},
+ // ── 전설 (원작: 적뢰) ──
+ {n:'적벽뇌우', e:'🌩️',r:4,cd:12,mp:25,mult:2.6,hits:6,aoe:true,el:'fire', d:'붉은 벼락이 전장에 여섯 번 내리친다'},
+ {n:'월영참',   e:'🌙',r:4,cd:14,mp:25,mult:13, hits:1,aoe:true,el:'water',d:'달빛 검영이 전체를 가른다'},
+ // ── 신화 (원작: 신속·블리자드·마수 사냥·불기둥·괴력난신) ──
+ {n:'축지신행', e:'💨',r:5,cd:5, mp:20,mult:4,  hits:6,aoe:true,el:'wind', d:'여섯 번 연속 돌진해 적진을 관통한다'},
+ {n:'백설한풍', e:'❄️',r:5,cd:10,mp:35,mult:14, hits:1,aoe:true,el:'water',d:'눈보라가 전체를 얼린다 (빙결 100%)'},
+ {n:'요수사냥', e:'🐺',r:5,cd:33,mp:55,mult:3.2,hits:7,aoe:false,el:null,  d:'일곱 번 몰아치고, 마지막 일격은 세 배로 꽂힌다'},
+ {n:'화룡승천', e:'🐉',r:5,cd:10,mp:40,mult:9,  hits:3,aoe:true,el:'fire', d:'점점 강해지는 화염 기둥을 세 번 일으킨다'},
+ {n:'역발산',   e:'💪',r:5,p:{k:'atk',v:650,per:'burst',warm:20,dur:5,cyc:30},d:'전투 돌입 20초 뒤, 5초간 전체 공격력 +650% (30초 주기)'},
+ // ── 불멸 (원작: 레이브·만트라) — 합성으로만 얻는다 ──
+ {n:'뇌옥나찰', e:'🔥',r:6,cd:60,mp:50,rave:0.7,buff:'rave',bd:5,d:'5초간, 적에게 가한 모든 피해의 70%만큼 뒤따라 터진다'},
+ {n:'금강불괴', e:'🗿',r:6,p:{k:'all',v:30,per:'mantra'},d:'최종 공격력·체력 +30% — 슬롯에 장착하지 않아도 발휘된다'},
 ];
 const AWAKEN=[
  {id:'atk',n:'패왕 심법',e:'⚔️',d:'공격력 +4%/성'},
@@ -1966,29 +2017,65 @@ function raRoll(i){
 function manaMax(){ return 100+raFx('mnmax'); }
 /* 비급(祕笈) — 참고 게임의 '스킬카드'. 기술을 배우고 합성하는 재료.
    기술 소환에서 나오고, 보스를 잡을 때도 낮은 확률로 떨어진다. */
-const CARD_N=['민급','희귀','영웅','전설'];
-function cardN(r){ return S.cards[r]||0; }
-function addCard(r,n){ S.cards[r]=cardN(r)+(n||1); }
-function learnCost(i){ // 기술 등급에 맞는 비급 장수
-  return {r:SKILLS[i].r, n:[3,3,2,2][SKILLS[i].r], gold:Math.floor(2000*Math.pow(6,SKILLS[i].r))};
+/* 비급(스킬 카드) — 원작처럼 '스킬마다' 따로 쌓인다.
+   소환·보스가 카드를 주고, 배우기·강화·합성이 카드를 쓴다 */
+function skCard(i){ return (S.skCards&&S.skCards[i])||0; }
+function addSkCard(i,n){ S.skCards[i]=skCard(i)+(n||1); }
+function randSkOf(r){ // 해당 등급 스킬 중 무작위
+  const pool=[]; SKILLS.forEach((k,i)=>{ if(k.r===r) pool.push(i); });
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+function learnCost(i){ // 배우기: 카드 N + (신화·불멸은 영석) — 원작의 각성 스킬 재료
+  const r=SKILLS[i].r;
+  return {n:[3,3,4,4,5,6,8][r], seok:r>=5?(r===6?60:30):0};
 }
 function canLearn(i){
   if(S.skills[i]) return false;
   const c=learnCost(i);
-  return cardN(c.r)>=c.n && S.gold>=c.gold;
+  return skCard(i)>=c.n&&S.seok>=c.seok;
 }
 function learnSkill(i){
   if(!canLearn(i)) return;
   const c=learnCost(i);
-  S.cards[c.r]-=c.n; S.gold-=c.gold; S.skills[i]=1;
+  S.skCards[i]-=c.n; S.seok-=c.seok; S.skills[i]=1;
   snd('reward'); toast('비급을 익혔소 — '+SKILLS[i].n);
   skillLearnModal(); buildSkill(); updateHeader();
 }
-function fuseCard(r){ // 같은 등급 5장 → 상위 1장
-  if(r>=3||cardN(r)<5) return;
-  S.cards[r]-=5; addCard(r+1,1);
-  snd('reward'); toast(CARD_N[r]+' 비급 5장 → '+CARD_N[r+1]+' 1장');
-  cardFuseModal(); updateHeader();
+function enhCardNeed(i){ // 강화 카드 수 — 원작: 전설·신화·불멸 1장 고정, 그 아래는 점증
+  const r=SKILLS[i].r, lv=S.skills[i]||1;
+  return r>=4?1:1+Math.floor(lv/3);
+}
+function enhGold(i){ const r=SKILLS[i].r, lv=S.skills[i]||1; return Math.floor(500*Math.pow(3,r)*Math.pow(1.2,lv)); }
+function enhSkill(i){ // 강화 = 레벨업. 숙련도 게이지 +1
+  if(!S.skills[i]) return;
+  const need=enhCardNeed(i), g=enhGold(i);
+  if(skCard(i)<need){ toast('비급이 모자라오 ('+skCard(i)+'/'+need+')'); return; }
+  if(S.gold<g){ toast('냥이 모자라오'); return; }
+  S.skCards[i]-=need; S.gold-=g; S.skills[i]++;
+  mxGain(1);
+  snd('reward'); skillDetail(i); updateHeader();
+}
+function fuseAuto(r){ // 같은 등급 카드 아무거나 5장(많은 것부터) → 상위 등급 무작위 카드
+  if(r>=6) return;
+  const own=[]; SKILLS.forEach((k,i)=>{ if(k.r===r&&skCard(i)>0) own.push(i); });
+  let tot=own.reduce((a,i)=>a+skCard(i),0);
+  if(tot<5){ toast(SK_RAR[r].n+' 비급이 5장 필요하오 (보유 '+tot+')'); return; }
+  own.sort((a,b)=>skCard(b)-skCard(a));
+  let need=5;
+  for(const i of own){ const take=Math.min(need,skCard(i)); S.skCards[i]-=take; need-=take; if(!need) break; }
+  const bonus=Math.random()<0.15?1:0;                       // 합성 보너스 (원작의 +N)
+  const got=[];
+  for(let k2=0;k2<1+bonus;k2++){ const gi2=randSkOf(r+1); addSkCard(gi2,1); got.push(gi2); }
+  mxGain(1);
+  snd('reward');
+  // 융합 결과 화면 — 원작의 '융합 결과'
+  let h='<h2>융합 결과</h2><div class="pullres">';
+  got.forEach(gi2=>{ h+=`<div class="rel r${Math.min(4,SKILLS[gi2].r)}"><div class="e">${skIco(gi2)}</div>
+    <div class="n">${SKILLS[gi2].n}</div><div class="v" style="color:${SK_RC[SKILLS[gi2].r]}">${SK_RAR[SKILLS[gi2].r].n} 비급</div></div>`; });
+  h+='</div>'+(bonus?'<p class="demo-note">합성 보너스! 한 장 더 나왔소</p>':'');
+  h+='<button class="btn wide" data-a="cardfuse">계속 합성</button><button class="btn wide" data-a="close">닫기</button>';
+  showModal(h);
+  updateHeader();
 }
 /* 동료 패시브 — 참고 게임의 동료 상세 PASSIVE 3종에 해당.
    동료마다 성격에 맞는 보정을 주고, 냥+옥으로 따로 강화한다. */
@@ -2130,7 +2217,7 @@ function freshState(){
     mumak:{}, mumakEq:-1, compSkin:{},
     mkEnh:{}, mkCube:0, mkSumLv:0, mkSumXp:0,
     raSlots:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null], dice:0,
-    skills:{0:1}, skEq:[0,-1,-1,-1,-1,-1,-1,-1],
+    skills:{0:1}, skEq:[0,-1,-1,-1,-1,-1,-1,-1,-1], skCards:{}, skMx:0, slot9:false,
     aw:{atk:0,hp:0,critd:0,skill:0,gold:0},
     rebirths:0, dao:0, tr:{atk:0,hp:0,gold:0,skill:0},
     stage:1, maxClear:0, kills:0, autoBoss:true, autoSkill:true,
@@ -2161,6 +2248,14 @@ function load(){
       s.rankV2=1;
     }
     s.mkEnh=Object.assign({},d.mkEnh||{});
+    s.skCards=Object.assign({},d.skCards||{});
+    while(s.skEq.length<9) s.skEq.push(-1);
+    if(d.skMx==null){ let t=0; for(const k in s.skills) t+=s.skills[k]; s.skMx=t; } // 옛 숙련도 이어받기
+    if(d.cards){ // 옛 공용 비급 → 같은 급의 스킬별 비급으로
+      const MAP=[0,2,3,4];
+      [0,1,2,3].forEach(r=>{ let n=d.cards[r]|0; while(n-->0){ const ci=randSkOf(MAP[r]); s.skCards[ci]=(s.skCards[ci]||0)+1; } });
+      delete s.cards;
+    }
     if(!Array.isArray(s.raSlots)||s.raSlots.length<15) s.raSlots=freshState().raSlots;
     if(d.rankAbil&&Object.keys(d.rankAbil).length){ // 구 해금 능력 → 영석 환급
       const OLD_COST=[8,12,16,20,26,34,44,56];
@@ -2193,17 +2288,44 @@ function trMult(k){ return 1+S.tr[k]*0.03; }
 function boostOn(){ return S.boostEnd>Date.now(); }
 function royalOn(){ return S.royalEnd>Date.now(); }
 let buffAtk=0, buffAps=0; // 버프 스킬 잔여시간
+/* 패시브 스킬 — 장착된 것만 발휘 (금강불괴는 배우기만 하면 상시) */
+function passiveFx(kind){
+  let v=0;
+  for(const si of S.skEq){
+    if(si<0) continue;
+    const k=SKILLS[si]; if(!k||!k.p) continue;
+    const pp=k.p, lvm=1+0.1*((S.skills[si]||1)-1);      // 레벨당 +10%
+    if(pp.per==='mantra') continue;
+    if(pp.k!==kind&&pp.k!=='all') continue;
+    if(pp.per==='flat') v+=pp.v*lvm;
+    else if(pp.per==='atk') v+=Math.min(pp.cap,Math.floor((W.atkN||0)/pp.n))*pp.v*lvm;
+    else if(pp.per==='sec') v+=Math.min(pp.cap,Math.floor((W.combatT||0)/pp.n))*pp.v*lvm;
+    else if(pp.per==='burst'){                           // 역발산 — 20초 뒤 5초간 폭발
+      const t=(W.combatT||0);
+      if(t>=pp.warm&&((t-pp.warm)%pp.cyc)<pp.dur) v+=pp.v*lvm;
+    }
+  }
+  return v;
+}
+function mantraFx(){ // 금강불괴 — 슬롯 불요, 최종 공·체 %
+  for(let i=0;i<SKILLS.length;i++){
+    const k=SKILLS[i];
+    if(k.p&&k.p.per==='mantra'&&(S.skills[i]||0)>0) return k.p.v+((S.skills[i]||1)-1);
+  }
+  return 0;
+}
 function rankOptSum(t){ let v=0; for(const o of (S.rankOpts||[])) if(o.t===t) v+=o.v; return v; }
 let buffAtkV=0.25, buffApsV=0.4;
 function heroAtk(){
   let a=stVal('atk')*rankMult()*wEqMult()*wOwnMult()*spMult()*(1+S.aw.atk*0.04)*trMult('atk')*(1+rankOptSum('atk')/100)*(1+compLv(1)*0.03)*(1+relicFx('atk'))*(1+compPFx('atk')/100)*(1+(mkEquipFx()+mkOwnFx()+raFx('atk'))/100);
   a*=(1+(S.spSt.str||0)*0.004)*(1+drFx('atk')/100);   // 성장 '힘' + 잠룡의 힘
+  a*=(1+passiveFx('atk')/100)*(1+mantraFx()/100);      // 패시브 기술 + 금강불괴
   if(buffAtk>0) a*=1+buffAtkV;
   if(adbOn('atk')) a*=2;
   if(boostOn()) a*=2; if(royalOn()) a*=2;
   return a;
 }
-function heroMaxHp(){ return stVal('hp')*rankMult()*(1+S.aw.hp*0.04)*trMult('hp')*(1+spFx('hp')/100)*(1+accFx('hp')/100)*(1+relicFx('hp'))*(1+(compPFx('hp')+compOFx('hp'))/100)*(1+(mkEquipFx()+mkOwnFx()+raFx('hp'))/100)*(1+(S.spSt.hp||0)*0.005)*(1+drFx('hp')/100); }
+function heroMaxHp(){ return stVal('hp')*rankMult()*(1+S.aw.hp*0.04)*trMult('hp')*(1+spFx('hp')/100)*(1+accFx('hp')/100)*(1+relicFx('hp'))*(1+(compPFx('hp')+compOFx('hp'))/100)*(1+(mkEquipFx()+mkOwnFx()+raFx('hp'))/100)*(1+(S.spSt.hp||0)*0.005)*(1+drFx('hp')/100)*(1+mantraFx()/100); }
 /* 영물 보너스 4종 (원작 정령: 공격·체력·골드·경험치) */
 function spFx(kind){
   if(S.spEq<0||!S.spirits[S.spEq]) return 0;
@@ -2222,12 +2344,14 @@ function enemyDodge(n){ return Math.min(35,(n-1)*0.12); }
 function hitChance(n){ return Math.min(100,100-enemyDodge(n)+S.spSt.acc*0.2+compLv(0)*0.3+relicFx('acc')*0.1+(compPFx('acc')+compOFx('acc')+raFx('acc'))*0.1); }
 function heroDodge(){ return Math.min(40,S.spSt.eva*0.1+relicFx('eva')*0.05+(compPFx('eva')+compOFx('eva')+raFx('eva'))*0.05); }
 /* 스킬 숙련도 (원작: 스킬 20강마다 숙련도 → 전 스킬 피해 증가) */
-function skillMastery(){ let t=0; for(const k in S.skills) t+=S.skills[k]; return Math.floor(t/20); }
+function skillMastery(){ return Math.floor((S.skMx||0)/20); } // 게이지 20마다 1레벨
+function masteryBonus(){ const L=skillMastery(); return Math.round(0.1*L*L+4.7*L); } // 원작 표 회귀 (Lv.11=+63%)
+function mxGain(n){ S.skMx=(S.skMx||0)+(n||1); } // 강화·합성마다 +1
 function heroCrit(){ return Math.min(100,stVal('crit')+S.spSt.crit*0.1); }
 function heroCritD(){ return stVal('critd')+S.aw.critd*6+wEqCritD()+accFx('cd')+relicFx('critd')*100+compPFx('critd')+compOFx('critd')+raFx('critd')+drFx('critd'); }
-function heroAps(){ let a=stVal('aps')*(1+relicFx('aps'))*(1+compPFx('aps')/100); if(buffAps>0) a*=1+buffApsV; return a; }
+function heroAps(){ let a=stVal('aps')*(1+relicFx('aps'))*(1+compPFx('aps')/100)*(1+passiveFx('aps')/100); if(buffAps>0) a*=1+buffApsV; return a; }
 function skillMult(i){ const lv=S.skills[i]||1;
-  return SKILLS[i].mult*(1+0.15*(lv-1))*(1+S.aw.skill*0.05)*trMult('skill')*(1+skillMastery()*0.05)*(1+relicFx('skill'))*(1+(compPFx('skill')+raFx('skill'))/100)*(S.skAw[i]?1.8:1); }
+  return SKILLS[i].mult*(1+0.15*(lv-1))*(1+S.aw.skill*0.05)*trMult('skill')*(1+masteryBonus()/100)*(1+relicFx('skill'))*(1+(compPFx('skill')+raFx('skill'))/100)*(S.skAw[i]?1.8:1); }
 function goldMult(){ return (1+stVal('gget')/100)*(1+wEqGold()/100)*(1+S.aw.gold*0.04)*trMult('gold')*(1+S.spSt.gold*0.02)*(1+spFx('gold')/100)*(1+accFx('gold')/100)*(1+rankOptSum('gold')/100)*(1+compLv(2)*0.03)*(1+relicFx('gold'))*(1+(compPFx('gold')+compOFx('gold')+raFx('gold'))/100)*(1+drFx('gold')/100)*(adbOn('gold')?3:1)*(boostOn()?2:1)*(royalOn()?2:1); }
 function statMaxLv(c){ return c.maxF?c.maxF():(c.max||Infinity); }
 function statCost(id,k){ // k강 올리는 비용 — 9e-7·Lv^3.6 멱함수의 적분 (원작 비용 곡선 역산)
@@ -2276,7 +2400,7 @@ function daoGain(){ const s=S.maxClear+1; if(s<400) return 0; return Math.floor(
 function dps(){
   let d=heroAtk()*heroAps()*(1+heroCrit()/100*(heroCritD()/100-1));
   for(let i=0;i<4;i++){ const si=S.skEq[i];
-    if(si>=0&&SKILLS[si].mult) d+=heroAtk()*skillMult(si)*SKILLS[si].hits/SKILLS[si].cd; }
+    if(si>=0&&SKILLS[si]&&SKILLS[si].mult&&!SKILLS[si].p) d+=heroAtk()*skillMult(si)*SKILLS[si].hits/Math.max(1,SKILLS[si].cd); }
   if(S.spEq>=0) d+=heroAtk()*2.5/4;
   return d;
 }
@@ -2401,6 +2525,13 @@ function hitEnemy(e,dmg,opt){
   const elm=elMult(opt.el,e.el); // 속성 상성 ×2 / ×0.7
   let d=dmg*(0.9+Math.random()*0.2)*(crit?heroCritD()/100:1)*(sc?stVal('scd')/100:1)*elm;
   e.hp-=d; e.hitF=1;
+  if((W.raveT||0)>0&&!opt.rave){ // 뇌옥나찰 — 모든 피해의 70%가 뒤따라 터진다
+    const rd=d*0.7;
+    setTimeout(()=>{ if(e.state!=='die'){ e.hp-=rd; e.hitF=1;
+      dmgText(e.x,W.G-e.size*0.7-30,'추격 '+fmt(rd),'#FF9A3C',false,true);
+      burst(e.x,W.G-e.size*0.7,'#FF9A3C',4);
+      if(e.hp<=0) killEnemy(e); } },140);
+  }
   const ex=e.x, ey=W.G-e.size*0.7;
   const tag=sc?'혼신! ':elm>=2?'약점! ':(crit?'회심! ':'');
   const col=sc?'#6FBBFF':elm>=2?'#FFD24A':(elm<1?'#9FB2C4':(crit?'#FF4A3A':'#FFF2CC'));
@@ -2439,8 +2570,8 @@ function killEnemy(e){
     bossVictoryFx(e.x,W.G-e.size*0.6,e.nm,first?S.stage:0);
     if(first){
       S.maxClear=S.stage; S.jade+=5; S.dice=(S.dice||0)+3;
-      if(Math.random()<0.35){ const r=Math.random()<0.08?2:(Math.random()<0.3?1:0);
-        addCard(r,1); toast('📜 '+CARD_N[r]+' 비급을 얻었소'); }
+      if(Math.random()<0.35){ const r=Math.random()<0.08?3:(Math.random()<0.3?2:Math.random()<0.5?1:0);
+        const ci=randSkOf(r); addSkCard(ci,1); toast('📜 '+SKILLS[ci].n+' 비급을 얻었소'); }
       if(rankGateOk()&&S.lv>=TIERS[S.rank+1].rec&&W.promoHintR!==S.rank){
         W.promoHintR=S.rank; dmgText(W.w/2,150,'🏯 '+TIERS[S.rank+1].n+' 승급 시험을 볼 때가 되었소','#FF9A66',true);
       }
@@ -2490,8 +2621,12 @@ function update(dt){
   if(h.dead>0){ h.dead-=dt; if(h.dead<=0) h.hp=heroMaxHp(); }
   W.tapCd-=dt;
   if(W.bossDelay>0){ W.bossDelay-=dt; if(W.bossDelay<=0) startBoss(); }
-  for(let i=0;i<8;i++) W.skCd[i]-=dt;
+  for(let i=0;i<SKILLS.length;i++) W.skCd[i]=(W.skCd[i]||0)-dt;
   buffAtk=Math.max(0,buffAtk-dt); buffAps=Math.max(0,buffAps-dt);
+  W.raveT=Math.max(0,(W.raveT||0)-dt);
+  // 패시브 스택: 교전 중 시간·공격 수 누적, 달리기 시작하면 초기화
+  if(W.running){ W.combatT=0; W.atkN=0; }
+  else if(frontEnemy()) W.combatT=(W.combatT||0)+dt;
   W.mana=Math.min(manaMax(),W.mana+12*(1+rankOptSum('mana')/100)*(1+accFx('mana')/100)*(1+compLv(3)*0.02)*(1+(compPFx('mana')+raFx('mana'))/100)*dt); // 내공 회복
   // 보스 제한시간
   if(W.mode==='boss'){
@@ -2573,7 +2708,7 @@ function update(dt){
   // 영웅 공격/기술
   if(front&&front.state==='fight'&&h.dead<=0){
     h.atkT-=dt;
-    if(h.atkT<=0){ h.atkT=1/heroAps(); h.swing=1; h.swBig=0; hitEnemy(front,heroAtk()); }
+    if(h.atkT<=0){ h.atkT=1/heroAps(); h.swing=1; h.swBig=0; W.atkN=(W.atkN||0)+1; hitEnemy(front,heroAtk()); }
   }
   // 기술은 '맞붙기 전'에도 쓴다.
   // 예전엔 교전 중일 때만 시전했는데, 층이 낮아 적이 걸어오다 죽으면 교전 자체가
@@ -2585,11 +2720,11 @@ function update(dt){
       // 계속 갉아먹어 비싼 기술(뇌격일섬 38)은 문턱에 닿지도 못하고 영영 못 나간다.
       // 그래서 비싼 것을 우선하고, 아직 못 사면 이번 판은 참고 내공을 모은다.
       let best=-1, bestCost=-1;
-      for(let s=0;s<8;s++){
+      for(let s=0;s<9;s++){
         const si=S.skEq[s];
-        if(si<0||W.skCd[si]>0) continue;
+        if(si<0||W.skCd[si]>0||SKILLS[si].p) continue;
         if(S.skAuto[si]===0) continue;   // 상세에서 AUTO를 끈 기술은 자동으로 안 나간다
-        const c=SK_COST[SKILLS[si].r];
+        const c=SKILLS[si].mp!=null?SKILLS[si].mp:20;
         if(c>bestCost){ bestCost=c; best=si; }
       }
       if(best>=0&&W.mana>=bestCost) castSkill(best);
@@ -2680,7 +2815,8 @@ function update(dt){
 function castSkill(i){
   const front=frontEnemy();
   const k=SKILLS[i];
-  const cost=SK_COST[k.r];
+  if(k.p) return;                          // 패시브는 시전하지 않는다
+  const cost=k.mp!=null?k.mp:SK_COST[k.r]||20;
   if(W.mana<cost) return; // 내공 부족 — 회복 후 자동 재시전
   if(!k.buff&&!front) return; // 공격 기술은 적이 있을 때. 걸어오는 중이어도 맞힌다
   skillFx(i,k); // 기술별 원화 이펙트 (실제로 나갈 때만)
@@ -2692,6 +2828,10 @@ function castSkill(i){
       buffAtk=k.bd; buffAtkV=aw?0.35:0.25;
       W.fx.push({type:'roar',x:W.hero.x+4,y:W.G-38,t:0,dur:0.7}); // 사자후 충격파
       W.cam.shake=Math.max(W.cam.shake,5);
+    }else if(k.buff==='rave'){             // 뇌옥나찰 — 5초 추격탄
+      W.raveT=k.bd;
+      W.fx.push({type:'roar',x:W.hero.x+4,y:W.G-38,t:0,dur:0.7});
+      W.cam.shake=Math.max(W.cam.shake,6);
     }else{
       buffAps=k.bd; buffApsV=aw?0.6:0.4;
       for(let k2=0;k2<8;k2++) W.lines.push({y:W.G-14-Math.random()*60,x:W.hero.x+40+Math.random()*60,t:0});
@@ -2744,7 +2884,62 @@ function castSkill(i){
     W.enemies.forEach((e2,k2)=>{ if(e2.state!=='die') W.fx.push({type:'bolt',x:e2.x,t:-k2*0.07,dur:0.3}); });
     W.hitStop=Math.max(W.hitStop,0.05);
   }
+  else if(i===14){ // 섬광행보: 번개 돌진
+    W.hits.push({t:0.06,dmg,aoe:true,opt:{el}});
+    for(let k2=0;k2<7;k2++) W.lines.push({y:W.G-10-Math.random()*70,x:W.hero.x+30+Math.random()*80,t:0});
+    W.hero.swing=1; W.hero.swBig=1; W.hitStop=Math.max(W.hitStop,0.03);
+  }
+  else if(i===18){ // 적벽뇌우: 붉은 벼락 여섯 줄기
+    for(let t2=0;t2<k.hits;t2++){
+      W.hits.push({t:0.1+t2*0.14,dmg,aoe:true,opt:{el}});
+      W.fx.push({type:'bolt',x:W.hero.x+60+Math.random()*(W.w-140),t:-t2*0.14,dur:0.3});
+    }
+    W.cam.shake=Math.max(W.cam.shake,7);
+  }
+  else if(i===19){ // 월영참: 달빛 검영
+    W.hits.push({t:0.22,dmg,aoe:true,opt:{el}});
+    W.fx.push({type:'spin',x:W.hero.x+8,y:W.G-44,t:0,dur:0.85});
+    W.cam.shake=Math.max(W.cam.shake,5);
+  }
+  else if(i===20){ // 축지신행: 여섯 번 관통 돌진
+    for(let t2=0;t2<k.hits;t2++){
+      W.hits.push({t:0.06+t2*0.12,dmg,aoe:true,opt:{el}});
+      setTimeout(()=>{ W.hero.swing=1; W.hero.swBig=1;
+        for(let j=0;j<4;j++) W.lines.push({y:W.G-10-Math.random()*70,x:W.hero.x+30+Math.random()*90,t:0});
+      },(0.06+t2*0.12)*1000);
+    }
+    W.hitStop=Math.max(W.hitStop,0.04);
+  }
+  else if(i===21){ // 백설한풍: 눈보라 + 전원 빙결
+    W.hits.push({t:0.15,dmg,aoe:true,opt:{freeze:2.5,el}});
+    W.fx.push({type:'cold',t:0,dur:0.7});
+    for(const e2 of W.enemies) if(e2.state!=='die') W.fx.push({type:'ice',x:e2.x,t:0,dur:2.5});
+  }
+  else if(i===22){ // 요수사냥: 일곱 연격, 마지막은 세 배
+    for(let t2=0;t2<7;t2++){
+      const last=t2===6;
+      W.hits.push({t:0.05+t2*0.13,dmg:last?dmg*3:dmg,aoe:false,opt:{el}});
+      setTimeout(()=>{ const f2=frontEnemy(); if(f2){
+        slashFx(f2.x-6,W.G-f2.size*0.6,(t2%2?0.7:-0.7),slashCol(),last?null:undefined,last?1.2:0.9);
+        W.hitStop=Math.max(W.hitStop,last?0.06:0.02); }
+      },(0.05+t2*0.13)*1000);
+    }
+    W.hero.swing=1; W.hero.swBig=1;
+  }
+  else if(i===23){ // 화룡승천: 화염 기둥 세 번
+    for(let t2=0;t2<3;t2++){
+      W.hits.push({t:0.2+t2*0.3,dmg,aoe:true,opt:{el}});
+      W.fx.push({type:'firewall',x:W.hero.x+30+t2*30,t:-t2*0.3,dur:0.9});
+    }
+    W.cam.shake=Math.max(W.cam.shake,6);
+  }
+  else if(!k.buff&&k.mult){ // 그 밖의 액티브 — 참격 한 번
+    W.hits.push({t:0.12,dmg,aoe:!!k.aoe,opt:{el}});
+    const f2=front;
+    if(f2) slashFx(f2.x-8,W.G-f2.size*0.6,-0.55,el?ELS[el].c.replace('#','')&&hexRgb(ELS[el].c):slashCol());
+  }
 }
+function hexRgb(hex){ return parseInt(hex.slice(1,3),16)+','+parseInt(hex.slice(3,5),16)+','+parseInt(hex.slice(5,7),16); }
 function updateAmb(dt){
   const ch=chapterOf(S.stage);
   if(W.amb.length<16&&Math.random()<0.12)
@@ -2929,6 +3124,7 @@ function draw(){
   // ── 스킬 시그니처 이펙트 ──
   cx.save(); cx.globalCompositeOperation='lighter';
   for(const f of W.fx){
+    if(f.t<0) continue;                       // 지연 시작(음수 t)은 아직 안 그린다
     const p=f.t/f.dur, a=1-p;
     if(f.type==='firewall'){ // 화염참: 화면을 휩쓰는 불의 장벽
       const grd=cx.createLinearGradient(f.x-26,0,f.x+18,0);
@@ -3691,22 +3887,32 @@ function updateSceneUI(){
   updateSkillbar();
 }
 /* 스킬 슬롯 바 (전투 하단 상시 노출) */
-const SLOT_GATES=[0,0,0,10,25,45,70,100];
+const SLOT_GATES=[0,0,0,10,25,45,70,100,-1];    // 9번째(-1)는 구매·레벨로 해방
+function slotLocked(i){
+  if(i===8) return !(S.slot9||S.lv>=300);       // 원작: 재화 즉시 확장 or 레벨 자동 해제
+  return SLOT_GATES[i]>0&&S.maxClear<SLOT_GATES[i];
+}
+function skIco(i){ // 스킬 아이콘 — 28종 원화(skill_ico.png)가 오면 자동 교체
+  return W.sk28Ok?gi('sk28',i):ic('k',i,SKILLS[i].e);
+}
 function buildSkillbar(){
   let h='';
-  for(let i=0;i<8;i++) h+=`<button class="skslot" data-a="slotpick" data-hold="slotedit" data-i="${i}" id="sks${i}"></button>`;
+  for(let i=0;i<9;i++) h+=`<button class="skslot" data-a="slotpick" data-hold="slotedit" data-i="${i}" id="sks${i}"></button>`;
   $('skSlots').innerHTML=h;
   updateSkillbar();
 }
 function updateSkillbar(){
-  for(let i=0;i<8;i++){
+  for(let i=0;i<9;i++){
     const el=$('sks'+i); if(!el) return;
-    const locked=SLOT_GATES[i]>0&&S.maxClear<SLOT_GATES[i];
+    const locked=slotLocked(i);
     const si=S.skEq[i];
     el.className='skslot'+(locked?' lockd':(si>=0?' filled':''));
-    let inner=locked?'🔒':(si>=0?ic('k',si,SKILLS[si].e):'＋');
-    if(!locked&&si>=0&&W.skCd[si]>0.05)
-      inner+='<span class="cd">'+(W.skCd[si]>=10?Math.ceil(W.skCd[si]):W.skCd[si].toFixed(1))+'</span>';
+    let inner=locked?'🔒':(si>=0?skIco(si):'＋');
+    if(!locked&&si>=0){
+      if(SKILLS[si].p) inner+='<span class="plab">PASSIVE</span>';
+      else if(W.skCd[si]>0.05)
+        inner+='<span class="cd">'+(W.skCd[si]>=10?Math.ceil(W.skCd[si]):W.skCd[si].toFixed(1))+'</span>';
+    }
     el.innerHTML=inner;
   }
   const ab=$('autoSkBtn');
@@ -3854,100 +4060,113 @@ function spBuy(i){
 
 /* ═══════════ 스킬 탭 ═══════════ */
 function buildSkill(){
-  // 슬롯 8칸 (원작 동일) — 층 돌파로 순차 해방
-  const SLOT_GATES=[0,0,0,10,25,45,70,100];
   let h=`<div class="togglebar">
     <button data-a="autoskill" class="${S.autoSkill?'on':''}">기술 자동 발동 ${S.autoSkill?'켬':'끔'}</button>
   </div>`;
-  for(let row=0;row<2;row++){
+  // 슬롯 3줄 (마지막 줄: 9번째 확장 슬롯) — 원작의 + 슬롯
+  for(let row=0;row<3;row++){
     h+='<div class="slotrow">';
-    for(let c=0;c<4;c++){
+    const CNT=row<2?4:1;
+    for(let c=0;c<CNT;c++){
       const i=row*4+c;
       const si=S.skEq[i];
-      const locked=SLOT_GATES[i]>0&&S.maxClear<SLOT_GATES[i];
-      h+=`<div class="slot ${si>=0&&!locked?'filled':''} ${locked?'lockd':''}" data-a="${locked?'none':'slotpick'}" data-i="${i}" style="cursor:pointer">
-        ${locked?'🔒':(si>=0?ic('k',si,SKILLS[si].e):'＋')}
-        <span class="sn">${locked?SLOT_GATES[i]+'층 해방':(si>=0?SKILLS[si].n:'슬롯 '+(i+1))}</span>
+      const locked=slotLocked(i);
+      const buy9=i===8&&locked;
+      h+=`<div class="slot ${si>=0&&!locked?'filled':''} ${locked?'lockd':''}" data-a="${buy9?'slot9buy':(locked?'none':'slotpick')}" data-i="${i}" style="cursor:pointer">
+        ${locked?(buy9?'＋':'🔒'):(si>=0?skIco(si):'＋')}
+        ${si>=0&&!locked&&SKILLS[si].p?'<span class="plab">PASSIVE</span>':''}
+        <span class="sn">${buy9?'확장 (옥 3,000)':(locked?SLOT_GATES[i]+'층 해방':(si>=0?SKILLS[si].n:'슬롯 '+(i+1)))}</span>
       </div>`;
     }
     h+='</div>';
   }
+  // 숙련도 — 원작 공식: 강화·합성 20회마다 1레벨, 모든 속성 데미지 상승
+  const L=skillMastery(), gx=(S.skMx||0)%20;
   h+=`<div class="card mastrow">
     <div class="mid">
-      <div class="nm">스킬 숙련도 <span class="lv">${skillMastery()}단</span></div>
-      <div class="sub">총 스킬 레벨 20마다 +1 · 전 기술 피해 +${skillMastery()*5}%</div>
+      <div class="nm">스킬 숙련도 <span class="lv">Lv.${L}</span>
+        <span class="small" style="color:var(--uiGood)">모든 속성 데미지 +${masteryBonus()}%</span></div>
+      <div class="pbar2" style="max-width:180px"><i style="width:${gx/20*100}%"></i><b>${gx}/20</b></div>
+      <div class="sub">기술을 강화하거나 비급을 합성할 때마다 차오르오</div>
     </div>
-    <div class="cardhold">${CARD_N.map((nm,r)=>
-      `<span class="cchip rar${r}"><i class="cci">${gi('card',r)}</i>${nm} <b>${cardN(r)}</b></span>`).join('')}</div>
   </div>`;
   h+=`<div class="togglebar">
     <button data-a="cardfuse">비급 합성</button>
     <button data-a="skilllearn">기술 배우기</button>
   </div>`;
-  h+='<div class="sect">보유 기술</div>';
-  SKILLS.forEach((k,i)=>{
-    const lv=S.skills[i]||0;
-    const eqd=S.skEq.includes(i);
-    const aw=!!S.skAw[i];
-    const canAw=lv>=10&&!aw;
-    h+=`<div class="card strow ${lv>0?'':'locked'}">
-      <div class="ico">${ic('k',i,k.e)}</div>
-      <div class="mid">
-        <div class="nm">${aw?'★'+SK_AW_NAME[i]:k.n}<span class="lv">${lv>0?lv+'성':''}</span> <span class="small ${'rar'+(k.r===3?4:k.r===2?3:k.r)}">${RAR4[k.r].n}</span>${k.el?` <span class="small" style="color:${ELS[k.el].c}">${ELS[k.el].e}${ELS[k.el].n}</span>`:''}${eqd?' <span class="small" style="color:var(--green)">장착중</span>':''}</div>
-        <div class="vv">${lv>0?(k.buff?(k.buff==='atk'?'공격 +'+(aw?35:25)+'% '+k.bd+'초':'공속 +'+(aw?60:40)+'% '+k.bd+'초'):'피해 '+Math.round(skillMult(i)*100)+'%'+(k.hits>1?' ×'+(i===0&&aw?5:k.hits):'')+(k.aoe?' · 전체':'')):'미보유 — 기술 소환으로 획득'}</div>
-        <div class="sub">${k.d} · 재사용 ${k.cd}초 · 내공 ${SK_COST[k.r]}</div>
-      </div>
-      ${canAw?`<button class="btn red" data-a="awsk" data-i="${i}" style="width:88px;flex:none">${'각성'}<b>영석 15</b></button>`
-        :(aw?'<span class="badge-done">각성</span>'
-            :(lv>0?`<button class="btn" data-a="skdet" data-i="${i}" style="width:74px;flex:none">자세히</button>`:''))}
-    </div>`;
+  // 등급별 격자 — 원작 스킬 목록
+  SK_RAR.forEach((rr,r)=>{
+    const list=[]; SKILLS.forEach((k,i)=>{ if(k.r===r) list.push(i); });
+    if(!list.length) return;
+    h+=`<div class="sect" style="color:${SK_RC[r]}">${rr.n}</div><div class="skgrid">`;
+    list.forEach(i=>{
+      const k=SKILLS[i], lv=S.skills[i]||0, eqd=S.skEq.includes(i);
+      h+=`<div class="skcell ${lv?'':'no'}" data-a="${lv?'skdet':'sklocked'}" data-i="${i}" style="--rc:${SK_RC[r]}">
+        ${eqd?'<span class="eb">E</span>':''}
+        <div class="ic2">${skIco(i)}</div>
+        <div class="n">${k.n}</div>
+        <div class="c">${lv?'Lv.'+lv:''} ${k.p?'<span class="pp">P</span>':''}</div>
+        <div class="cb"><i style="width:${Math.min(100,skCard(i)/(lv?enhCardNeed(i):learnCost(i).n)*100)}%"></i><b>${skCard(i)}/${lv?enhCardNeed(i):learnCost(i).n}</b></div>
+      </div>`;
+    });
+    h+='</div>';
   });
   $('tab-skill').innerHTML=h;
 }
-/* 기술 상세 — 참고 게임의 스킬 팝업 (AUTO 토글 · 강화 · 슬롯 장착) */
+/* 기술 상세 — AUTO·강화(카드+냥)·장착·각성 */
 function skillDetail(i){
   const k=SKILLS[i], lv=S.skills[i]||0, aw=!!S.skAw[i];
-  if(!lv) return;
+  if(!lv){ toast('아직 익히지 못한 기술이오 — 기술 배우기에서'); return; }
   const auto=S.skAuto[i]!==0;
+  const canAw=i<8&&lv>=10&&!aw;
+  const need=enhCardNeed(i), g=enhGold(i);
   showModal(`
     <div class="skdet">
-      <div class="ico big">${ic('k',i,k.e)}</div>
+      <div class="ico big" style="border-color:${SK_RC[k.r]}">${skIco(i)}</div>
       <div class="mid">
-        <div class="nm">[${RAR4[k.r].n}] ${aw?SK_AW_NAME[i]:k.n}
+        <div class="nm"><span style="color:${SK_RC[k.r]}">[${SK_RAR[k.r].n}]</span> ${aw&&i<8?SK_AW_NAME[i]:k.n}
           <span class="lv">Lv.${lv}</span></div>
         <div class="sub">${k.d}</div>
       </div>
-      <button class="autotgl ${auto?'on':''}" data-a="skauto" data-i="${i}">AUTO</button>
+      ${k.p?'':`<button class="autotgl ${auto?'on':''}" data-a="skauto" data-i="${i}">AUTO</button>`}
     </div>
     <div class="card" style="text-align:center">
-      ${k.buff
-        ? (k.buff==='atk'?'공격력 +'+(aw?35:25)+'% · '+k.bd+'초':'공격 속도 +'+(aw?60:40)+'% · '+k.bd+'초')
-        : '적'+(k.aoe?' 전체':' 1체')+'에게 공격력의 <b>'+Math.round(skillMult(i)*100)+'%</b>로 '+(k.hits>1?k.hits+'회':'1회')+' 공격'}
+      ${k.p
+        ? k.d
+        : k.buff
+        ? (k.buff==='atk'?'공격력 +'+(aw?35:25)+'% · '+k.bd+'초'
+          :k.buff==='rave'?k.bd+'초간 가한 피해의 70%가 추가로 터진다'
+          :'공격 속도 +'+(aw?60:40)+'% · '+k.bd+'초')
+        : '적'+(k.aoe?' 전체':' 1체')+'에게 공격력의 <b>'+Math.round(skillMult(i)*100)+'%</b>로 '+(k.hits>1?k.hits+'회':'1회')+' 공격'+(i===22?' (막타 3배)':'')}
     </div>
     <div class="kv2">
-      <span class="k">재사용 대기</span><span class="v">${k.cd}초</span>
-      <span class="k">내공 소모</span><span class="v">${SK_COST[k.r]}</span>
+      <span class="k">재사용 대기</span><span class="v">${k.p?'—':k.cd+'초'}</span>
+      <span class="k">내공 소모</span><span class="v">${k.p?'—':(k.mp||20)}</span>
       <span class="k">속성</span><span class="v">${k.el?ELS[k.el].e+ELS[k.el].n:'무속성'}</span>
+      <span class="k">보유 비급</span><span class="v">${skCard(i)}장</span>
     </div>
-    <button class="btn wide" data-a="skslotpick" data-i="${i}">슬롯에 장착</button>
+    <button class="btn red wide ${skCard(i)>=need&&S.gold>=g?'':'off'}" data-a="enhsk" data-i="${i}">
+      강화 <b>비급 ${need}장 + ${fmt(g)}냥</b></button>
+    ${canAw?`<button class="btn red wide ${S.seok>=15?'':'off'}" data-a="awsk" data-i="${i}">각성 「${SK_AW_NAME[i]}」 <b>영석 15</b></button>`:''}
+    ${k.p&&k.p.per==='mantra'
+      ?'<p class="demo-note">이 심법은 슬롯 없이도 늘 발휘되오</p>'
+      :`<button class="btn wide" data-a="skslotpick" data-i="${i}">슬롯에 장착</button>`}
     <button class="btn wide" data-a="close">닫기</button>`);
 }
 function skillLearnModal(){
-  let h='<h2>기술 배우기</h2><p class="small" style="text-align:center">비급과 냥으로 새 기술을 익히오</p>';
-  h+=`<div class="cardhold mid2">${CARD_N.map((nm,r)=>
-    `<span class="cchip rar${r}"><i class="cci">${gi('card',r)}</i>${nm} <b>${cardN(r)}</b></span>`).join('')}</div>`;
+  let h='<h2>기술 배우기</h2><p class="small" style="text-align:center">그 기술의 비급을 모아 익히오. 신화·불멸은 영석도 드오</p>';
   let any=false;
   SKILLS.forEach((k,i)=>{
     if(S.skills[i]) return;
     any=true;
     const c=learnCost(i), ok=canLearn(i);
     h+=`<div class="card strow">
-      <div class="ico">${ic('k',i,k.e)}</div>
+      <div class="ico">${skIco(i)}</div>
       <div class="mid">
-        <div class="nm">[${RAR4[k.r].n}] ${k.n}</div>
+        <div class="nm"><span style="color:${SK_RC[k.r]}">[${SK_RAR[k.r].n}]</span> ${k.n}</div>
         <div class="sub">${k.d}</div>
-        <div class="vv"><b class="${cardN(c.r)>=c.n?'nx':''}">${CARD_N[c.r]} 비급 ${cardN(c.r)}/${c.n}</b>
-          <span class="arw">·</span><b class="${S.gold>=c.gold?'nx':''}">${fmt(c.gold)}냥</b></div>
+        <div class="vv"><b class="${skCard(i)>=c.n?'nx':''}">비급 ${skCard(i)}/${c.n}</b>
+          ${c.seok?`<span class="arw">·</span><b class="${S.seok>=c.seok?'nx':''}">영석 ${c.seok}</b>`:''}</div>
       </div>
       <button class="btn ${ok?'':'off'}" data-a="learnsk" data-i="${i}">배우기</button>
     </div>`;
@@ -3957,35 +4176,59 @@ function skillLearnModal(){
   showModal(h);
 }
 function cardFuseModal(){
-  let h='<h2>비급 합성</h2><p class="small" style="text-align:center">같은 등급 5장을 모아 윗 등급 1장으로</p>';
-  CARD_N.forEach((nm,r)=>{
-    if(r>=3){
-      h+=`<div class="card strow"><div class="ico">${gi('card',r)}</div><div class="mid"><div class="nm rar3">${nm} 비급</div>
-        <div class="sub">보유 ${cardN(r)}장 — 최상위</div></div></div>`;
-      return;
-    }
-    const n5c=cardN(r);
+  let h=`<h2>비급 합성</h2><p class="small" style="text-align:center">같은 등급 비급 5장(어느 기술이든)을 모아<br>윗 등급 무작위 비급 한 장으로 — 간혹 한 장 더 나오오</p>`;
+  SK_RAR.forEach((rr,r)=>{
+    if(r>=6) return;
+    let tot=0; SKILLS.forEach((k,i)=>{ if(k.r===r) tot+=skCard(i); });
     h+=`<div class="card strow">
-      <div class="ico">${gi('card',r)}</div>
       <div class="mid">
-        <div class="nm rar${r}">${nm} 비급<span class="lv">${n5c}장</span></div>
-        <div class="vv"><b>${nm} 5장</b><span class="arw">→</span><b class="nx">${CARD_N[r+1]} 1장</b></div>
+        <div class="nm" style="color:${SK_RC[r]}">${rr.n} 비급<span class="lv">${tot}장</span></div>
+        <div class="vv"><b>${rr.n} 5장</b><span class="arw">→</span><b class="nx" style="color:${SK_RC[r+1]}">${SK_RAR[r+1].n} 1장</b></div>
       </div>
-      <button class="btn ${n5c>=5?'':'off'}" data-a="fusecard" data-i="${r}">합성</button>
+      <button class="btn ${tot>=5?'':'off'}" data-a="fusecard" data-i="${r}">자동 선택 융합</button>
     </div>`;
   });
+  h+='<p class="demo-note">불멸 비급은 신화 비급 합성으로만 얻을 수 있소</p>';
   h+='<button class="btn wide" data-a="close">닫기</button>';
   showModal(h);
+}
+function slot9Buy(){ // 원작: 재화로 즉시 확장 or 레벨 자동 해제
+  if(S.slot9||S.lv>=300){ toast('이미 열려 있소'); return; }
+  showModal(`<h2>기술 슬롯 확장</h2>
+    <p class="small" style="text-align:center">아홉 번째 슬롯을 여시겠소?<br>레벨 300에 저절로 열리오</p>
+    <button class="btn red wide ${S.jade>=3000?'':'off'}" data-a="slot9ok">즉시 확장 <b>옥 3,000</b></button>
+    <button class="btn wide" data-a="close">닫기</button>`);
+}
+function slot9Ok(){
+  if(S.jade<3000||S.slot9) return;
+  S.jade-=3000; S.slot9=true;
+  snd('reward'); toast('아홉 번째 슬롯이 열렸소!');
+  closeModal(); buildSkill(); buildSkillbar(); updateHeader();
+}
+function skillLockedInfo(i){
+  const k=SKILLS[i], c=learnCost(i);
+  showModal(`<div class="skdet">
+      <div class="ico big" style="border-color:${SK_RC[k.r]}">${skIco(i)}</div>
+      <div class="mid"><div class="nm"><span style="color:${SK_RC[k.r]}">[${SK_RAR[k.r].n}]</span> ${k.n}</div>
+      <div class="sub">${k.d}</div></div>
+    </div>
+    <div class="card" style="text-align:center">비급 <b>${skCard(i)}/${c.n}</b>${c.seok?' · 영석 '+c.seok:''} 모으면 익힐 수 있소<br>
+      <span class="small">${SKILLS[i].r>=6?'불멸 비급은 신화 비급 합성에서 나오오':'기술 소환·보스·합성에서 비급을 얻소'}</span></div>
+    ${canLearn(i)?`<button class="btn red wide" data-a="learnsk" data-i="${i}">배우기</button>`:''}
+    <button class="btn wide" data-a="close">닫기</button>`);
 }
 function slotTap(slot){
   // 슬롯을 누르면 바로 쓴다. 빈 슬롯일 때만 장착창을 연다.
   const si=S.skEq[slot];
-  const locked=SLOT_GATES[slot]>0&&S.maxClear<SLOT_GATES[slot];
-  if(locked){ toast('🔒 '+SLOT_GATES[slot]+'층에서 해방되오'); return; }
+  if(slotLocked(slot)){
+    if(slot===8){ slot9Buy(); return; }
+    toast('🔒 '+SLOT_GATES[slot]+'층에서 해방되오'); return;
+  }
   if(si<0){ slotPick(slot); return; }
   if(W.skCd[si]>0.05){ toast('⏳ '+SKILLS[si].n+' 재사용까지 '+W.skCd[si].toFixed(1)+'초'); return; }
   const k=SKILLS[si];
-  if(W.mana<SK_COST[k.r]){ toast('💠 내공이 모자라오 ('+Math.floor(W.mana)+'/'+SK_COST[k.r]+')'); return; }
+  if(k.p){ toast('내면에서 절로 발휘되는 심법이오'); return; }
+  if(W.mana<(k.mp||20)){ toast('💠 내공이 모자라오 ('+Math.floor(W.mana)+'/'+(k.mp||20)+')'); return; }
   if(!k.buff&&!frontEnemy()){ toast('⚔️ 벨 적이 없소'); return; }
   castSkill(si);
 }
@@ -4180,7 +4423,7 @@ function summonHTML(){
   let h='';
   const banners=[
     {id:'w',n:'도검 소환',e:'🗡️',d:'무쇠 38% · 정련 30% · 명장 18% · 보물 9% · 전설 4.2% · 신화 0.8% (불멸은 합성 전용)'},
-    {id:'sk',n:'기술 소환',e:'🌀',d:'민급 55% · 희귀 30% · 영웅 12% · 전설 3%'},
+    {id:'sk',n:'기술 소환',e:'🌀',d:'민급 40 · 상급 27 · 희귀 18 · 영웅 10 · 전설 4.2 · 신화 0.8% (불멸은 합성)'},
     {id:'sp',n:'영물 소환',e:'🦊',d:'민급 55% · 희귀 30% · 영웅 12% · 전설 3%'},
     {id:'ac',n:'장신구 소환',e:'💍',d:'민급 55% · 희귀 30% · 영웅 12% · 전설 3%'},
   ];
@@ -4334,12 +4577,10 @@ function pull(kind,times){
       S.weapons[pk.i]=(S.weapons[pk.i]||0)+1;
       results.push({e:pk.w2.e,n:pk.w2.n,rr:Math.min(r,6),rn:RAR7[r].n});
     }else if(kind==='sk'){
-      const r=rollRar(RAR4);
-      const pool=SKILLS.map((k,i)=>({k,i})).filter(o=>o.k.r===r);
-      const pk=pool[Math.floor(Math.random()*pool.length)];
-      S.skills[pk.i]=(S.skills[pk.i]||0)+1;
-      addCard(r,1);   // 비급도 함께 — 배우기·합성 재료
-      results.push({e:pk.k.e,n:pk.k.n,rr:r===3?4:r===2?3:r,rn:RAR4[r].n});
+      const r=rollRar(SK_RAR);
+      const pk=randSkOf(r);
+      addSkCard(pk,1);                    // 원작: 소환은 카드를 주고, 배우기로 익힌다
+      results.push({e:SKILLS[pk].e,n:SKILLS[pk].n+' 비급',rr:Math.min(4,r),rn:SK_RAR[r].n,ski:pk});
     }else if(kind==='ac'){
       const r=rollRar(RAR4);
       const pool=ACCS.map((ac,i)=>({ac,i})).filter(o=>o.ac.r===r);
@@ -4360,7 +4601,7 @@ function pull(kind,times){
   let h='<h2>소환!</h2><div class="pullres">';
   results.forEach((r,idx)=>{
     h+=`<div class="rel r${r.rr}" style="animation-delay:${idx*0.07}s">
-      <div class="e">${gi('relic',i)}</div><div class="n">${r.n}</div><div class="v rar${r.rr}">${r.rn}</div></div>`;
+      <div class="e">${r.ski!=null?skIco(r.ski):r.e}</div><div class="n">${r.n}</div><div class="v rar${r.rr}">${r.rn}</div></div>`;
   });
   h+='</div><button class="btn wide" data-a="close">거두기</button>';
   showModal(h);
@@ -5707,7 +5948,11 @@ function act(a,i){
     case 'powersave': togglePower(+i===1); break;
     case 'learnsk': learnSkill(+i); break;
     case 'cardfuse': cardFuseModal(); break;
-    case 'fusecard': fuseCard(+i); break;
+    case 'fusecard': fuseAuto(+i); break;
+    case 'enhsk': enhSkill(+i); break;
+    case 'sklocked': skillLockedInfo(+i); break;
+    case 'slot9buy': slot9Buy(); break;
+    case 'slot9ok': slot9Ok(); break;
     case 'compview': compDetail(null,+i); break;
     case 'cpup': { const [a2,b2]=i.split('_').map(Number); cpUp(a2,b2); } break;
     case 'coopen': { const [a3,b3]=i.split('_').map(Number); coOpen(a3,b3); } break;
