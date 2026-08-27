@@ -168,6 +168,8 @@ header{flex:none;background:var(--ink2);border-bottom:2px solid var(--gold2)}
 .chip-boost{background:var(--red);color:#FFE9C2}
 .chip-royal{background:var(--indigo);color:#DCE9F5}
 /* 전장 */
+
+}
 #sceneWrap{flex:none;position:relative;border-bottom:2px solid var(--gold2);cursor:pointer}
 #cv{display:block;width:100%;height:264px}
 #stageBar{position:absolute;top:6px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;
@@ -222,7 +224,12 @@ header{flex:none;background:var(--ink2);border-bottom:2px solid var(--gold2)}
 #tracker .qtxt{flex:1;line-height:1.3}
 #tracker .qprog{flex:none;font-variant-numeric:tabular-nums;color:#BFA77E;font-size:10px}
 main{flex:1;overflow:hidden;position:relative;margin-top:5px}
-.panel{position:absolute;inset:0;overflow-y:auto;padding:2px 10px 16px;display:none;scrollbar-width:thin}
+/* 탭 펼치기 — 원작처럼 목록이 전장을 덮는다. 전투는 뒤에서 계속 돈다 */
+#panelTgl{position:absolute;top:0;right:5px;z-index:8;width:34px;height:20px;
+  border-radius:0 0 9px 9px;background:rgba(20,14,8,.85);border:1px solid var(--brown2);
+  border-top:0;color:var(--goldL);font-size:12px;font-weight:800;line-height:1}
+#app.expand #sceneWrap,#app.expand #tracker{display:none}
+.panel{position:absolute;inset:0;overflow-y:auto;padding:2px 10px 16px;display:none;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
 .panel.active{display:block}
 .card{background:linear-gradient(var(--paper),var(--paper2));color:var(--brown);
   border:1px solid var(--line);border-radius:12px;padding:8px 11px;margin-bottom:7px;
@@ -654,6 +661,37 @@ textarea.io{width:100%;height:90px;font-size:11px;border:1px solid var(--line);b
 .tnote{font-size:10px;color:#8F7C5C;text-align:center;max-width:280px;line-height:1.5}
 .tver{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:10px;color:#6E5E44}
 @media (prefers-reduced-motion: reduce){#bossGo{animation:none}.wisp{animation:none;display:none}.startbtn{animation:none}}
+/* ── 낮은 화면(폰) — 탭 내용이 한 칸만 보이던 문제.
+   캔버스는 내부 해상도를 유지한 채 위(하늘)만 잘라 보여주고,
+   임무 스트립·장식 띠·행 높이를 줄여 목록 공간을 되찾는다 ── */
+@media (max-height:800px){
+  #cv{height:216px;object-fit:cover;object-position:center bottom}
+  #tracker{display:none}
+  .danchong{height:4px}
+  .card.lvrow{margin-bottom:4px}
+}
+@media (max-height:700px){
+  #cv{height:178px}
+  .subtab button{height:36px}
+  .buybar button{height:27px}
+  .togglebar button{height:36px}
+  .lvrow .lvmid>.small:last-child{display:none}
+  .mastrow .sub{display:none}
+  header .hrow1{padding-top:3px;padding-bottom:2px}
+  .skslot{max-width:38px;font-size:16px}
+  #skillbar{padding:3px 8px 1px}
+  nav button{padding:4px 0 5px;font-size:9px}
+  nav button .e.tabi{width:20px;height:20px}
+  .card.strow{min-height:40px;margin-bottom:4px}
+  .strow .ico{width:42px;height:42px}
+  .strow .btn{height:48px;width:104px}
+  .lvbtn{height:52px;width:80px}
+  .lvrow .ico{width:44px;height:44px}
+}
+@media (max-height:620px){
+  #cv{height:150px}
+  .killbar{top:28px}
+  #goldFloat{top:44px}
 </style>
 </head>
 <body>
@@ -703,6 +741,7 @@ textarea.io{width:100%;height:90px;font-size:11px;border:1px solid var(--line);b
   </div>
 
   <main>
+    <button id="panelTgl" data-a="paneltgl" title="탭 넓게 보기">∧</button>
     <section class="panel active" id="tab-char"></section>
     <section class="panel" id="tab-skill"></section>
     <section class="panel" id="tab-equip"></section>
@@ -3869,6 +3908,10 @@ function drawSpirit(){
 const ROMAN=['I','II','III','IV','V','VI','VII','VIII','IX','X'];
 function stageName(n){ return chapterName(n)+' '+ROMAN[(n-1)%10]; }
 function updateSceneUI(){
+  if(W.mode!=='farm'){ // 전투가 시작되면 펼쳐둔 목록을 접어 전장을 보여준다
+    const ap=document.getElementById('app');
+    if(ap.classList.contains('expand')){ ap.classList.remove('expand'); const tg=$('panelTgl'); if(tg) tg.textContent='∧'; }
+  }
   const frontier=S.stage===S.maxClear+1;
   $('stNum').textContent=S.stage;
   $('stageNm').textContent=stageName(S.stage);
@@ -5899,6 +5942,9 @@ function attendanceModal(){
 let activeTab='stat';
 function switchTab(t){
   activeTab=t;
+  if(innerHeight<800&&S&&S.seen&&!S.seen.ptgl){
+    S.seen.ptgl=1; toast('오른쪽 위 ∧ 를 누르면 목록을 넓게 볼 수 있소');
+  }
   document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+t));
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.i===t));
   if(t==='char') buildStat();
@@ -5918,6 +5964,9 @@ function act(a,i){
   if(a.startsWith('buyjade_')){ buyJadePack(+a.split('_')[1]); return; }
   switch(a){
     case 'tab': switchTab(i); break;
+    case 'paneltgl': { const ap=document.getElementById('app');
+      ap.classList.toggle('expand');
+      $('panelTgl').textContent=ap.classList.contains('expand')?'∨':'∧'; } break;
     case 'levelup': levelUp(); break;
     case 'eqview': S.equipView=+i; buildEquip(); break;
     case 'compdet': compDetail(+i,0); break;
