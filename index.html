@@ -440,6 +440,30 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .costg .e{width:52px;height:52px;margin:0 auto}
 .sic{display:block;width:32px;height:32px;background:url(assets/ui/stat_icons.png) 0 0/700% 100%;
   background-position:calc(var(--si)*100%/6) 0}
+/* 수련 일지 · 잠룡의 힘 */
+.trmaster{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.trmaster .tface{width:52px;height:52px;flex:none;border-radius:10px;
+  background:url(assets/sprites/por_master.png) center 18%/cover;
+  border:1.5px solid var(--gold2);box-shadow:0 2px 5px rgba(0,0,0,.45)}
+.trmaster .mid{flex:1;min-width:0}
+.trmaster .sub{font-size:11px;color:var(--brown2);font-style:italic}
+.mico .dgn,.tkw .dgn{background:url(assets/sprites/por_imugi.png) center 30%/cover;border-radius:50%}
+.drtabs{display:flex;gap:5px;margin-bottom:8px}
+.drtabs button{flex:1;padding:6px 0;border-radius:8px;font-family:var(--serif);font-weight:800;
+  background:var(--ink3);border:1px solid var(--brown2);color:#CBB98F;font-size:13px}
+.drtabs button.on{background:var(--red);color:#FFF0DC;border-color:var(--red2)}
+.drtabs button.lk{opacity:.45}
+.drrow{display:flex;align-items:center;gap:7px;font-size:11px}
+.drrow .k{width:52px;flex:none;font-weight:700}
+.drrow .pips{flex:1;display:flex;gap:2px}
+.drrow .pips i{flex:1;height:11px;border-radius:2.5px;background:#2A2118;border:1px solid #4A3B28}
+.drrow .pips i.on{background:linear-gradient(#F2CE7B,#D9A441);border-color:#B8842C}
+.drrow b{width:56px;flex:none;text-align:right;color:var(--uiGood);font-variant-numeric:tabular-nums}
+.drcmp{display:flex;gap:8px}
+.drcmp>div{flex:1;min-width:0}
+.drcmp .drrow{margin-bottom:4px}
+.drcmp .drrow .k{width:44px;font-size:10px}
+.drcmp .drrow b{width:44px;font-size:10px}
 /* 동료 초상 — 인게임 스프라이트 대기 자세를 잘라 쓴다 */
 .cfi{display:block;width:100%;height:100%;background:url(assets/ui/comp_face.png) 0 0/400% 100%;
   background-position:calc(var(--ci)*100%/3) 0}
@@ -1365,6 +1389,7 @@ const MOB_SPR={ // 이름 → 아틀라스 id (뜨는 몬스터는 lift로 지�
  '왕도깨비':'impking',    '창귀호랑이':'tiger',  '이무기':'imugi',
  '구미호':'gumiho',       '저승사자':'reaper',
  '금괴 요괴':'goldmob',   '심연 요괴':'riftmob',  '승급 시험관':'examiner',
+ '천년 이무기':'imugi',
 };
 const MobSpr={
   data:{},                                   // id → {img,F,sc} (로드 완료분만)
@@ -1628,12 +1653,23 @@ const STATS=[
 const RANK_MULTS=[2,3,5,25,10,12,15,18,20,22,25,25,25,25,25,25,25,25];
 const RANK_GATES=[8,15,22,30,42,55,70,85,100,120,140,165,190,220,250,285,320,360];
 // SP 성장 스탯 — 커뮤니티 공략 확인 구성: 명중·회피·치명·골드 ("명중 200 필수")
+// 참고 게임의 STR/HP/VIT/CRI/LUK/ACC/DODGE 구성. si = 강화 아이콘 시트 칸
 const SPST=[
- {id:'acc', n:'명중', e:'🎯', d:'적중률 +0.2%p/성 — 고층 요괴는 잘 피한다'},
- {id:'eva', n:'회피', e:'💨', d:'회피율 +0.1%p/성'},
- {id:'crit',n:'치명', e:'💥', d:'치명 확률 +0.1%p/성'},
- {id:'gold',n:'골드', e:'💰', d:'냥 획득 +2%/성'},
+ {id:'str', n:'힘',   si:0, f:l=>'공격력 +'+(l*0.4).toFixed(1)+'%'},
+ {id:'hp',  n:'체력', si:1, f:l=>'체력 +'+(l*0.5).toFixed(1)+'%'},
+ {id:'vit', n:'활력', si:2, f:l=>'회복량 +'+(l*0.6).toFixed(1)+'%'},
+ {id:'crit',n:'치명', si:4, f:l=>'치명 확률 +'+(l*0.1).toFixed(1)+'%p'},
+ {id:'gold',n:'재물', si:6, f:l=>'냥 획득 +'+(l*2)+'%'},
+ {id:'acc', n:'명중', si:3, f:l=>'명중 +'+(l*0.2).toFixed(1)},
+ {id:'eva', n:'회피', si:5, f:l=>'회피 +'+(l*0.1).toFixed(1)+'%p'},
 ];
+const TR_MAIN=['str','hp','vit','gold'];        // 수련으로 크게 늘어나는 주 스탯
+function spMax(id){                             // 성장 스탯 상한 = 기본 + 수련 단계 + OP 확장
+  const base={str:300,hp:260,vit:260,crit:100,gold:300,acc:100,eva:100}[id]||100;
+  const t=S.train||{lv:0,opUsed:{}};
+  const main=TR_MAIN.indexOf(id)>=0;
+  return base+t.lv*(main?10:2)+((t.opUsed&&t.opUsed[id])||0)*(main?5:1);
+}
 // 승급 옵션 슬롯 (원작: 승급마다 추가 공격력/처치 골드/경험치 등 옵션 부여)
 const RANK_OPTS=[
  {t:'atk', v:15,n:'추가 공격력 +15%',w:35},
@@ -1898,6 +1934,7 @@ const DUNGEONS=[
  {id:'gold', n:'황금곳간', e:'💰', d:'45초 동안 금괴 요괴 20마리 처치', rw:'냥 대량'},
  {id:'trial',n:'무과 시험장', e:'📚', d:'시험관 무사를 30초 안에 격파', rw:'수련서(SP)'},
  {id:'rift', n:'심연 균열', e:'🔷', d:'45초 동안 심연 요괴 20마리 처치', rw:'영석'},
+ {id:'dragon',n:'잠룡의 소', e:'🐉', d:'천년 이무기를 40초 안에 격파 — 매 공격이 무작위 술법', rw:'용린'},
 ];
 const QUESTS=[
  {t:'요괴 10마리를 베어라',f:()=>S.kTotal,g:10,r:20},
@@ -1954,7 +1991,9 @@ function freshState(){
     v:VER, gold:0, jade:100, seok:0,
     goldTotal:0, kTotal:0, bossKills:0, taps:0, summons:0, fuses:0,
     st:{atk:1,hp:1,reg:1,crit:0,critd:0,aps:0,gget:0},
-    lv:1, exp:0, sp:0, spSt:{acc:0,eva:0,crit:0,gold:0}, growView:0,
+    lv:1, exp:0, sp:0, spSt:{str:0,hp:0,vit:0,crit:0,gold:0,acc:0,eva:0}, growView:0,
+    yong:0, train:{lv:0,xp:0,date:'',today:0,op:0,opUsed:{}},
+    dr:{sel:0,slots:[null,null,null,null,null]},
     rank:0, rankOpts:[],
     accs:{}, accEq:-1, comp:{}, skAw:{}, storySeen:[], login:null,
     wq:null, mail:[], mailFlags:{},
@@ -1970,7 +2009,7 @@ function freshState(){
     rebirths:0, dao:0, tr:{atk:0,hp:0,gold:0,skill:0},
     stage:1, maxClear:0, kills:0, autoBoss:true, autoSkill:true,
     questIdx:0, achT:{}, offTier:0,
-    tickets:{gold:2,trial:2,rift:2}, dgClear:{gold:0,trial:0,rift:0}, dgDate:'',
+    tickets:{gold:2,trial:2,rift:2,dragon:2}, dgClear:{gold:0,trial:0,rift:0,dragon:0}, dgDate:'',
     boostEnd:0, royalEnd:0, rumorAt:0, jadeAdAt:0, adFree:false,
     daily:{last:'',streak:0}, sound:true, music:true, intro:false, buyMode:0,
     lastSeen:Date.now(), started:Date.now(), playMs:0,
@@ -1986,6 +2025,11 @@ function load(){
     s.tr=Object.assign(freshState().tr,d.tr||{});
     s.aw=Object.assign(freshState().aw,d.aw||{});
     s.spSt=Object.assign(freshState().spSt,d.spSt||{});
+    s.tickets=Object.assign(freshState().tickets,d.tickets||{});
+    s.dgClear=Object.assign(freshState().dgClear,d.dgClear||{});
+    s.train=Object.assign(freshState().train,d.train||{});
+    s.dr=Object.assign(freshState().dr,d.dr||{});
+    if(!Array.isArray(s.dr.slots)||s.dr.slots.length<5) s.dr.slots=[null,null,null,null,null];
     // 최전선을 넘어선 층 번호는 되돌린다 (넘어가 있으면 층 이동이 막힌다)
     s.maxClear=Math.max(0,s.maxClear|0);
     s.stage=Math.max(1,Math.min(s.stage|0,s.maxClear+1));
@@ -2015,12 +2059,13 @@ function rankOptSum(t){ let v=0; for(const o of (S.rankOpts||[])) if(o.t===t) v+
 let buffAtkV=0.25, buffApsV=0.4;
 function heroAtk(){
   let a=stVal('atk')*rankMult()*wEqMult()*wOwnMult()*spMult()*(1+S.aw.atk*0.04)*trMult('atk')*(1+rankOptSum('atk')/100)*(1+compLv(1)*0.03)*(1+relicFx('atk'))*(1+compPFx('atk')/100)*(1+(mkEquipFx()+mkOwnFx()+raFx('atk'))/100);
+  a*=(1+(S.spSt.str||0)*0.004)*(1+drFx('atk')/100);   // 성장 '힘' + 잠룡의 힘
   if(buffAtk>0) a*=1+buffAtkV;
   if(adbOn('atk')) a*=2;
   if(boostOn()) a*=2; if(royalOn()) a*=2;
   return a;
 }
-function heroMaxHp(){ return stVal('hp')*rankMult()*(1+S.aw.hp*0.04)*trMult('hp')*(1+spFx('hp')/100)*(1+accFx('hp')/100)*(1+relicFx('hp'))*(1+(compPFx('hp')+compOFx('hp'))/100)*(1+(mkEquipFx()+mkOwnFx())/100); }
+function heroMaxHp(){ return stVal('hp')*rankMult()*(1+S.aw.hp*0.04)*trMult('hp')*(1+spFx('hp')/100)*(1+accFx('hp')/100)*(1+relicFx('hp'))*(1+(compPFx('hp')+compOFx('hp'))/100)*(1+(mkEquipFx()+mkOwnFx())/100)*(1+(S.spSt.hp||0)*0.005)*(1+drFx('hp')/100); }
 /* 영물 보너스 4종 (원작 정령: 공격·체력·골드·경험치) */
 function spFx(kind){
   if(S.spEq<0||!S.spirits[S.spEq]) return 0;
@@ -2041,11 +2086,11 @@ function heroDodge(){ return Math.min(40,S.spSt.eva*0.1+relicFx('eva')*0.05+(com
 /* 스킬 숙련도 (원작: 스킬 20강마다 숙련도 → 전 스킬 피해 증가) */
 function skillMastery(){ let t=0; for(const k in S.skills) t+=S.skills[k]; return Math.floor(t/20); }
 function heroCrit(){ return Math.min(100,stVal('crit')+S.spSt.crit*0.1); }
-function heroCritD(){ return stVal('critd')+S.aw.critd*6+wEqCritD()+accFx('cd')+relicFx('critd')*100+compPFx('critd')+compOFx('critd')+raFx('critd'); }
+function heroCritD(){ return stVal('critd')+S.aw.critd*6+wEqCritD()+accFx('cd')+relicFx('critd')*100+compPFx('critd')+compOFx('critd')+raFx('critd')+drFx('critd'); }
 function heroAps(){ let a=stVal('aps')*(1+relicFx('aps'))*(1+compPFx('aps')/100); if(buffAps>0) a*=1+buffApsV; return a; }
 function skillMult(i){ const lv=S.skills[i]||1;
   return SKILLS[i].mult*(1+0.15*(lv-1))*(1+S.aw.skill*0.05)*trMult('skill')*(1+skillMastery()*0.05)*(1+relicFx('skill'))*(1+(compPFx('skill')+raFx('skill'))/100)*(S.skAw[i]?1.8:1); }
-function goldMult(){ return (1+stVal('gget')/100)*(1+wEqGold()/100)*(1+S.aw.gold*0.04)*trMult('gold')*(1+S.spSt.gold*0.02)*(1+spFx('gold')/100)*(1+accFx('gold')/100)*(1+rankOptSum('gold')/100)*(1+compLv(2)*0.03)*(1+relicFx('gold'))*(1+(compPFx('gold')+compOFx('gold')+raFx('gold'))/100)*(adbOn('gold')?3:1)*(boostOn()?2:1)*(royalOn()?2:1); }
+function goldMult(){ return (1+stVal('gget')/100)*(1+wEqGold()/100)*(1+S.aw.gold*0.04)*trMult('gold')*(1+S.spSt.gold*0.02)*(1+spFx('gold')/100)*(1+accFx('gold')/100)*(1+rankOptSum('gold')/100)*(1+compLv(2)*0.03)*(1+relicFx('gold'))*(1+(compPFx('gold')+compOFx('gold')+raFx('gold'))/100)*(1+drFx('gold')/100)*(adbOn('gold')?3:1)*(boostOn()?2:1)*(royalOn()?2:1); }
 function statCost(id,k){ const c=STATS.find(s=>s.id===id); const lv=S.st[id];
   return c.c0*Math.pow(c.cg,lv)*(Math.pow(c.cg,k)-1)/(c.cg-1); }
 function statMaxBuy(id){ const c=STATS.find(s=>s.id===id); const lv=S.st[id];
@@ -2294,10 +2339,11 @@ function update(dt){
   }
   if(W.mode==='dungeon'){
     W.dg.timer-=dt;
-    if(W.dg.id!=='trial'&&W.dg.timer<=0) endDungeon(W.dg.killed>=W.dg.need);
-    else if(W.dg.id==='trial'&&W.dg.timer<=0) endDungeon(false);
-    else if(W.dg.id!=='trial'&&W.dg.killed>=W.dg.need) endDungeon(true);
-    else if(W.dg.id==='trial'&&W.dg.killed>=1) endDungeon(true);
+    const single=W.dg.id==='trial'||W.dg.id==='dragon'; // 보스 1기만 잡는 던전
+    if(!single&&W.dg.timer<=0) endDungeon(W.dg.killed>=W.dg.need);
+    else if(single&&W.dg.timer<=0) endDungeon(false);
+    else if(!single&&W.dg.killed>=W.dg.need) endDungeon(true);
+    else if(single&&W.dg.killed>=1) endDungeon(true);
   }
   // 생성
   const alive=W.enemies.filter(e=>e.state!=='die');
@@ -2306,6 +2352,11 @@ function update(dt){
     if(W.spawnT<=0){
       if(W.mode==='dungeon'){
         if(W.dg.id==='trial'){ const ch=chapterOf(S.stage); spawnEnemy(ch.boss,true,W.w+60,curStageN()); }
+        else if(W.dg.id==='dragon'){ // 천년 이무기 — 체력이 두터운 단독 보스
+          spawnEnemy(['und','#3E6E5A','#1E4638','천년 이무기',52],true,W.w+70,curStageN());
+          const d2=W.enemies[W.enemies.length-1];
+          d2.drake=1; d2.hp*=2.2; d2.maxhp=d2.hp;
+        }
         else spawnPack();
       }else spawnPack();
       W.spawnT=0.4;
@@ -2327,12 +2378,22 @@ function update(dt){
       e.atkT-=dt;
       if(e.atkT<=0){
         e.atkT=1.8; e.lunge=1;
+        let mul=1;
+        if(e.drake){ // 천년 이무기 — 매 공격마다 네 술법 중 하나 (참고 게임의 드래곤)
+          const r=Math.random();
+          if(r<0.40){ mul=1; }
+          else if(r<0.65){ mul=1.7; dmgText(e.x,W.G-e.size-22,'꼬리치기!','#B7E8D2'); }
+          else if(r<0.85){ mul=2.4; dmgText(e.x,W.G-e.size-22,'화염 숨결!','#FF9A66'); W.cam.shake=Math.max(W.cam.shake,4); }
+          else { mul=0; e.hp=Math.min(e.maxhp,e.hp+e.maxhp*0.04); dmgText(e.x,W.G-e.size-22,'허물 재생','#8FE3C8'); }
+        }
+        if(mul>0){
         if(Math.random()*100<heroDodge()){ // 회피 성공
           dmgText(h.x,W.G-84,'회피!','#9FE8C0');
         }else{
-          h.hp-=e.atk*(0.9+Math.random()*0.2); h.hurt=1;
+          h.hp-=e.atk*mul*(0.9+Math.random()*0.2); h.hurt=1;
           W.cam.shake=Math.max(W.cam.shake,1.5);
           if(h.hp<=0){ heroDie(); break; }
+        }
         }
       }
     }
@@ -2387,7 +2448,7 @@ function update(dt){
   // 회복
   if(h.dead<=0){
     const inF=front&&front.state==='fight';
-    h.hp=Math.min(heroMaxHp(),h.hp+stVal('reg')*rankMult()*(1+relicFx('reg'))*(1+(compPFx('reg')+compOFx('reg')+raFx('reg'))/100)*(inF?1:5)*dt);
+    h.hp=Math.min(heroMaxHp(),h.hp+stVal('reg')*rankMult()*(1+relicFx('reg'))*(1+(compPFx('reg')+compOFx('reg')+raFx('reg'))/100)*(1+(S.spSt.vit||0)*0.006)*(1+drFx('reg')/100)*(inF?1:5)*dt);
   }
   h.swing=Math.max(0,h.swing-dt*4.6); // 베는 동작 길이(약 0.22초) — 너무 빠르면 휘두른 게 안 보인다 h.hurt=Math.max(0,h.hurt-dt*4);
   if(W.running){ h.dustT-=dt; if(h.dustT<=0){ h.dustT=0.18;
@@ -2528,7 +2589,7 @@ function updateAmb(dt){
 /* ═══════════ 던전 ═══════════ */
 function dgTicketReset(){
   const today=new Date().toDateString();
-  if(S.dgDate!==today){ S.dgDate=today; S.tickets={gold:2,trial:2,rift:2}; }
+  if(S.dgDate!==today){ S.dgDate=today; S.tickets={gold:2,trial:2,rift:2,dragon:2}; }
 }
 function enterDungeon(id,lvl){
   if(W.mode!=='farm') { toast('전투 중에는 입장할 수 없소'); return; }
@@ -2537,13 +2598,14 @@ function enterDungeon(id,lvl){
   if(S.dq) S.dq.dg++;
   if(S.wq) S.wq.dg++;
   W.mode='dungeon'; W.enemies=[]; W.spawnT=0.3;
-  W.dg={id,lvl,timer:id==='trial'?30:45,killed:0,need:15};
+  W.dg={id,lvl,timer:id==='trial'?30:(id==='dragon'?40:45),killed:0,need:15};
   toast('⛩️ '+DUNGEONS.find(d=>d.id===id).n+' '+lvl+'단계 입장!');
   switchTab('char'); updateSceneUI();
 }
 function dgReward(id,lvl){
   if(id==='gold') return {gold:mobGold(6*lvl+4)*400}; // 원작의 폐광처럼 주 골드 수급처
   if(id==='trial') return {sp:4+2*lvl}; // 무과시험 = 수련서(SP)
+  if(id==='dragon') return {yong:6+3*lvl}; // 잠룡의 소 = 용린
   return {seok:2+lvl};
 }
 function endDungeon(winB){
@@ -2554,6 +2616,7 @@ function endDungeon(winB){
     if(rw.gold){ addGold(rw.gold); toast('💰 황금곳간 정벌! +'+fmt(rw.gold)+'냥'); }
     if(rw.sp){ S.sp+=rw.sp; toast('📚 무과 급제! 수련서로 SP +'+rw.sp); }
     if(rw.seok){ S.seok+=rw.seok; toast('🔷 심연 정화! 영석 +'+rw.seok); }
+    if(rw.yong){ S.yong+=rw.yong; toast('🐉 이무기 제압! 용린 +'+rw.yong); }
     if(dg.lvl>S.dgClear[dg.id]) S.dgClear[dg.id]=dg.lvl;
     snd('reward');
   }else{ toast('💦 정벌 실패… 입장권만 소모되었소'); snd('lose'); }
@@ -2570,8 +2633,9 @@ function sweep(id){
   if(rw.gold) addGold(rw.gold);
   if(rw.sp) S.sp+=rw.sp;
   if(rw.seok) S.seok+=rw.seok;
+  if(rw.yong) S.yong+=rw.yong;
   snd('reward');
-  toast('🧹 소탕 완료 ('+lvl+'단계): '+(rw.gold?'+'+fmt(rw.gold)+'냥':rw.sp?'SP +'+rw.sp:'영석 +'+rw.seok));
+  toast('🧹 소탕 완료 ('+lvl+'단계): '+(rw.gold?'+'+fmt(rw.gold)+'냥':rw.sp?'SP +'+rw.sp:rw.yong?'용린 +'+rw.yong:'영석 +'+rw.seok));
   buildAdvent(); updateHeader();
 }
 
@@ -3510,14 +3574,19 @@ function buildStat(){
       <h3>검객 수련 <span class="small">Lv.<span id="glv"></span></span></h3>
       <div class="expbar"><div class="fill" id="gexp"></div></div>
       <div style="font-size:11px;color:var(--brown2);font-variant-numeric:tabular-nums" id="gexpTxt"></div>
-      <div class="small" style="margin-top:4px">보유 SP: <b id="gsp"></b> — 요괴를 벨수록 경험이 쌓이오 (레벨업 SP +3 · 무과 시험장 수련서)</div>
+      <div class="small" style="margin-top:4px">STAT POINT <b id="gsp"></b> — 레벨업마다 +3 · 무과 시험장 수련서</div>
+    </div>`;
+    h+=`<div class="togglebar">
+      <button data-a="train">📖 수련 일지</button>
+      <button data-a="dragonp">🐉 잠룡의 힘</button>
+      <button data-a="spreset">↺ 초기화</button>
     </div>`;
     SPST.forEach((c,i)=>{
       h+=`<div class="card strow">
-        <div class="ico">${c.e}</div>
+        <div class="ico"><i class="sic" style="--si:${c.si}"></i></div>
         <div class="mid">
-          <div class="nm">${c.n}<span class="lv" id="splv${i}"></span></div>
-          <div class="sub">${c.d}</div>
+          <div class="nm">${c.n}<span class="small" style="margin-left:4px">Max Lv.<span id="spmx${i}"></span></span><span class="lv" id="splv${i}"></span></div>
+          <div class="vv" id="spvv${i}"></div>
         </div>
         <button class="btn holdbuy" data-a="spbuy" data-i="${i}" id="spbtn${i}">+1성<b>SP 1</b></button>
       </div>`;
@@ -3551,8 +3620,13 @@ function updateStat(){
     $('gsp').textContent=S.sp;
     SPST.forEach((c,i)=>{
       const el=$('splv'+i); if(!el) return;
-      el.textContent=S.spSt[c.id]+'성';
-      $('spbtn'+i).classList.toggle('off',S.sp<1);
+      const lv=S.spSt[c.id]||0, mx=spMax(c.id);
+      el.textContent=lv+'성';
+      $('spmx'+i).textContent=mx;
+      $('spvv'+i).innerHTML=lv>=mx
+        ? c.f(lv)+' <span class="small">(최대)</span>'
+        : c.f(lv)+' <span class="arw">→</span> <b class="nx">'+c.f(lv+1)+'</b>';
+      $('spbtn'+i).classList.toggle('off',S.sp<1||lv>=mx);
     });
     return;
   }
@@ -3587,7 +3661,9 @@ function buyStat(i){
 }
 function spBuy(i){
   if(S.sp<1) return;
-  S.sp--; S.spSt[SPST[i].id]++;
+  const id=SPST[i].id;
+  if((S.spSt[id]||0)>=spMax(id)){ toast('상한이오 — 수련 일지에서 넓히시오'); return; }
+  S.sp--; S.spSt[id]=(S.spSt[id]||0)+1;
   if(S.dq) S.dq.ups++;
   updateStat(); updateHeader();
 }
@@ -4150,6 +4226,140 @@ function promoHTML(){
   }
   return h;
 }
+/* ═══════════ 수련 일지 — 참고 게임의 '훈련 일지' ═══════════
+   매일 3회 수련해 단계를 올리면 성장 스탯 상한이 넓어지고 OP·SP를 받는다. */
+function trainNeed(lv){ return 90+lv*45; }
+function trainDayReset(){
+  const today=new Date().toDateString();
+  if(S.train.date!==today){ S.train.date=today; S.train.today=0; }
+}
+function trainModal(){
+  trainDayReset();
+  const t=S.train;
+  let h=`<h2>수련 일지</h2>
+  <div class="trmaster">
+    <div class="tface"></div>
+    <div class="mid"><div class="nm" style="color:var(--goldL);font-family:var(--serif)">스승</div>
+    <div class="sub">"${['오늘도 게을리하지 마라.','검은 하루아침에 늘지 않는 법.','한계란 스스로 긋는 금이니라.'][t.lv%3]}"</div></div>
+  </div>
+  <div class="card" style="text-align:center">
+    <b style="font-family:var(--serif);color:var(--goldL);font-size:15px">수련 ${t.lv+1}단계</b>
+    <div class="pbar2" style="max-width:220px;margin:6px auto"><i style="width:${Math.min(100,t.xp/trainNeed(t.lv)*100)}%"></i><b>${t.xp}/${trainNeed(t.lv)}</b></div>
+    <div class="small">단계가 오르면 주 스탯 Max +10 · 보조 +2, OP +2, SP +15</div>
+  </div>
+  <button class="btn red wide ${t.today<3?'':'off'}" data-a="traindo">💪 수련하기 (오늘 ${t.today}/3)</button>
+  <div class="card" style="text-align:center">남은 <b>OVER POINT</b> <b style="color:var(--goldL)">${t.op}</b> — 스탯마다 8번까지 더 넓힐 수 있소</div>`;
+  SPST.forEach((c,i)=>{
+    const used=(t.opUsed[c.id]||0), main=TR_MAIN.indexOf(c.id)>=0;
+    h+=`<div class="card strow">
+      <div class="ico"><i class="sic" style="--si:${c.si}"></i></div>
+      <div class="mid"><div class="nm">${c.n}</div>
+        <div class="sub">Max Lv.${spMax(c.id)} · OP 확장 ${used}/8 (+${main?5:1}씩)</div></div>
+      <button class="btn ${t.op>0&&used<8?'':'off'}" data-a="trainop" data-i="${i}">OP 1</button>
+    </div>`;
+  });
+  h+='<button class="btn wide" data-a="close">닫기</button>';
+  showModal(h);
+}
+function trainDo(){
+  trainDayReset();
+  const t=S.train;
+  if(t.today>=3){ toast('오늘 수련은 여기까지 — 내일 다시 오시오'); return; }
+  t.today++;
+  const gain=32+Math.floor(Math.random()*15);
+  t.xp+=gain;
+  let up=0;
+  while(t.xp>=trainNeed(t.lv)){ t.xp-=trainNeed(t.lv); t.lv++; t.op+=2; S.sp+=15; up++; }
+  snd('reward');
+  toast(up?('📖 수련 '+t.lv+'단계 달성! OP +'+(up*2)+' · SP +'+(up*15)):('수련치 +'+gain));
+  trainModal(); updateHeader(); if(S.growView===1) buildStat();
+}
+function trainOp(i){
+  const t=S.train, id=SPST[i].id;
+  if(t.op<1||(t.opUsed[id]||0)>=8) return;
+  t.op--; t.opUsed[id]=(t.opUsed[id]||0)+1;
+  snd('reward'); trainModal(); if(S.growView===1) buildStat();
+}
+/* 성장 초기화 — 참고 게임의 스탯 리셋(3000 크리스탈)을 옥 300으로 */
+function spReset(){
+  const pts=SPST.reduce((a,c)=>a+(S.spSt[c.id]||0),0);
+  if(!pts){ toast('되돌릴 성장이 없소'); return; }
+  showModal(`<h2>성장 초기화</h2>
+    <p class="small" style="text-align:center">찍어둔 ${pts}성을 모두 SP로 되돌리오.</p>
+    <button class="btn red wide ${S.jade>=300?'':'off'}" data-a="spresetok">초기화 <b>옥 300</b></button>
+    <button class="btn wide" data-a="close">닫기</button>`);
+}
+function spResetOk(){
+  if(S.jade<300) return;
+  const pts=SPST.reduce((a,c)=>a+(S.spSt[c.id]||0),0);
+  S.jade-=300; S.sp+=pts;
+  SPST.forEach(c=>S.spSt[c.id]=0);
+  snd('reward'); toast('성장 초기화 — SP '+pts+' 반환');
+  closeModal(); buildStat(); updateHeader();
+}
+/* ═══════════ 잠룡의 힘 — 참고 게임의 '잠재된 힘' ═══════════
+   잠룡의 소를 정벌해 슬롯 I~V를 깨운다. 슬롯마다 5개 스탯이 0~10눈금으로 무작위. */
+const DR_ST=[['atk','공격력','%',0.8],['hp','체력','%',0.8],['reg','회복량','%',1.0],['critd','치명 피해','%p',2.0],['gold','냥 획득','%',1.0]];
+const DR_GATE=[1,2,4,6,8];                       // 슬롯이 열리는 잠룡의 소 기록
+function drRoll(){ const o={}; DR_ST.forEach(d=>o[d[0]]=Math.round((Math.random()+Math.random())*5)); return o; }
+function drFx(kind){
+  let v=0; const sl=(S.dr&&S.dr.slots)||[];
+  const d=DR_ST.find(x=>x[0]===kind); if(!d) return 0;
+  for(const s of sl) if(s&&s[kind]) v+=s[kind]*d[3];
+  return v;
+}
+function dragonModal(sel){
+  const rec=S.dgClear.dragon||0;
+  if(sel==null) sel=S.dr.sel||0;
+  sel=Math.max(0,Math.min(4,sel)); S.dr.sel=sel;
+  // 열린 슬롯 중 비어 있으면 첫 각성은 무료
+  DR_GATE.forEach((g,k)=>{ if(rec>=g&&!S.dr.slots[k]) S.dr.slots[k]=drRoll(); });
+  const R5=['I','II','III','IV','V'];
+  let h=`<h2>잠룡(潛龍)의 힘</h2>
+    <p class="small" style="text-align:center">잠든 이무기의 힘으로 한층 강해지오 · 보유 용린 <b style="color:var(--goldL)">${S.yong}</b></p>
+    <div class="drtabs">${R5.map((r,k)=>{
+      const open=rec>=DR_GATE[k];
+      return `<button class="${sel===k?'on':''} ${open?'':'lk'}" ${open?`data-a="drsel" data-i="${k}"`:''}>${open?r:'🔒'}</button>`;
+    }).join('')}</div>`;
+  const slot=S.dr.slots[sel], open=rec>=DR_GATE[sel];
+  if(!open){
+    h+=`<div class="card" style="text-align:center">잠룡의 소 <b>${DR_GATE[sel]}단계</b>를 정벌하면 깨어나오<br>
+      <span class="small">현재 기록 ${rec}단계</span></div>`;
+  }else if(W.drNew){
+    h+='<p class="small" style="text-align:center">어느 힘을 남기겠소?</p>';
+    h+='<div class="drcmp"><div><div class="sect" style="margin-top:0">이전</div>';
+    DR_ST.forEach(d=>{ h+=drRow(d,slot[d[0]]); });
+    h+='</div><div><div class="sect" style="margin-top:0">새 힘</div>';
+    DR_ST.forEach(d=>{ h+=drRow(d,W.drNew[d[0]]); });
+    h+='</div></div>';
+    h+=`<div style="display:flex;gap:6px">
+      <button class="btn wide" data-a="drkeep" style="margin-top:6px">이전 유지</button>
+      <button class="btn red wide" data-a="drtake" style="margin-top:6px">새 힘 선택</button></div>`;
+  }else{
+    DR_ST.forEach(d=>{ h+=`<div class="card" style="padding:6px 11px">${drRow(d,slot[d[0]])}</div>`; });
+    h+=`<div style="display:flex;gap:6px">
+      <button class="btn wide ${S.yong>=10?'':'off'}" data-a="drreset" style="margin-top:6px">리셋 <b>용린 10</b></button>
+      <button class="btn red wide ${S.yong>=30?'':'off'}" data-a="drhreset" style="margin-top:6px">고급 리셋 <b>용린 30</b></button></div>
+    <p class="demo-note" style="margin-top:6px">리셋은 즉시 새로 굴리고, 고급 리셋은 이전과 비교해 고를 수 있소</p>`;
+  }
+  h+='<button class="btn wide" data-a="close">닫기</button>';
+  showModal(h);
+}
+function drRow(d,pip){
+  pip=pip||0;
+  let pips='';
+  for(let k=0;k<10;k++) pips+='<i class="'+(k<pip?'on':'')+'"></i>';
+  return `<div class="drrow"><span class="k">${d[1]}</span><span class="pips">${pips}</span><b>+${(pip*d[3]).toFixed(1)}${d[2]}</b></div>`;
+}
+function drReset(hard){
+  const sel=S.dr.sel||0, cost=hard?30:10;
+  if(!S.dr.slots[sel]) return;
+  if(S.yong<cost){ toast('용린이 모자라오 ('+cost+' 필요)'); return; }
+  S.yong-=cost;
+  if(hard){ W.drNew=drRoll(); }
+  else { S.dr.slots[sel]=drRoll(); snd('reward'); }
+  dragonModal(sel); updateHeader();
+}
 /* 무맥(武脈) 화면 — 참고 게임의 클래스 */
 function mumakModal(){
   const eq=S.mumakEq;
@@ -4275,11 +4485,13 @@ function buildAdvent(){
     ${mapNode(50,52,gi('map',2),'심연 균열','rift')}
     ${mapNode(24,76,gi('map',3),'승급 시험','promo',rankGateOk())}
     ${mapNode(76,74,gi('map',4),'윤회의 문','rebirth',daoGain()>0)}
+    ${mapNode(50,82,'<i class="ga dgn"></i>','잠룡의 소','dragon')}
     <button class="btn" data-a="storylog" style="position:absolute;left:8px;bottom:8px;padding:5px 12px;font-size:11px">📜 스토리</button>
     <button class="btn" data-a="regionsel" style="position:absolute;left:8px;top:8px;padding:5px 12px;font-size:11px">🗺️ 지역 선택</button>
     <div style="position:absolute;right:8px;bottom:8px;background:rgba(20,14,8,.85);color:#F1E5C9;font-size:10px;border-radius:10px;padding:3px 10px;border:1px solid #6E5E44"><span class="tkw">${gi('ticket',0)}</span>${S.tickets.gold}
       <span class="tkw">${gi('ticket',1)}</span>${S.tickets.trial}
-      <span class="tkw">${gi('ticket',2)}</span>${S.tickets.rift}</div>
+      <span class="tkw">${gi('ticket',2)}</span>${S.tickets.rift}
+      <span class="tkw"><i class="ga dgn"></i></span>${S.tickets.dragon}</div>
   </div>`;
   h+='<div class="sect">심법 수련 <span style="letter-spacing:0">— 보유 영석 '+fmt(S.seok)+'</span></div>';
   AWAKEN.forEach((a,i)=>{
@@ -4332,6 +4544,8 @@ function dungeonModal(id){
   const nx=S.dgClear[id]+1;
   showModal(`<h2>${d.e} ${d.n}</h2>
     <p style="text-align:center" class="small">${d.d}<br>보상: <b>${d.rw}</b> · 최고 기록 ${S.dgClear[id]}단계 · 입장권 ${S.tickets[id]}장 (매일 2장)</p>
+    ${id==='dragon'?`<div class="card" style="text-align:center">보유 용린 <b style="color:var(--goldL)">${S.yong}</b></div>
+    <button class="btn wide" data-a="dragonp">🐉 잠룡의 힘 보기</button>`:''}
     <button class="btn red wide ${S.tickets[id]>0?'':'off'}" data-a="dgin" data-i="${id}">⚔️ ${nx}단계 도전</button>
     <button class="btn green wide ${S.tickets[id]>0&&S.dgClear[id]>0?'':'off'}" data-a="sweep" data-i="${id}">🧹 소탕 (${S.dgClear[id]}단계 보상 즉시 획득)</button>
     <button class="btn wide" data-a="close">닫기</button>`);
@@ -5232,6 +5446,17 @@ function act(a,i){
     case 'questmodal': questModal(); break;
     case 'growview': S.growView=+i; buildStat(); break;
     case 'spbuy': spBuy(+i); break;
+    case 'spreset': spReset(); break;
+    case 'spresetok': spResetOk(); break;
+    case 'train': trainModal(); break;
+    case 'traindo': trainDo(); break;
+    case 'trainop': trainOp(+i); break;
+    case 'dragonp': dragonModal(); break;
+    case 'drsel': W.drNew=null; dragonModal(+i); break;
+    case 'drreset': drReset(false); break;
+    case 'drhreset': drReset(true); break;
+    case 'drkeep': W.drNew=null; dragonModal(); break;
+    case 'drtake': S.dr.slots[S.dr.sel||0]=W.drNew; W.drNew=null; snd('reward'); dragonModal(); break;
     case 'savenow': save(); toast('💾 저장 완료'); break;
     case 'expo': exportModal(); break;
     case 'doimport': doImport(); break;
