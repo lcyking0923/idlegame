@@ -209,14 +209,12 @@ header{flex:none;background:var(--ink2);border-bottom:2px solid var(--gold2)}
   border-image:url(assets/ui/tab_off.png) 19 31 21 34 fill / 14px 14px 15px 16px stretch}
 .subtab button.on{color:#FFF2D8;text-shadow:0 1px 2px rgba(0,0,0,.55);
   border-image:url(assets/ui/tab_on.png) 48 46 51 53 fill / 14px 14px 15px 16px stretch}
-.expbar{position:relative;height:15px;margin:5px 0;box-sizing:border-box;
-  border-style:solid;border-color:transparent;border-width:1px 7px;
-  border-image:url(assets/ui/bar_track.png) 2 16 2 16 fill / 1px 7px stretch}
-.expbar .fill{position:absolute;left:0;top:0;bottom:0;box-sizing:border-box;transition:width .3s;
-  border-style:solid;border-color:transparent;border-width:1px 7px;
-  border-image:url(assets/ui/bar_exp.png) 2 17 2 17 fill / 1px 7px stretch}
-.expbar.hp .fill{border-image:url(assets/ui/bar_hp.png) 2 16 2 16 fill / 1px 7px stretch}
-.expbar.mp .fill{border-image:url(assets/ui/bar_mp.png) 2 16 2 16 fill / 1px 7px stretch}
+.expbar{position:relative;height:15px;margin:5px 0;
+  background:url(assets/ui/bar_track.png);background-size:100% 100%}
+.expbar .fill{position:absolute;left:2px;top:2px;bottom:2px;max-width:calc(100% - 4px);
+  background:url(assets/ui/bar_exp.png);background-size:100% 100%;transition:width .3s}
+.expbar.hp .fill{background-image:url(assets/ui/bar_hp.png)}
+.expbar.mp .fill{background-image:url(assets/ui/bar_mp.png)}
 #tracker{flex:none;margin:5px 10px 0;padding:5px 11px;border-radius:10px;
   background:var(--ink3);border:1px solid var(--brown2);display:flex;align-items:center;gap:8px;
   font-size:11px;color:#E4D5B4;cursor:pointer}
@@ -338,12 +336,10 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
   border-image:url(assets/ui/btn_lv_off.png) 41 36 41 36 fill / 12px 15px 17px 15px stretch}
 @keyframes lvpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 /* 무맥 진행바 */
-.pbar2{position:relative;height:14px;margin-top:4px;box-sizing:border-box;
-  border-style:solid;border-color:transparent;border-width:1px 7px;
-  border-image:url(assets/ui/bar_track.png) 2 16 2 16 fill / 1px 7px stretch}
-.pbar2 i{position:absolute;left:0;top:0;bottom:0;box-sizing:border-box;
-  border-style:solid;border-color:transparent;border-width:1px 7px;
-  border-image:url(assets/ui/bar_green.png) 2 17 2 17 fill / 1px 7px stretch}
+.pbar2{position:relative;height:14px;margin-top:4px;
+  background:url(assets/ui/bar_track.png);background-size:100% 100%}
+.pbar2 i{position:absolute;left:2px;top:2px;bottom:2px;max-width:calc(100% - 4px);
+  background:url(assets/ui/bar_green.png);background-size:100% 100%}
 .pbar2 b{position:absolute;inset:0;font-size:8px;line-height:14px;text-align:center;
   color:#fff;text-shadow:0 1px 2px #000}
 /* 지역 선택 */
@@ -440,6 +436,23 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .costg .e{width:52px;height:52px;margin:0 auto}
 .sic{display:block;width:32px;height:32px;background:url(assets/ui/stat_icons.png) 0 0/700% 100%;
   background-position:calc(var(--si)*100%/6) 0}
+/* 깨달음 (성장 지식) */
+.kwrow{display:flex;gap:6px}
+.kwcell{flex:1;border-radius:10px;padding:8px 4px 7px;text-align:center;
+  background:linear-gradient(#3A2C1B,#241B12);border:1.5px solid var(--brown2)}
+.kwcell .e{font-size:22px;filter:grayscale(1) opacity(.45)}
+.kwcell .n{font-size:10px;font-weight:700;color:#8F7C5C;margin-top:2px}
+.kwcell .v{font-size:9px;color:#6E5E44;margin-top:1px}
+.kwcell.can{border-color:var(--gold);cursor:pointer;animation:lvpulse 1.2s ease-in-out infinite}
+.kwcell.can .e{filter:none}
+.kwcell.can .n{color:var(--goldL)}
+.kwcell.can .v{color:var(--gold)}
+.kwcell.got{border-color:#2C523F}
+.kwcell.got .e{filter:none;opacity:.9}
+.kwcell.got .n{color:#8FE3A8}
+.kwcell.got .v{color:#6FAF8A}
+.kwbonus{text-align:center;font-size:10px;color:#6E5E44;margin:4px 0 9px}
+.kwbonus.on{color:var(--goldL)}
 /* 수련 일지 · 잠룡의 힘 */
 .trmaster{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .trmaster .tface{width:52px;height:52px;flex:none;border-radius:10px;
@@ -1424,7 +1437,8 @@ const MobSpr={
   pick(e,d){ // 상태 → [클립, 프레임]
     if(e.state==='die') return ['die',0];
     if(e.hitF>0.25&&d.F.hit) return ['hit',0];
-    if(e.lunge>0&&d.F.atk) return ['atk',e.lunge>0.55?1:0];   // 준비 → 타격
+    if(e.wind>0&&d.F.atk) return ['atk',0];                   // 젖히기(준비 자세)
+    if(e.lunge>0&&d.F.atk) return ['atk',1];                  // 내려치기
     const n=d.F.walk.length;
     return ['walk',Math.floor((W.t*7+e.bob)%n)];
   },
@@ -1640,14 +1654,18 @@ const CH=[
   mobs:[['und','#C8C4B8','#8E8A7E','해골귀졸',30],['ghost','#B0C4DC','#7E92AC','처녀귀신',30],['und','#7A9A6E','#54704A','강시',30]],
   boss:['und','#4A3A5E','#2E2240','저승사자',54]},
 ];
+/* 원작(공략 스크린샷) 앵커 그대로: 스탯은 선형(+4/+40/+4), 비용은 9e-7·Lv^3.6 멱함수.
+   성장은 승급 배수·무기·깨달음이 담당한다 — 원작과 같은 구조 */
 const STATS=[
- {id:'atk',  n:'공격력',   e:'⚔️', c0:15, cg:1.09, f:lv=>10*lv*Math.pow(1.015,lv), fm:v=>fmt(v)},
- {id:'hp',   n:'체력',     e:'❤️', c0:12, cg:1.09, f:lv=>50*lv*Math.pow(1.015,lv), fm:v=>fmt(v)},
- {id:'reg',  n:'회복력',   e:'💚', c0:15, cg:1.095, f:lv=>2.5*lv*Math.pow(1.015,lv), fm:v=>fmt(v)+'/초'},
- {id:'crit', n:'치명 확률',e:'🎯', c0:40, cg:1.10, max:380, f:lv=>Math.min(5+0.25*lv,100), fm:v=>v.toFixed(1)+'%'}, // 원작: 치명 100% 목표
- {id:'critd',n:'치명 피해',e:'💥', c0:35, cg:1.095, f:lv=>130+4*lv, fm:v=>fmt(v)+'%'},
- {id:'aps',  n:'공격 속도',e:'⚡', c0:60, cg:1.10, max:125, f:lv=>1+0.012*lv, fm:v=>v.toFixed(2)+'회/초'},
- {id:'gget', n:'냥 획득량',e:'💰', c0:25, cg:1.10, f:lv=>lv*2, fm:v=>'+'+v+'%'},
+ {id:'atk',  n:'공격력',   si:0, c0:15, pw:1,    f:lv=>4*lv,  fm:v=>fmt(v)},
+ {id:'hp',   n:'체력',     si:1, c0:12, pw:1,    f:lv=>40*lv, fm:v=>fmt(v)},
+ {id:'reg',  n:'회복력',   si:2, c0:15, pw:0.95, f:lv=>4*lv,  fm:v=>fmt(v)+'/초'},
+ {id:'crit', n:'치명 확률',si:3, c0:40, pw:1.8, max:380, f:lv=>Math.min(5+0.25*lv,100), fm:v=>v.toFixed(1)+'%'}, // 원작: 치명 100% 목표
+ {id:'critd',n:'치명 피해',si:4, c0:35, pw:1.2, f:lv=>130+4*lv, fm:v=>fmt(v)+'%'},
+ {id:'scd',  n:'혼신의 일격',   si:4, c0:60, pw:1.3, un:()=>heroCrit()>=100, maxF:()=>scdMax(), f:lv=>100+lv, fm:v=>fmt(v)+'%'}, // 원작 '회심의 일격' — 치명타의 치명타
+ {id:'scc',  n:'혼신의 일격 확률',si:3, c0:60, pw:1.6, un:()=>heroCrit()>=100, max:1000, f:lv=>Math.min(lv*0.1,100), fm:v=>v.toFixed(1)+'%'},
+ {id:'aps',  n:'공격 속도',si:5, c0:60, pw:1.9, max:125, f:lv=>1+0.012*lv, fm:v=>v.toFixed(2)+'회/초'},
+ {id:'gget', n:'냥 획득량',si:6, c0:25, pw:1.5, f:lv=>lv*2, fm:v=>'+'+v+'%'},
 ];
 // 품계 승급: 원작 공략 확인 앵커(3번째급 ×5, 4번째 ×25) 기반 점증 배수 + 층 정복 게이트
 const RANK_MULTS=[2,3,5,25,10,12,15,18,20,22,25,25,25,25,25,25,25,25];
@@ -1990,7 +2008,7 @@ function freshState(){
   return {
     v:VER, gold:0, jade:100, seok:0,
     goldTotal:0, kTotal:0, bossKills:0, taps:0, summons:0, fuses:0,
-    st:{atk:1,hp:1,reg:1,crit:0,critd:0,aps:0,gget:0},
+    st:{atk:1,hp:1,reg:1,crit:0,critd:0,scd:0,scc:0,aps:0,gget:0}, know:{},
     lv:1, exp:0, sp:0, spSt:{str:0,hp:0,vit:0,crit:0,gold:0,acc:0,eva:0}, growView:0,
     yong:0, train:{lv:0,xp:0,date:'',today:0,op:0,opUsed:{}},
     dr:{sel:0,slots:[null,null,null,null,null]},
@@ -2038,7 +2056,7 @@ function load(){
 }
 
 /* ═══════════ 수치 ═══════════ */
-function stVal(id){ const c=STATS.find(s=>s.id===id); return c.f(S.st[id]); }
+function stVal(id){ const c=STATS.find(s=>s.id===id); return c.f(S.st[id]||0)+kwFx(id); }
 function rankMult(){ let m=1; for(let i=0;i<S.rank;i++) m*=RANK_MULTS[i]; return m; }
 function nextRankMult(){ return S.rank<RANK_MULTS.length?RANK_MULTS[S.rank]:1; }
 function wEqMult(){ if(S.wEq<0||!S.weapons[S.wEq]) return 1;
@@ -2091,13 +2109,22 @@ function heroAps(){ let a=stVal('aps')*(1+relicFx('aps'))*(1+compPFx('aps')/100)
 function skillMult(i){ const lv=S.skills[i]||1;
   return SKILLS[i].mult*(1+0.15*(lv-1))*(1+S.aw.skill*0.05)*trMult('skill')*(1+skillMastery()*0.05)*(1+relicFx('skill'))*(1+(compPFx('skill')+raFx('skill'))/100)*(S.skAw[i]?1.8:1); }
 function goldMult(){ return (1+stVal('gget')/100)*(1+wEqGold()/100)*(1+S.aw.gold*0.04)*trMult('gold')*(1+S.spSt.gold*0.02)*(1+spFx('gold')/100)*(1+accFx('gold')/100)*(1+rankOptSum('gold')/100)*(1+compLv(2)*0.03)*(1+relicFx('gold'))*(1+(compPFx('gold')+compOFx('gold')+raFx('gold'))/100)*(1+drFx('gold')/100)*(adbOn('gold')?3:1)*(boostOn()?2:1)*(royalOn()?2:1); }
-function statCost(id,k){ const c=STATS.find(s=>s.id===id); const lv=S.st[id];
-  return c.c0*Math.pow(c.cg,lv)*(Math.pow(c.cg,k)-1)/(c.cg-1); }
-function statMaxBuy(id){ const c=STATS.find(s=>s.id===id); const lv=S.st[id];
-  const base=c.c0*Math.pow(c.cg,lv);
-  let k=Math.floor(Math.log(S.gold*(c.cg-1)/base+1)/Math.log(c.cg));
-  if(c.max) k=Math.min(k,c.max-lv);
-  return Math.max(k,0); }
+function statMaxLv(c){ return c.maxF?c.maxF():(c.max||Infinity); }
+function statCost(id,k){ // k강 올리는 비용 — 9e-7·Lv^3.6 멱함수의 적분 (원작 비용 곡선 역산)
+  const c=STATS.find(s=>s.id===id); const lv=S.st[id]||0;
+  const a=9e-7*(c.pw||1);
+  return Math.floor(c.c0*k + a/4.6*(Math.pow(lv+k,4.6)-Math.pow(lv,4.6))); }
+function statMaxBuy(id){ // 살 수 있는 최대 강 수 — 이분 탐색
+  const c=STATS.find(s=>s.id===id); const lv=S.st[id]||0;
+  const cap=statMaxLv(c)-lv;
+  if(cap<=0) return 0;
+  let hi=1;
+  while(hi<cap&&statCost(id,hi*2)<=S.gold) hi*=2;
+  hi=Math.min(hi*2,cap);
+  if(statCost(id,hi)<=S.gold) return hi;
+  let lo=0;
+  while(lo<hi-1){ const m=(lo+hi)>>1; if(statCost(id,m)<=S.gold) lo=m; else hi=m; }
+  return lo; }
 /* 원작형 커브(공개 앵커 반영): 재화 성장률은 층당 5% (100층부터 9%),
    체력 성장률 14.5%로 재화를 압도 → 강화 효율이 급락하는 벽.
    돌파는 승급(×2,×3,×5,×25… 대형 배수)·SP 성장·소환·황금곳간이 담당 */
@@ -2181,7 +2208,7 @@ function spawnEnemy(def,boss,x,n){
     sp:def[0],c:def[1],c2:def[2],nm:(loop>0?'심연 ':'')+def[3],size:def[4]*(boss?1.7:1),
     boss:!!boss,x:x,hp:hpB,maxhp:hpB,atk:boss?mobAtk(n)*3.2:mobAtk(n),
     gold:boss?mobGold(n)*35:mobGold(n),el:chapterEl(n),n:n,
-    state:'walk',atkT:1.4+Math.random(),lunge:0,hitF:0,dieT:0,bob:Math.random()*7,frozen:0,
+    state:'walk',atkT:1.4+Math.random(),lunge:0,wind:0,hitF:0,dieT:0,bob:Math.random()*7,frozen:0,
   });
 }
 function bossGo(){
@@ -2251,16 +2278,18 @@ function hitEnemy(e,dmg,opt){
     return;
   }
   const crit=Math.random()*100<heroCrit();
+  const sc=crit&&Math.random()*100<stVal('scc');   // 혼신의 일격 — 회심의 회심 (원작은 파란색)
   const elm=elMult(opt.el,e.el); // 속성 상성 ×2 / ×0.7
-  let d=dmg*(0.9+Math.random()*0.2)*(crit?heroCritD()/100:1)*elm;
+  let d=dmg*(0.9+Math.random()*0.2)*(crit?heroCritD()/100:1)*(sc?stVal('scd')/100:1)*elm;
   e.hp-=d; e.hitF=1;
   const ex=e.x, ey=W.G-e.size*0.7;
-  const tag=elm>=2?'약점! ':(crit?'회심! ':'');
-  const col=elm>=2?'#FFD24A':(elm<1?'#9FB2C4':(crit?'#FF4A3A':'#FFF2CC'));
+  const tag=sc?'혼신! ':elm>=2?'약점! ':(crit?'회심! ':'');
+  const col=sc?'#6FBBFF':elm>=2?'#FFD24A':(elm<1?'#9FB2C4':(crit?'#FF4A3A':'#FFF2CC'));
   dmgText(ex,ey-14,tag+fmt(d),col,crit||elm>=2,true);
   burst(ex,ey,crit?'#FF9A66':'#F2CE7B',crit?9:4);
   const pan=(e.x/W.w-0.5)*0.7;
-  if(crit){ W.cam.shake=Math.max(W.cam.shake,e.boss?5:3); W.hitStop=Math.max(W.hitStop,0.045); ring(ex,ey,'255,170,110'); snd('crit',pan); W.hero.swBig=1; }
+  if(sc){ W.cam.shake=Math.max(W.cam.shake,e.boss?6:4); W.hitStop=Math.max(W.hitStop,0.06); ring(ex,ey,'110,190,255'); burst(ex,ey,'#6FBBFF',8); snd('crit',pan); W.hero.swBig=1; }
+  else if(crit){ W.cam.shake=Math.max(W.cam.shake,e.boss?5:3); W.hitStop=Math.max(W.hitStop,0.045); ring(ex,ey,'255,170,110'); snd('crit',pan); W.hero.swBig=1; }
   else snd('hit',pan);
   // 평타는 작은 호 하나로 '칼질'처럼, 회심타에만 큰 에너지 궤적을 쓴다.
   // 매 타격마다 십자·연격 같은 큰 궤적을 쓰면 번개가 계속 치는 것처럼 보인다.
@@ -2307,6 +2336,20 @@ function killEnemy(e){
     S.kills=Math.min(S.kills+1,8);
     if(S.kills>=8&&S.autoBoss&&W.mode==='farm') W.bossDelay=0.8;
   }
+}
+function heroHit(e,dmg){
+  const h=W.hero;
+  const d=dmg*(0.9+Math.random()*0.2);
+  h.hp-=d; h.hurt=1; h.kb=1;
+  const hx=h.x+8, hy=W.G-44;
+  slashFx(hx+5,hy,2.35+(Math.random()-.5)*0.3,'255,110,80','claw',e.boss?1.05:0.85); // 적의 발톱 궤적
+  burst(hx,hy,'#FF7A5A',e.boss?10:6);
+  ring(hx,hy,'255,110,80');
+  dmgText(h.x-6,W.G-96,'-'+fmt(d),'#FF8A76');
+  W.hurtF=Math.min(1,(W.hurtF||0)+(e.boss?0.85:0.5));         // 화면 가장자리 붉은 섬광
+  W.cam.shake=Math.max(W.cam.shake,e.boss?4.5:2.5);
+  if(e.boss) W.hitStop=Math.max(W.hitStop,0.05);
+  snd('hit',-0.3);
 }
 function heroDie(){
   const h=W.hero;
@@ -2375,29 +2418,33 @@ function update(dt){
     else if(e.x>tgt){ e.x=Math.max(tgt,e.x-130*dt); if(e.x<=tgt&&idx===0) e.atkT=Math.max(e.atkT,0.7); }
     e.state=e.x<=tgt+1?'fight':'walk';
     if(e.state==='fight'&&h.dead<=0&&e.frozen<=0){
-      e.atkT-=dt;
-      if(e.atkT<=0){
-        e.atkT=1.8; e.lunge=1;
-        let mul=1;
-        if(e.drake){ // 천년 이무기 — 매 공격마다 네 술법 중 하나 (참고 게임의 드래곤)
-          const r=Math.random();
-          if(r<0.40){ mul=1; }
-          else if(r<0.65){ mul=1.7; dmgText(e.x,W.G-e.size-22,'꼬리치기!','#B7E8D2'); }
-          else if(r<0.85){ mul=2.4; dmgText(e.x,W.G-e.size-22,'화염 숨결!','#FF9A66'); W.cam.shake=Math.max(W.cam.shake,4); }
-          else { mul=0; e.hp=Math.min(e.maxhp,e.hp+e.maxhp*0.04); dmgText(e.x,W.G-e.size-22,'허물 재생','#8FE3C8'); }
+      if(e.wind>0){                          // 젖혔다가 —
+        e.wind-=dt;
+        if(e.wind<=0){                       // — 내려친다. 판정과 임팩트는 이 순간에
+          e.wind=0; e.lunge=1;
+          let mul=1;
+          if(e.drake){ // 천년 이무기 — 매 공격마다 네 술법 중 하나 (참고 게임의 드래곤)
+            const r=Math.random();
+            if(r<0.40){ mul=1; }
+            else if(r<0.65){ mul=1.7; dmgText(e.x,W.G-e.size-22,'꼬리치기!','#B7E8D2'); }
+            else if(r<0.85){ mul=2.4; dmgText(e.x,W.G-e.size-22,'화염 숨결!','#FF9A66'); W.cam.shake=Math.max(W.cam.shake,4); }
+            else { mul=0; e.hp=Math.min(e.maxhp,e.hp+e.maxhp*0.04); dmgText(e.x,W.G-e.size-22,'허물 재생','#8FE3C8'); }
+          }
+          if(mul>0){
+            if(Math.random()*100<heroDodge()){ // 회피 성공 — 반보 물러서며 흘린다
+              dmgText(h.x,W.G-84,'회피!','#9FE8C0'); h.kb=0.5;
+            }else{
+              heroHit(e,e.atk*mul);
+              if(h.hp<=0){ heroDie(); break; }
+            }
+          }
         }
-        if(mul>0){
-        if(Math.random()*100<heroDodge()){ // 회피 성공
-          dmgText(h.x,W.G-84,'회피!','#9FE8C0');
-        }else{
-          h.hp-=e.atk*mul*(0.9+Math.random()*0.2); h.hurt=1;
-          W.cam.shake=Math.max(W.cam.shake,1.5);
-          if(h.hp<=0){ heroDie(); break; }
-        }
-        }
+      }else{
+        e.atkT-=dt;
+        if(e.atkT<=0){ e.atkT=1.8+Math.random()*0.3; e.wind=0.3; }
       }
     }
-    e.hitF=Math.max(0,e.hitF-dt*5); e.lunge=Math.max(0,e.lunge-dt*3.5);
+    e.hitF=Math.max(0,e.hitF-dt*5); e.lunge=Math.max(0,e.lunge-dt*5);
     e.slot=idx; // 대기열 깊이 (뒤쪽일수록 작고 위로 — 2.5D)
     idx++;
   }
@@ -2450,7 +2497,10 @@ function update(dt){
     const inF=front&&front.state==='fight';
     h.hp=Math.min(heroMaxHp(),h.hp+stVal('reg')*rankMult()*(1+relicFx('reg'))*(1+(compPFx('reg')+compOFx('reg')+raFx('reg'))/100)*(1+(S.spSt.vit||0)*0.006)*(1+drFx('reg')/100)*(inF?1:5)*dt);
   }
-  h.swing=Math.max(0,h.swing-dt*4.6); // 베는 동작 길이(약 0.22초) — 너무 빠르면 휘두른 게 안 보인다 h.hurt=Math.max(0,h.hurt-dt*4);
+  h.swing=Math.max(0,h.swing-dt*4.6); // 베는 동작 길이(약 0.22초) — 너무 빠르면 휘두른 게 안 보인다
+  h.hurt=Math.max(0,h.hurt-dt*4);     // 피격 섬광 — 이 줄이 주석에 먹혀 있어서 번쩍이지 않고 계속 붉게만 남았다
+  h.kb=Math.max(0,(h.kb||0)-dt*5);    // 피격 밀림 복귀
+  W.hurtF=Math.max(0,(W.hurtF||0)-dt*2.6); // 화면 가장자리 붉은 섬광 감쇠
   if(W.running){ h.dustT-=dt; if(h.dustT<=0){ h.dustT=0.18;
     W.parts.push({x:h.x-8,y:W.G+1,vx:-40-Math.random()*30,vy:-20-Math.random()*24,t:0.25,color:'rgba(150,130,100,.5)',r:3}); } }
   // 지연 타격
@@ -2965,6 +3015,11 @@ function draw(){
     cx.fillStyle='#9FE8C0'; cx.fillText(t,(W.w-tw)/2,58);
   }
   // 섬광
+  if((W.hurtF||0)>0){ // 맞는 순간 화면 가장자리가 붉게 번쩍
+    const vg=cx.createRadialGradient(W.w/2,W.h*0.55,W.h*0.34,W.w/2,W.h*0.55,W.h*0.86);
+    vg.addColorStop(0,'rgba(200,30,20,0)'); vg.addColorStop(1,'rgba(200,30,20,'+(W.hurtF*0.42)+')');
+    cx.fillStyle=vg; cx.fillRect(-12,-12,W.w+24,W.h+24);
+  }
   if(W.flash>0){
     cx.fillStyle='rgba(255,255,240,'+(W.flash*0.5)+')'; cx.fillRect(-12,-12,W.w+24,W.h+24);
     if(W.flash>0.5){
@@ -3066,6 +3121,8 @@ function drawHero(h){
   const OUT='#191209';
   const spr=HeroSpr.ready; // 스프라이트가 준비됐으면 벡터 검객 대신 원화 프레임
   cx.save();
+  const kb=(h.kb||0)>0?Math.sin(Math.min(1,h.kb)*Math.PI)*6:0;
+  if(kb) cx.translate(-kb,0);                       // 피격 밀림 (복귀는 update에서)
   if(h.dead>0&&!spr){ cx.translate(x,G-6); cx.rotate(-1.35); cx.globalAlpha=0.55; cx.translate(-x,-(G-6)); }
   // 그림자
   cx.fillStyle='rgba(0,0,0,.32)'; cx.beginPath(); cx.ellipse(x+2,G+3,21,4.5,0,0,7); cx.fill();
@@ -3229,7 +3286,8 @@ function drawMonster(e){
   const SZ=e.size*dep;
   const dieP=e.state==='die'?1-e.dieT/0.45:0;
   const bob=e.state==='die'?0:Math.sin(W.t*5+e.bob)*3;
-  const lung=Math.sin(e.lunge*Math.PI)*22;
+  const windP=e.wind>0?1-e.wind/0.3:0;                        // 젖히기 진행도
+  const lung=Math.sin(e.lunge*Math.PI)*26-(windP?Math.sin(windP*Math.PI)*9:0);
   const sq=1+Math.sin(W.t*6+e.bob)*0.035+e.hitF*0.16;
   const x=e.x-lung, s=SZ/32, yb=G+bob*0.4;
   cx.save();
@@ -3597,9 +3655,11 @@ function buildStat(){
   }
   h+='<div class="buybar">'+['×1','×10','×100','최대'].map((m,i)=>
     `<button data-a="buymode" data-i="${i}" class="${S.buyMode===i?'on':''}">${m}</button>`).join('')+'</div>';
+  h+=`<div class="togglebar"><button data-a="know">📜 깨달음 — 성장의 비결${kwReadyCnt()?' <b style="color:var(--goldL)">'+kwReadyCnt()+'</b>':''}</button></div>`;
   STATS.forEach((c,i)=>{
+    if(c.un&&!c.un()) return;               // 혼신의 일격 — 치명 100% 전에는 숨긴다
     h+=`<div class="card strow">
-      <div class="ico"><i class="sic" style="--si:${i}"></i></div>
+      <div class="ico"><i class="sic" style="--si:${c.si}"></i></div>
       <div class="mid">
         <div class="nm">${c.n}<span class="lv" id="stlv${i}"></span></div>
         <div class="vv" id="stvv${i}"></div>
@@ -3632,10 +3692,10 @@ function updateStat(){
   }
   STATS.forEach((c,i)=>{
     const el=$('stlv'+i); if(!el) return;
-    const lv=S.st[c.id], maxed=c.max&&lv>=c.max;
+    const lv=S.st[c.id]||0, mx=statMaxLv(c), maxed=lv>=mx;
     el.textContent=lv+'강'+(maxed?' (최대)':'');
     const k=S.buyMode===3?Math.max(statMaxBuy(c.id),1):[1,10,100][S.buyMode];
-    const kk=c.max?Math.min(k,c.max-lv):k;
+    const kk=Math.min(k,mx-lv);
     // 지금 값과 올린 뒤 값을 한 줄에 나란히 — 얼마나 오르는지 바로 보이게
     $('stvv'+i).innerHTML=maxed
       ? '<b>'+c.fm(c.f(lv))+'</b>'
@@ -3649,15 +3709,18 @@ function updateStat(){
   });
 }
 function buyStat(i){
-  const c=STATS[i]; const lv=S.st[c.id];
-  if(c.max&&lv>=c.max) return;
+  const c=STATS[i]; const lv=S.st[c.id]||0;
+  const mx=statMaxLv(c);
+  if(lv>=mx) return;
   let k=S.buyMode===3?Math.max(statMaxBuy(c.id),1):[1,10,100][S.buyMode];
-  if(c.max) k=Math.min(k,c.max-lv);
+  k=Math.min(k,mx-lv);
   if(k<1) return;
   const cost=statCost(c.id,k);
   if(S.gold<cost) return;
   S.gold-=cost; S.st[c.id]+=k; if(S.dq) S.dq.ups+=k;
-  updateStat(); updateHeader();
+  if(c.id==='crit'&&heroCrit()>=100) buildStat(); // 치명 100% 달성 → 혼신의 일격 해금
+  else updateStat();
+  updateHeader();
 }
 function spBuy(i){
   if(S.sp<1) return;
@@ -4225,6 +4288,68 @@ function promoHTML(){
     </div>`;
   }
   return h;
+}
+/* ═══════════ 깨달음 — 원작 '성장 지식'. 강화가 이정표에 닿으면 서책을 읽어
+   고정 수치를 얹고, 한 줄(3권)을 다 읽으면 혼신의 일격 상한이 넓어진다.
+   원작 확인 앵커: 공격력 Lv.50000 → 괴력 2단계 → 공격력 +21,500 (강화치의 약 10.75%) ═══════════ */
+const KNOW=[ // [스탯, 필요 강화 Lv, 이름, 고정 가산]
+ ['atk',  3000,  '괴력 1권',  1290],
+ ['hp',   3000,  '철골 1권',  12900],
+ ['reg',  1500,  '활맥 1권',  650],
+ ['atk',  50000, '괴력 2권',  21500],      // 원작 공략 확인 수치 그대로
+ ['hp',   40000, '철골 2권',  172000],
+ ['critd',2000,  '파심 1권',  870],
+ ['atk',  150000,'괴력 3권',  64500],
+ ['hp',   120000,'철골 3권',  516000],
+ ['reg',  60000, '활맥 2권',  25800],
+ ['atk',  400000,'괴력 4권',  172000],
+ ['hp',   300000,'철골 4권',  1290000],
+ ['critd',3600,  '파심 2권',  1560],
+];
+const KNOW_ROW=[50,100,150,200];             // 줄 완성 보상 — 혼신의 일격 Max Lv +N (원작 수치)
+function kwFx(id){
+  let v=0;
+  for(let i=0;i<KNOW.length;i++) if(S.know[i]&&KNOW[i][0]===id) v+=KNOW[i][3];
+  return v;
+}
+function scdMax(){ // 혼신의 일격 상한 — 기본 3,550 + 깨달음 줄 보상 (완성 시 원작의 4,050)
+  let m=3550;
+  KNOW_ROW.forEach((b,r)=>{ if([0,1,2].every(k=>S.know[r*3+k])) m+=b; });
+  return m;
+}
+function kwReadyCnt(){
+  let n=0;
+  KNOW.forEach((k,i)=>{ if(!S.know[i]&&(S.st[k[0]]||0)>=k[1]) n++; });
+  return n;
+}
+function knowModal(){
+  const STN={atk:'공격력',hp:'체력',reg:'회복력',critd:'치명 피해'};
+  let h=`<h2>깨달음</h2>
+    <p class="small" style="text-align:center">강화가 이정표에 닿으면 비전 서책을 읽을 수 있소.<br>한 줄을 다 읽으면 <b>혼신의 일격 상한 +${KNOW_ROW.join('/+')}</b></p>`;
+  for(let r=0;r<4;r++){
+    const done=[0,1,2].every(k=>S.know[r*3+k]);
+    h+='<div class="kwrow">';
+    for(let k2=0;k2<3;k2++){
+      const i=r*3+k2, [st,need,nm,val]=KNOW[i];
+      const got=!!S.know[i], can=!got&&(S.st[st]||0)>=need;
+      h+=`<div class="kwcell ${got?'got':can?'can':'lk'}" ${can?`data-a="knowget" data-i="${i}"`:''}>
+        <div class="e">📜</div>
+        <div class="n">${nm}</div>
+        <div class="v">${got?STN[st]+' +'+fmt(val):can?'습득 가능!':STN[st]+' '+fmt(need)+'강'}</div>
+      </div>`;
+    }
+    h+=`</div><div class="kwbonus ${done?'on':''}">${done?'✓ ':''}줄 완성 — 혼신의 일격 Max +${KNOW_ROW[r]}</div>`;
+  }
+  h+='<button class="btn wide" data-a="close">닫기</button>';
+  showModal(h);
+}
+function knowGet(i){
+  const [st,need,nm,val]=KNOW[i];
+  if(S.know[i]||(S.st[st]||0)<need) return;
+  S.know[i]=1;
+  snd('reward'); W.flash=Math.min(1,W.flash+0.3);
+  toast('📜 '+nm+' 습득 — '+({atk:'공격력',hp:'체력',reg:'회복력',critd:'치명 피해'}[st])+' +'+fmt(val));
+  knowModal(); updateHeader(); if(S.growView===0) buildStat();
 }
 /* ═══════════ 수련 일지 — 참고 게임의 '훈련 일지' ═══════════
    매일 3회 수련해 단계를 올리면 성장 스탯 상한이 넓어지고 OP·SP를 받는다. */
@@ -5447,6 +5572,8 @@ function act(a,i){
     case 'growview': S.growView=+i; buildStat(); break;
     case 'spbuy': spBuy(+i); break;
     case 'spreset': spReset(); break;
+    case 'know': knowModal(); break;
+    case 'knowget': knowGet(+i); break;
     case 'spresetok': spResetOk(); break;
     case 'train': trainModal(); break;
     case 'traindo': trainDo(); break;
