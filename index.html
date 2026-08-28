@@ -2399,10 +2399,16 @@ function skillMult(i){ const lv=S.skills[i]||1;
   return SKILLS[i].mult*(1+0.15*(lv-1))*(1+S.aw.skill*0.05)*trMult('skill')*(1+masteryBonus()/100)*(1+relicFx('skill'))*(1+(compPFx('skill')+raFx('skill'))/100)*(S.skAw[i]?1.8:1); }
 function goldMult(){ return (1+stVal('gget')/100)*(1+wEqGold()/100)*(1+S.aw.gold*0.04)*trMult('gold')*(1+S.spSt.gold*0.02)*(1+spFx('gold')/100)*(1+accFx('gold')/100)*(1+rankOptSum('gold')/100)*(1+compLv(2)*0.03)*(1+relicFx('gold'))*(1+(compPFx('gold')+compOFx('gold')+raFx('gold'))/100)*(1+drFx('gold')/100)*(adbOn('gold')?3:1)*(boostOn()?2:1)*(royalOn()?2:1); }
 function statMaxLv(c){ return c.maxF?c.maxF():(c.max||Infinity); }
-function statCost(id,k){ // k강 올리는 비용 — 9e-7·Lv^3.6 멱함수의 적분 (원작 비용 곡선 역산)
+function statCost(id,k){ // k강 올리는 비용 — 강마다 5%씩 오르는 기본비(상한 ×10) + 원작 멱함수 항
+  // 기본비가 상수면 초반 내내 비용이 똑같아 보인다. 5% 복리로 올리되 ×10에서 멈춰
+  // 후반 비용 곡선은 원작 역산 멱함수(9e-7·Lv^3.6 적분)가 그대로 지배하게 한다.
   const c=STATS.find(s=>s.id===id); const lv=S.st[id]||0;
   const a=9e-7*(c.pw||1);
-  return Math.floor(c.c0*k + a/4.6*(Math.pow(lv+k,4.6)-Math.pow(lv,4.6))); }
+  const G=1.05, CAP=10, capLv=Math.ceil(Math.log(CAP)/Math.log(G)); // ≈48강부터 기본비 고정
+  const lo=Math.min(k, Math.max(0, capLv-lv));   // 아직 기본비가 오르는 구간의 강 수
+  let base=lo>0 ? c.c0*Math.pow(G,lv)*(Math.pow(G,lo)-1)/(G-1) : 0;
+  if(k>lo) base+=c.c0*CAP*(k-lo);
+  return Math.floor(base + a/4.6*(Math.pow(lv+k,4.6)-Math.pow(lv,4.6))); }
 function statMaxBuy(id){ // 살 수 있는 최대 강 수 — 이분 탐색
   const c=STATS.find(s=>s.id===id); const lv=S.st[id]||0;
   const cap=statMaxLv(c)-lv;
