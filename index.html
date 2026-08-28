@@ -204,7 +204,8 @@ header{flex:none;background:var(--ink2);border-bottom:2px solid var(--gold2)}
 #gearBtn{width:30px;height:30px;border-radius:8px;background:var(--ink3);border:1px solid var(--brown2);font-size:15px}
 .subtab{display:flex;gap:6px;margin:2px 0 5px}
 .subtab button{flex:1;height:40px;font-size:12px;font-weight:700;color:#C0AA80;
-  background:none;border-radius:0;padding:0;box-sizing:border-box;
+  display:flex;align-items:center;justify-content:center;line-height:1;
+  background:none;border-radius:0;padding:0 0 4px;box-sizing:border-box;
   border-style:solid;border-color:transparent;border-width:14px 14px 15px 16px;
   border-image:url(assets/ui/tab_off.png) 19 31 21 34 fill / 14px 14px 15px 16px stretch}
 .subtab button.on{color:#FFF2D8;text-shadow:0 1px 2px rgba(0,0,0,.55);
@@ -270,9 +271,9 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .strow .vv{font-size:11px;color:var(--uiGood);font-weight:700;font-variant-numeric:tabular-nums}
 .strow .sub{font-size:10px;color:var(--uiSub)}
 .strow .small{color:var(--uiSub)}
-.strow .btn{width:100px;height:40px;flex:none;font-size:11px;line-height:1.2;
-  color:#4A2F06;text-shadow:0 1px 0 rgba(255,242,205,.55);
-  background:none;box-shadow:none;border-radius:0;padding:0 2px;box-sizing:border-box;
+.strow .btn{width:100px;height:40px;flex:none;font-size:12px;font-weight:800;line-height:1.2;
+  color:#38230A;text-shadow:0 1px 0 rgba(255,246,214,.75);
+  background:none;box-shadow:none;border-radius:0;padding:0 2px 3px;box-sizing:border-box;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   border-style:solid;border-color:transparent;border-width:11px 16px 11px 17px;
   border-image:url(assets/ui/btn_gold_on.png) 39 44 38 47 fill / 11px 16px 11px 17px stretch}
@@ -280,11 +281,12 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
   border-image:url(assets/ui/btn_gold_press.png) 28 49 31 48 fill / 11px 16px 11px 17px stretch}
 .strow .btn.off{color:#3B342A;text-shadow:none;background:none;box-shadow:none;
   border-image:url(assets/ui/btn_gold_off.png) 18 39 32 48 fill / 11px 16px 11px 17px stretch}
-.strow .btn b{font-size:12px;display:block;font-variant-numeric:tabular-nums}
+.strow .btn b{font-size:13px;font-weight:800;display:block;font-variant-numeric:tabular-nums}
 .strow.locked{opacity:.75}
 .togglebar{display:flex;gap:6px;margin-bottom:5px}
 .togglebar button{flex:1;height:38px;font-size:11px;font-weight:700;color:#C0AA80;
-  background:none;border-radius:0;padding:0;box-sizing:border-box;
+  display:flex;align-items:center;justify-content:center;line-height:1;
+  background:none;border-radius:0;padding:0 0 4px;box-sizing:border-box;
   border-style:solid;border-color:transparent;border-width:13px 13px 14px 15px;
   border-image:url(assets/ui/tab_off.png) 19 31 21 34 fill / 13px 13px 14px 15px stretch}
 .togglebar button.on{color:#FFF2D8;
