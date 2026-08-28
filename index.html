@@ -163,15 +163,13 @@ header{flex:none;background:var(--ink2);border-bottom:2px solid var(--gold2)}
 .jadeic{width:15px;height:15px;flex:none;border-radius:4px;transform:rotate(45deg);
   background:linear-gradient(135deg,#7FD6A8,#3A9B6E 60%,#22684A);
   box-shadow:inset 0 2px 0 rgba(255,255,255,.4),0 1px 2px rgba(0,0,0,.6)}
-#chips{position:absolute;top:60px;right:8px;z-index:6}
+#chips{position:absolute;top:104px;right:8px;z-index:6}
 #chips span{display:block;margin-top:4px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;text-align:center}
 .chip-boost{background:var(--red);color:#FFE9C2}
 .chip-royal{background:var(--indigo);color:#DCE9F5}
 /* 전장 */
-
-}
 #sceneWrap{flex:none;position:relative;border-bottom:2px solid var(--gold2);cursor:pointer}
-#cv{display:block;width:100%;height:264px}
+#cv{display:block;width:100%;height:336px}
 #stageBar{position:absolute;top:6px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;
   background:rgba(14,10,6,.74);border:1px solid var(--brown2);border-radius:20px;padding:3px 8px;font-size:12px;white-space:nowrap;z-index:4}
 #stageBar b{font-family:var(--serif);color:var(--goldL);letter-spacing:1px;font-size:12px}
@@ -204,8 +202,8 @@ header{flex:none;background:var(--ink2);border-bottom:2px solid var(--gold2)}
   background:var(--red);border:2px solid #100C08;display:none}
 #questBtn .dot.on,#mailBtn .dot.on{display:block}
 #gearBtn{width:30px;height:30px;border-radius:8px;background:var(--ink3);border:1px solid var(--brown2);font-size:15px}
-.subtab{display:flex;gap:6px;margin:2px 0 7px}
-.subtab button{flex:1;height:46px;font-size:12px;font-weight:700;color:#C0AA80;
+.subtab{display:flex;gap:6px;margin:2px 0 5px}
+.subtab button{flex:1;height:40px;font-size:12px;font-weight:700;color:#C0AA80;
   background:none;border-radius:0;padding:0;box-sizing:border-box;
   border-style:solid;border-color:transparent;border-width:14px 14px 15px 16px;
   border-image:url(assets/ui/tab_off.png) 19 31 21 34 fill / 14px 14px 15px 16px stretch}
@@ -232,10 +230,10 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .panel{position:absolute;inset:0;overflow-y:auto;padding:2px 10px 16px;display:none;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
 .panel.active{display:block}
 .card{background:linear-gradient(var(--paper),var(--paper2));color:var(--brown);
-  border:1px solid var(--line);border-radius:12px;padding:8px 11px;margin-bottom:7px;
+  border:1px solid var(--line);border-radius:12px;padding:7px 10px;margin-bottom:5px;
   box-shadow:0 2px 5px rgba(0,0,0,.45)}
 .card h3{font-family:var(--serif);font-size:14px;color:#3A2A14;letter-spacing:1px;margin-bottom:4px}
-.sect{font-family:var(--serif);font-size:12px;letter-spacing:3px;color:var(--gold);margin:11px 4px 6px;display:flex;align-items:center;gap:8px}
+.sect{font-family:var(--serif);font-size:12px;letter-spacing:3px;color:var(--gold);margin:8px 4px 5px;display:flex;align-items:center;gap:8px}
 .sect::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--gold2),transparent)}
 .btn{border-radius:9px;font-weight:700;text-align:center;padding:7px 9px;
   background:linear-gradient(#F5D98A,var(--gold));color:#4A3208;border:1px solid var(--gold2);
@@ -249,20 +247,20 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .btn.off,.btn.red.off,.btn.green.off{background:#6E6558;color:#A99F8D;border-color:#57503F;
   box-shadow:0 2px 0 #57503F;pointer-events:none;text-shadow:none}
 .small{font-size:11px;color:var(--brown2)}
-.buybar{display:flex;gap:6px;margin:2px 0 7px}
-.buybar button{flex:1;height:32px;font-size:12px;font-weight:700;color:#BCA57C;
+.buybar{display:flex;gap:6px;margin:2px 0 5px}
+.buybar button{flex:1;height:30px;font-size:12px;font-weight:700;color:#BCA57C;
   background:none;border-radius:0;padding:0;box-sizing:border-box;
   border-style:solid;border-color:transparent;border-width:8px 12px 8px 11px;
   border-image:url(assets/ui/chip_off.png) 25 32 26 31 fill / 8px 12px 8px 11px stretch}
 .buybar button.on{color:#3A2A0E;text-shadow:0 1px 0 rgba(255,246,214,.5);
   border-image:url(assets/ui/chip_on.png) 23 36 23 35 fill / 8px 12px 8px 11px stretch}
-.strow{display:flex;align-items:center;gap:9px}
+.strow{display:flex;align-items:center;gap:7px}
 /* 흑단 판때기 — 원화를 9분할해 어떤 높이로 늘려도 모서리 단청이 안 뭉개진다 */
 .card.strow{background:none;box-shadow:none;color:var(--uiTxt);border-radius:0;
-  border-style:solid;border-color:transparent;border-width:9px 22px 21px 24px;
-  border-image:url(assets/ui/row_plate.png) 19 49 47 53 fill / 9px 22px 21px 24px stretch;
-  padding:2px 5px;margin-bottom:5px;min-height:46px}
-.strow .ico{width:48px;height:48px;flex:none;font-size:21px;box-sizing:border-box;
+  border-style:solid;border-color:transparent;border-width:7px 22px 12px 24px;
+  border-image:url(assets/ui/row_plate.png) 19 49 47 53 fill / 7px 22px 12px 24px stretch;
+  padding:0 5px;margin-bottom:2px;min-height:34px}
+.strow .ico{width:36px;height:36px;flex:none;font-size:17px;box-sizing:border-box;
   display:flex;align-items:center;justify-content:center;background:none;border-radius:0;
   border-style:solid;border-color:transparent;border-width:7px 9px 9px 9px;
   border-image:url(assets/ui/icon_slot.png) 22 27 27 27 fill / 7px 9px 9px 9px stretch}
@@ -272,20 +270,20 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .strow .vv{font-size:11px;color:var(--uiGood);font-weight:700;font-variant-numeric:tabular-nums}
 .strow .sub{font-size:10px;color:var(--uiSub)}
 .strow .small{color:var(--uiSub)}
-.strow .btn{width:112px;height:54px;flex:none;font-size:11px;line-height:1.25;
+.strow .btn{width:100px;height:40px;flex:none;font-size:11px;line-height:1.2;
   color:#4A2F06;text-shadow:0 1px 0 rgba(255,242,205,.55);
   background:none;box-shadow:none;border-radius:0;padding:0 2px;box-sizing:border-box;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  border-style:solid;border-color:transparent;border-width:14px 16px 14px 17px;
-  border-image:url(assets/ui/btn_gold_on.png) 39 44 38 47 fill / 14px 16px 14px 17px stretch}
+  border-style:solid;border-color:transparent;border-width:11px 16px 11px 17px;
+  border-image:url(assets/ui/btn_gold_on.png) 39 44 38 47 fill / 11px 16px 11px 17px stretch}
 .strow .btn:active{transform:none;
-  border-image:url(assets/ui/btn_gold_press.png) 28 49 31 48 fill / 14px 16px 14px 17px stretch}
+  border-image:url(assets/ui/btn_gold_press.png) 28 49 31 48 fill / 11px 16px 11px 17px stretch}
 .strow .btn.off{color:#3B342A;text-shadow:none;background:none;box-shadow:none;
-  border-image:url(assets/ui/btn_gold_off.png) 18 39 32 48 fill / 14px 16px 14px 17px stretch}
+  border-image:url(assets/ui/btn_gold_off.png) 18 39 32 48 fill / 11px 16px 11px 17px stretch}
 .strow .btn b{font-size:12px;display:block;font-variant-numeric:tabular-nums}
 .strow.locked{opacity:.75}
-.togglebar{display:flex;gap:6px;margin-bottom:7px}
-.togglebar button{flex:1;height:42px;font-size:11px;font-weight:700;color:#C0AA80;
+.togglebar{display:flex;gap:6px;margin-bottom:5px}
+.togglebar button{flex:1;height:38px;font-size:11px;font-weight:700;color:#C0AA80;
   background:none;border-radius:0;padding:0;box-sizing:border-box;
   border-style:solid;border-color:transparent;border-width:13px 13px 14px 15px;
   border-image:url(assets/ui/tab_off.png) 19 31 21 34 fill / 13px 13px 14px 15px stretch}
@@ -323,8 +321,8 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
   background:none;box-shadow:none;border-radius:0;box-sizing:border-box;
   border-style:solid;border-color:transparent;border-width:19px 20px 21px 20px;
   border-image:url(assets/ui/hdr_plate.png) 86 89 95 89 fill / 19px 20px 21px 20px stretch;
-  padding:0;margin-bottom:6px}
-.lvrow .ico{width:52px;height:52px;flex:none;box-sizing:border-box;font-size:0;
+  padding:0;margin-bottom:4px}
+.lvrow .ico{width:42px;height:42px;flex:none;box-sizing:border-box;font-size:0;
   background:url(assets/sprites/por_hero_face.png) center/cover;
   border-style:solid;border-color:transparent;border-width:8px 10px 10px 10px;
   border-image:url(assets/ui/icon_slot.png) 22 27 27 27 / 8px 10px 10px 10px stretch}
@@ -332,7 +330,7 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .lvrow .nm{color:var(--uiTxt)}
 .lvrow .small{color:var(--uiSub)}
 .lvrow .pct{float:right;color:var(--uiGood);font-weight:700}
-.lvbtn{flex:none;width:88px;height:58px;font-weight:800;font-size:12px;box-sizing:border-box;
+.lvbtn{flex:none;width:88px;height:46px;font-weight:800;font-size:12px;box-sizing:border-box;
   line-height:1.15;letter-spacing:.5px;color:#0E2A18;text-shadow:0 1px 0 rgba(210,255,225,.5);
   background:none;border-radius:0;padding:0;
   display:flex;align-items:center;justify-content:center;
@@ -544,10 +542,11 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .rel.no{filter:grayscale(1);opacity:.5}
 .rel.eq::after{content:'장착';position:absolute;top:-6px;right:-4px;background:var(--green);color:#fff;font-size:8px;font-weight:700;border-radius:8px;padding:1px 5px}
 .rar0{color:#7A8A6E}.rar1{color:#5C87B5}.rar2{color:#7A5CB5}.rar3{color:#B5722A}.rar4{color:var(--red)}.rar5{color:#C23A6E}.rar6{color:#B8842C}
-.slotrow{display:flex;gap:7px;margin-bottom:7px}
+.slotrow{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:7px}
 .slot{flex:1;aspect-ratio:1;border-radius:12px;border:2px dashed var(--brown2);background:var(--ink3);
   display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:22px;color:#8F7C5C;position:relative}
 .slot .sn{font-size:9px;font-weight:700;color:#CBB98F;line-height:1.1;margin-top:1px}
+.slot .sn.jd{color:var(--goldL)}
 .slot.filled{border-style:solid;border-color:var(--gold2);background:#3A2C1B}
 .slot.lockd{opacity:.45}
 .qcard .prog{height:13px;border-radius:8px;background:#D8C9A4;border:1px solid var(--line);overflow:hidden;margin:6px 0}
@@ -560,9 +559,9 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .statgrid .v{font-weight:700;text-align:right;font-variant-numeric:tabular-nums;color:#33240F}
 nav{flex:none;display:flex;background:none;box-sizing:border-box;
   padding-bottom:env(safe-area-inset-bottom);
-  border-style:solid;border-color:transparent;border-width:13px 17px 21px 28px;
-  border-image:url(assets/ui/navbar.png) 50 67 79 106 fill / 13px 17px 21px 28px stretch}
-nav button{flex:1;padding:6px 0 7px;text-align:center;color:#8F7C5C;font-size:10px;font-weight:700;position:relative}
+  border-style:solid;border-color:transparent;border-width:11px 17px 16px 28px;
+  border-image:url(assets/ui/navbar.png) 50 67 79 106 fill / 11px 17px 16px 28px stretch}
+nav button{flex:1;padding:4px 0 5px;text-align:center;color:#8F7C5C;font-size:10px;font-weight:700;position:relative}
 nav button .e{display:block;font-size:18px;line-height:1.25;filter:grayscale(1) opacity(.7)}
 /* 탭 아이콘 6종 가로 스프라이트 — 6칸이므로 위치는 20%씩 */
 nav button .e.tabi{width:24px;height:24px;margin:0 auto 1px;font-size:0;
@@ -666,13 +665,13 @@ textarea.io{width:100%;height:90px;font-size:11px;border:1px solid var(--line);b
    캔버스는 내부 해상도를 유지한 채 위(하늘)만 잘라 보여주고,
    임무 스트립·장식 띠·행 높이를 줄여 목록 공간을 되찾는다 ── */
 @media (max-height:800px){
-  #cv{height:216px;object-fit:cover;object-position:center bottom}
+  #cv{height:282px}
   #tracker{display:none}
   .danchong{height:4px}
   .card.lvrow{margin-bottom:4px}
 }
 @media (max-height:700px){
-  #cv{height:178px}
+  #cv{height:236px}
   .subtab button{height:36px}
   .buybar button{height:27px}
   .togglebar button{height:36px}
@@ -683,16 +682,14 @@ textarea.io{width:100%;height:90px;font-size:11px;border:1px solid var(--line);b
   #skillbar{padding:3px 8px 1px}
   nav button{padding:4px 0 5px;font-size:9px}
   nav button .e.tabi{width:20px;height:20px}
-  .card.strow{min-height:40px;margin-bottom:4px}
-  .strow .ico{width:42px;height:42px}
-  .strow .btn{height:48px;width:104px}
-  .lvbtn{height:52px;width:80px}
-  .lvrow .ico{width:44px;height:44px}
+  .card.strow{min-height:28px;margin-bottom:2px}
+  .strow .ico{width:32px;height:32px}
+  .strow .btn{height:36px;width:92px}
+  .lvbtn{height:42px;width:80px}
+  .lvrow .ico{width:38px;height:38px}
 }
 @media (max-height:620px){
-  #cv{height:150px}
-  .killbar{top:28px}
-  #goldFloat{top:44px}
+  #cv{height:192px}
 </style>
 </head>
 <body>
@@ -2263,7 +2260,7 @@ function freshState(){
     mumak:{}, mumakEq:-1, compSkin:{},
     mkEnh:{}, mkCube:0, mkSumLv:0, mkSumXp:0,
     raSlots:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null], dice:0,
-    skills:{0:1}, skEq:[0,-1,-1,-1,-1,-1,-1,-1,-1], skCards:{}, skMx:0, slot9:false,
+    skills:{0:1}, skEq:[0,-1,-1,-1,-1,-1,-1,-1,-1], skCards:{}, skMx:0, slot9:false, slotBuy:{},
     aw:{atk:0,hp:0,critd:0,skill:0,gold:0},
     rebirths:0, dao:0, tr:{atk:0,hp:0,gold:0,skill:0},
     stage:1, maxClear:0, kills:0, autoBoss:true, autoSkill:true,
@@ -3057,6 +3054,7 @@ let DPR=1;
 function sizeCanvas(){
   DPR=Math.min(window.devicePixelRatio||1,2);
   W.w=$('sceneWrap').clientWidth||430;
+  W.h=cv.clientHeight||264; W.G=W.h-52; // 지면 아래 띠 52px 고정 — 높이가 커지면 하늘이 늘어난다
   cv.width=W.w*DPR; cv.height=W.h*DPR;
   cx.setTransform(DPR,0,0,DPR,0,0);
 }
@@ -3940,8 +3938,9 @@ function updateSceneUI(){
 const SLOT_GATES=[0,0,0,10,25,45,70,100,-1];    // 9번째(-1)는 구매·레벨로 해방
 function slotLocked(i){
   if(i===8) return !(S.slot9||S.lv>=300);       // 원작: 재화 즉시 확장 or 레벨 자동 해제
-  return SLOT_GATES[i]>0&&S.maxClear<SLOT_GATES[i];
+  return SLOT_GATES[i]>0&&S.maxClear<SLOT_GATES[i]&&!(S.slotBuy&&S.slotBuy[i]);
 }
+function slotJadeCost(i){ return SLOT_GATES[i]*10; } // 층수 게이트 ×10옥 = 100/250/450/700/1000
 function skIco(i){ // 스킬 아이콘 — 28종 원화(skill_ico.png)가 오면 자동 교체
   return W.sk28Ok?gi('sk28',i):ic('k',i,SKILLS[i].e);
 }
@@ -4122,10 +4121,11 @@ function buildSkill(){
       const si=S.skEq[i];
       const locked=slotLocked(i);
       const buy9=i===8&&locked;
-      h+=`<div class="slot ${si>=0&&!locked?'filled':''} ${locked?'lockd':''}" data-a="${buy9?'slot9buy':(locked?'none':'slotpick')}" data-i="${i}" style="cursor:pointer">
+      h+=`<div class="slot ${si>=0&&!locked?'filled':''} ${locked?'lockd':''}" data-a="${buy9?'slot9buy':(locked?'slotbuy':'slotpick')}" data-i="${i}" style="cursor:pointer">
         ${locked?(buy9?'＋':'🔒'):(si>=0?skIco(si):'＋')}
         ${si>=0&&!locked&&SKILLS[si].p?'<span class="plab">PASSIVE</span>':''}
         <span class="sn">${buy9?'확장 (옥 3,000)':(locked?SLOT_GATES[i]+'층 해방':(si>=0?SKILLS[si].n:'슬롯 '+(i+1)))}</span>
+        ${locked&&!buy9?`<span class="sn jd">옥 ${slotJadeCost(i)} 선해방</span>`:''}
       </div>`;
     }
     h+='</div>';
@@ -4255,6 +4255,23 @@ function slot9Ok(){
   snd('reward'); toast('아홉 번째 슬롯이 열렸소!');
   closeModal(); buildSkill(); buildSkillbar(); updateHeader();
 }
+function slotBuyModal(i){ // 층수 게이트 슬롯을 옥으로 미리 연다
+  if(i===8||!slotLocked(i)) return;
+  const cost=slotJadeCost(i);
+  showModal(`<h2>기술 슬롯 선해방</h2>
+    <p class="small" style="text-align:center">${SLOT_GATES[i]}층에 이르면 저절로 열리는 슬롯이오.<br>옥을 들여 지금 바로 여시겠소?</p>
+    <button class="btn red wide ${S.jade>=cost?'':'off'}" data-a="slotbuyok" data-i="${i}">즉시 해방 <b>옥 ${fmt(cost)}</b></button>
+    <button class="btn wide" data-a="close">닫기</button>`);
+}
+function slotBuyOk(i){
+  const cost=slotJadeCost(i);
+  if(i===8||!slotLocked(i)||S.jade<cost) return;
+  S.jade-=cost;
+  if(!S.slotBuy) S.slotBuy={};
+  S.slotBuy[i]=true;
+  snd('reward'); toast('슬롯이 열렸소! ('+SLOT_GATES[i]+'층 선해방)');
+  closeModal(); buildSkill(); buildSkillbar(); updateHeader(); save();
+}
 function skillLockedInfo(i){
   const k=SKILLS[i], c=learnCost(i);
   showModal(`<div class="skdet">
@@ -4272,7 +4289,7 @@ function slotTap(slot){
   const si=S.skEq[slot];
   if(slotLocked(slot)){
     if(slot===8){ slot9Buy(); return; }
-    toast('🔒 '+SLOT_GATES[slot]+'층에서 해방되오'); return;
+    slotBuyModal(slot); return;
   }
   if(si<0){ slotPick(slot); return; }
   if(W.skCd[si]>0.05){ toast('⏳ '+SKILLS[si].n+' 재사용까지 '+W.skCd[si].toFixed(1)+'초'); return; }
@@ -5982,7 +5999,7 @@ function act(a,i){
       S.compSkin[ci]=k; snd('reward'); compDetail(ci,2); } break;
     case 'skdet': skillDetail(+i); break;
     case 'skauto': S.skAuto[+i]=(S.skAuto[+i]===0?1:0); skillDetail(+i); break;
-    case 'skslotpick': { const fi=S.skEq.findIndex((v,k)=>v<0&&!(SLOT_GATES[k]>0&&S.maxClear<SLOT_GATES[k]));
+    case 'skslotpick': { const fi=S.skEq.findIndex((v,k)=>v<0&&!slotLocked(k));
       if(fi<0){ toast('빈 슬롯이 없소'); } else { equipSkill(fi,+i); closeModal(); } } break;
     case 'skilllearn': skillLearnModal(); break;
     case 'regionsel': regionSel(); break;
@@ -6009,6 +6026,8 @@ function act(a,i){
     case 'sklocked': skillLockedInfo(+i); break;
     case 'slot9buy': slot9Buy(); break;
     case 'slot9ok': slot9Ok(); break;
+    case 'slotbuy': slotBuyModal(+i); break;
+    case 'slotbuyok': slotBuyOk(+i); break;
     case 'compview': compDetail(null,+i); break;
     case 'cpup': { const [a2,b2]=i.split('_').map(Number); cpUp(a2,b2); } break;
     case 'coopen': { const [a3,b3]=i.split('_').map(Number); coOpen(a3,b3); } break;
@@ -6281,6 +6300,7 @@ document.addEventListener('visibilitychange',()=>{
 window.addEventListener('beforeunload',save);
 window.addEventListener('pagehide',save);
 window.addEventListener('resize',sizeCanvas);
+if(window.ResizeObserver) new ResizeObserver(sizeCanvas).observe(cv); // CSS 높이 변화(브레이크포인트·주소창)도 즉시 반영
 (function init(){
   S=load();
   const isNew=!S;
