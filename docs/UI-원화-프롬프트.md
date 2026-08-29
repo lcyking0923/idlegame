@@ -111,44 +111,72 @@ circular game HUD button base, dark bronze medallion ring with braided rope text
 
 ---
 
-# 동료 달리기 자세 (추가 요청분)
+# 매향 달리기 그림 (4장)
 
-동료 4명은 지금 **대기 / 시위 당김 / 발사 / 마무리** 4장만 있고 **달리는 자세가 없다.**
-그래서 주인공이 이동할 때 대기 자세 그대로 위아래로만 흔들려 "떠다니는" 느낌이 난다.
-(코드에서 앞으로 기울이기·흔들림을 넣어 완화해 두었지만, 제대로 고치려면 달리는 그림이 필요하다.)
+지금 동료에게는 **대기 / 시위 당김 / 발사 / 마무리** 4장만 있고 **달리는 그림이 없다.**
+그래서 주인공이 이동할 때 대기 자세 그대로 위아래로만 흔들려 공중에 떠 보인다.
+(코드로 앞으로 기울이기·흔들림을 넣어 완화해 두었지만, 근본 해결은 그림이다.)
 
 ## 받을 것
 
-동료 4명 × **달리기 2장**(발이 엇갈린 두 순간) = 8장.
-한 명분만 먼저 만들어 보내주셔도 됩니다.
+**매향 달리기 4장.** 주인공은 6장을 쓰지만 동료는 뒤쪽에 작게 나오므로 4장이면 충분하다.
 
 | 항목 | 값 |
 |------|-----|
-| 크기 | 세로 **220px** 정도, 가로는 자유 · **투명 배경 PNG** |
-| 파일명 | `run_매향_1.png`, `run_매향_2.png` (다른 동료도 이름만 바꿔서) |
+| 장수 | **4장** (2장만 만들어도 붙일 수는 있으나 뚝뚝 끊겨 보인다) |
+| 크기 | 세로 **400px 이상**, 가로 자유 · **투명 배경 PNG** (제가 맞춰 줄입니다) |
+| 파일명 | `run1.png` `run2.png` `run3.png` `run4.png` |
 | 방향 | **오른쪽을 보게** — 기존 그림과 같은 방향 |
-| 화풍 | 기존 `comps.png` 와 같은 화풍·같은 몸 비율·같은 옷 |
+| 기준 | 네 장 모두 **키·머리 위치·화풍**이 같아야 한다. 발 높이만 달라야 함 |
 
-> 보내주시면 제가 기존 아틀라스(`comps.png` + `comps.json`)에 이어 붙이고
-> 달릴 때 두 장을 번갈아 쓰도록 연결하겠습니다.
+> 다운로드 폴더에 넣어주시면 기존 아틀라스(`comps.png` + `comps.json`)에 이어 붙이고
+> 달릴 때 네 장이 순환하도록 연결하겠습니다.
 
-## 매향 (신궁 · 초록 저고리에 흰 치마, 활을 든 여인)
+## 인물 고정 문구 (네 장 모두 공통)
 
-**1번 — 발을 앞으로 뻗은 순간**
+아래 문장을 **네 프롬프트 앞에 똑같이** 두면 인물이 흔들리지 않는다.
+
 ```
-2D game side-view sprite of a young Korean archer woman running to the right, mid-stride with her front leg extended forward and back leg pushed off the ground, long white hanbok skirt and green jeogori jacket flowing backward from the speed, bow held low in her left hand, hair ribbon streaming behind, determined expression, painterly semi-realistic anime style, clean crisp edges, full body, facing right, no text, no background, transparent background
-```
-
-**2번 — 발이 모이며 몸이 떠오른 순간**
-```
-2D game side-view sprite of a young Korean archer woman running to the right, at the airborne moment of the stride with both legs gathered under her body, white hanbok skirt billowing upward, green jeogori jacket, bow held low in her left hand, hair ribbon streaming behind, painterly semi-realistic anime style, clean crisp edges, full body, facing right, no text, no background, transparent background
+2D game side-view sprite of the same young Korean female archer character, black hair tied back with a teal-green ribbon streaming behind, cream white jeogori jacket, long layered dark-green hanbok skirt, dark boots, a wooden bow held down in her left hand, painterly semi-realistic anime game art, clean crisp edges, full body, facing right, consistent height and proportions, no text, no background, transparent background
 ```
 
-다른 동료 3명은 위 문장에서 **인물 설명만 바꾸면** 됩니다:
+## 네 장의 자세
 
-| 동료 | 바꿔 넣을 설명 |
+**run1.png — 오른발이 땅에 닿는 순간**
+```
+running to the right, right foot planted forward on the ground, left leg trailing far behind, torso leaned slightly forward, skirt swept backward
+```
+
+**run2.png — 몸이 가장 낮게 눌리는 순간**
+```
+running to the right, body at its lowest point with the supporting knee bent deeply, other leg starting to swing forward, skirt pressed down, shoulders low
+```
+
+**run3.png — 두 발이 모여 몸이 떠오른 순간**
+```
+running to the right, airborne mid-stride with both legs gathered under the body and neither foot touching the ground, skirt billowing upward, hair ribbon lifted
+```
+
+**run4.png — 왼발이 땅에 닿는 순간**
+```
+running to the right, left foot planted forward on the ground, right leg trailing far behind, torso leaned slightly forward, skirt swept backward
+```
+
+> 붙이는 법: 인물 고정 문구 + 자세 문장 하나를 이어 붙여 한 번에 넣으면 된다.
+> 예) `2D game side-view sprite of the same young Korean female archer ... transparent background, running to the right, right foot planted forward ...`
+
+## 확인할 점
+
+- 네 장을 나란히 놓았을 때 **머리 높이가 들쭉날쭉하면 안 된다** (run3만 조금 높으면 정상)
+- 활은 **쏘는 자세가 아니라 손에 들고 달리는** 모습이어야 한다
+- 배경은 완전 투명. 흰 배경으로 나오면 지우고 저장할 것
+
+## 다른 동료도 만들 때
+
+인물 고정 문구의 사람 묘사만 바꾸면 된다.
+
+| 동료 | 바꿔 넣을 묘사 |
 |------|----------------|
-| 역사(力士) | a burly Korean strongman warrior running to the right, bare muscular arms, wide trousers, heavy club on his shoulder |
-| 장사치 | a Korean merchant man running to the right, carrying a bundled pack on his back, coin pouch swinging at his waist |
-| 도인 | an old Korean taoist sage running to the right, long grey beard and flowing robe, wooden staff in hand |
-
+| 역사(力士) | a burly Korean strongman, bare muscular arms, wide dark trousers, a heavy club resting on his shoulder |
+| 장사치 | a Korean merchant man, bundled pack on his back, coin pouch at his waist, straw hat |
+| 도인 | an old Korean taoist sage, long grey beard, flowing pale robe, wooden staff in hand |
