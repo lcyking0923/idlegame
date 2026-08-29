@@ -108,3 +108,47 @@ circular game HUD button base, dark bronze medallion ring with braided rope text
 - **512px 원본을 40px로 줄여도** 형태가 뭉개지지 않아야 한다 (특히 ④ 동그란 버튼)
 - 배경은 **완전 투명**(알파)이어야 한다. 흰 배경으로 나오면 지워서 저장할 것
 - 그림자를 그림 바깥에 넣지 말 것 — 9분할로 늘리면 그림자가 이상하게 늘어난다
+
+---
+
+# 동료 달리기 자세 (추가 요청분)
+
+동료 4명은 지금 **대기 / 시위 당김 / 발사 / 마무리** 4장만 있고 **달리는 자세가 없다.**
+그래서 주인공이 이동할 때 대기 자세 그대로 위아래로만 흔들려 "떠다니는" 느낌이 난다.
+(코드에서 앞으로 기울이기·흔들림을 넣어 완화해 두었지만, 제대로 고치려면 달리는 그림이 필요하다.)
+
+## 받을 것
+
+동료 4명 × **달리기 2장**(발이 엇갈린 두 순간) = 8장.
+한 명분만 먼저 만들어 보내주셔도 됩니다.
+
+| 항목 | 값 |
+|------|-----|
+| 크기 | 세로 **220px** 정도, 가로는 자유 · **투명 배경 PNG** |
+| 파일명 | `run_매향_1.png`, `run_매향_2.png` (다른 동료도 이름만 바꿔서) |
+| 방향 | **오른쪽을 보게** — 기존 그림과 같은 방향 |
+| 화풍 | 기존 `comps.png` 와 같은 화풍·같은 몸 비율·같은 옷 |
+
+> 보내주시면 제가 기존 아틀라스(`comps.png` + `comps.json`)에 이어 붙이고
+> 달릴 때 두 장을 번갈아 쓰도록 연결하겠습니다.
+
+## 매향 (신궁 · 초록 저고리에 흰 치마, 활을 든 여인)
+
+**1번 — 발을 앞으로 뻗은 순간**
+```
+2D game side-view sprite of a young Korean archer woman running to the right, mid-stride with her front leg extended forward and back leg pushed off the ground, long white hanbok skirt and green jeogori jacket flowing backward from the speed, bow held low in her left hand, hair ribbon streaming behind, determined expression, painterly semi-realistic anime style, clean crisp edges, full body, facing right, no text, no background, transparent background
+```
+
+**2번 — 발이 모이며 몸이 떠오른 순간**
+```
+2D game side-view sprite of a young Korean archer woman running to the right, at the airborne moment of the stride with both legs gathered under her body, white hanbok skirt billowing upward, green jeogori jacket, bow held low in her left hand, hair ribbon streaming behind, painterly semi-realistic anime style, clean crisp edges, full body, facing right, no text, no background, transparent background
+```
+
+다른 동료 3명은 위 문장에서 **인물 설명만 바꾸면** 됩니다:
+
+| 동료 | 바꿔 넣을 설명 |
+|------|----------------|
+| 역사(力士) | a burly Korean strongman warrior running to the right, bare muscular arms, wide trousers, heavy club on his shoulder |
+| 장사치 | a Korean merchant man running to the right, carrying a bundled pack on his back, coin pouch swinging at his waist |
+| 도인 | an old Korean taoist sage running to the right, long grey beard and flowing robe, wooden staff in hand |
+

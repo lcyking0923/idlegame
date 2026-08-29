@@ -411,7 +411,8 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .cdhead{text-align:center;margin:2px 0 8px}
 .cdhead .cdname{display:inline-block;background:var(--ink3);color:var(--goldL);
   border:1px solid var(--gold2);border-radius:7px;padding:2px 14px;font-family:var(--serif);margin:2px 0}
-.cdhead .cface.big{font-size:44px;line-height:1.1;margin:4px 0}
+.cdhead .cface.big{width:76px;height:76px;margin:4px auto;
+  filter:drop-shadow(0 3px 4px rgba(0,0,0,.55))}
 .compstage .cbar{position:relative}
 .compstage .cbar b{position:absolute;inset:0;font-size:7px;line-height:9px;color:#fff;text-shadow:0 1px 1px #000}
 /* 장비 4분할 — 참고 게임처럼 4열 격자에 등급·N 뱃지·진행바 */
@@ -614,15 +615,18 @@ body.ui-modal #modal{
 body.ui-title #modal h2{
   color:#F2CE7B;text-shadow:0 2px 3px rgba(0,0,0,.75);box-sizing:border-box;
   border-style:solid;border-color:transparent;
-  border-width:24px 58px 27px 58px;
-  border-image:url(assets/ui/modal_title.png) 44 128 52 128 fill / 24px 58px 27px 58px stretch;
-  padding:0;margin:0 0 8px}
+  border-width:22px 46px 25px 46px;
+  border-image:url(assets/ui/modal_title.png) 44 128 52 128 fill / 22px 46px 25px 46px stretch;
+  padding:0 2px;margin:0 0 8px;font-size:17px;letter-spacing:1px}
 body.ui-btn #modal .btn.wide{
   background:none;box-shadow:none;border-radius:0;box-sizing:border-box;
   color:#FFF0D0;text-shadow:0 1px 2px rgba(0,0,0,.6);
   border-style:solid;border-color:transparent;
   border-width:20px 60px 22px 60px;
   border-image:url(assets/ui/btn_menu.png) 34 102 39 102 fill / 20px 60px 22px 60px stretch}
+/* 나란히 놓인 버튼은 세로로 쌓는다 — 좌우 단청 장식이 60px씩 차지해
+   좁은 폭에서는 글자가 한 자씩 끊긴다 */
+body.ui-btn #modal .btnrow{flex-direction:column;gap:0}
 body.ui-btnp #modal .btn.wide:active{
   transform:none;
   border-image:url(assets/ui/btn_menu_press.png) 33 102 33 102 fill / 20px 60px 22px 60px stretch}
@@ -1676,18 +1680,22 @@ const CompSpr={
       const arr=this.F[i]; if(!arr) continue;
       // 주인공 뒤쪽 위로 물러서게 (2.5D 깊이). 서로 겹치지 않게 간격을 벌린다
       const x=h.x-26-i*19, gy=W.G-10-i*8;
+      const cs=W.comps[i];
       let fi=0;
-      if(W.running){
-        fi=0;                                   // 달릴 땐 따라오기만 — 공격 동작을 취하지 않는다
-      }else if(h.swing>0){
-        fi=Math.min(arr.length-1,1+Math.floor((1-h.swing)*3)); // 교전 중 주인공이 벨 때만 함께 친다
+      if(!W.running&&cs&&cs.anim>0){            // 제 박자로 활을 당기고 놓는다
+        const k=1-cs.anim/0.52;                 // 0 → 1
+        fi=Math.min(arr.length-1,1+Math.floor(k*3));
       }
       const f=arr[fi], s=1/this.sc;
-      const bob=W.running?Math.abs(Math.sin(h.run*9+i*1.7))*3:0; // 달릴 땐 위아래로만 흔들린다
+      // 달릴 때: 위아래로 흔들리고 앞으로 기울여 '떠 있는' 느낌을 없앤다
+      const bob=W.running?Math.abs(Math.sin(h.run*9+i*1.7))*4:0;
+      const lean=W.running?0.07+Math.sin(h.run*9+i*1.7)*0.03:0;
+      const sway=W.running?Math.sin(h.run*4.5+i*1.7)*1.6:0;
       cx.save();
       cx.globalAlpha=0.85-i*0.07;               // 뒤로 갈수록 옅게 (원근)
+      if(lean){ cx.translate(x,gy); cx.rotate(lean); cx.translate(-x,-gy); }
       cx.drawImage(this.img,f.x,f.y,f.w,f.h,
-        Math.round(x-f.ox*s), Math.round(gy-f.oy*s-bob), f.w*s, f.h*s);
+        Math.round(x-f.ox*s+sway), Math.round(gy-f.oy*s-bob), f.w*s, f.h*s);
       cx.restore();
     }
   },
@@ -2672,6 +2680,7 @@ const W={
   dmgs:[],parts:[],projs:[],hits:[],coins:[],slashes:[],amb:[],lines:[],fx:[],
   clouds:[{x:60,y:34,s:1},{x:230,y:20,s:.7},{x:360,y:44,s:1.2}],
   tapCd:0, skCd:[0,0,0,0,0,0,0,0],
+  comps:[],                                   // 동료마다 제 박자로 공격한다
 };
 function curStageN(){ return W.mode==='dungeon'&&W.dg&&W.dg.id!=='rankup'?6*W.dg.lvl+4:S.stage; }
 function spawnPack(){
@@ -2990,6 +2999,25 @@ function update(dt){
         burst(W.spirit.dashX,W.G-40,'#9FE8C0',7);
       }
       if(W.spirit.dash<0) W.spirit.dash=0;
+    }
+  }
+  // 동료 — 주인공 칼질을 따라 하지 않고 저마다의 박자로 싸운다.
+  // 매향(신궁)은 활을 쏘고, 나머지는 근접해 친다. 영물 장착 여부와 무관하다.
+  if(front&&front.state==='fight'&&h.dead<=0&&!W.running){
+    for(let ci=0;ci<COMPS.length;ci++){
+      if(S.maxClear+1<COMPS[ci].un) continue;
+      let cs=W.comps[ci]; if(!cs) cs=W.comps[ci]={atkT:1+ci*0.35,anim:0};
+      if(cs.anim>0){
+        const was=cs.anim; cs.anim-=dt;
+        if(was>0.26&&cs.anim<=0.26){                    // 시위를 놓는 순간
+          const cx0=h.x-26-ci*19, cy0=W.G-10-ci*8;
+          if(ci===0) W.projs.push({x:cx0+16,y:cy0-30,v:520,dmg:heroAtk()*0.35,el:null,t:0,arrow:true});
+          else { const f3=frontEnemy(); if(f3) hitEnemy(f3,heroAtk()*0.3,{noSlash:true}); }
+        }
+      }else{
+        cs.atkT-=dt;
+        if(cs.atkT<=0){ cs.atkT=2.4+ci*0.5; cs.anim=0.52; }
+      }
     }
   }
   // 회복
@@ -3347,11 +3375,27 @@ function draw(){
   for(let i=W.enemies.length-1;i>=0;i--) drawMonster(W.enemies[i]);
   // 투사체(검기)
   for(const p of W.projs){
-    cx.save(); cx.globalCompositeOperation='lighter';
-    cx.strokeStyle='rgba(190,235,255,.9)'; cx.lineWidth=4;
-    cx.beginPath(); cx.arc(p.x,G-38,16,-1.2,1.2); cx.stroke();
-    cx.strokeStyle='rgba(190,235,255,.35)'; cx.lineWidth=9;
-    cx.beginPath(); cx.arc(p.x-9,G-38,15,-1,1); cx.stroke();
+    cx.save();
+    if(p.arrow){                                 // 매향의 화살 — 살대 + 촉 + 꼬리 잔광
+      const ay=p.y!=null?p.y:G-38;
+      cx.globalCompositeOperation='lighter';
+      cx.strokeStyle='rgba(180,240,200,.35)'; cx.lineWidth=5;
+      cx.beginPath(); cx.moveTo(p.x-26,ay); cx.lineTo(p.x,ay); cx.stroke();
+      cx.globalCompositeOperation='source-over';
+      cx.strokeStyle='#E8DFC2'; cx.lineWidth=2;
+      cx.beginPath(); cx.moveTo(p.x-14,ay); cx.lineTo(p.x+6,ay); cx.stroke();
+      cx.fillStyle='#9FE8C0';
+      cx.beginPath(); cx.moveTo(p.x+12,ay); cx.lineTo(p.x+4,ay-4); cx.lineTo(p.x+4,ay+4); cx.closePath(); cx.fill();
+      cx.strokeStyle='#C8BFA8'; cx.lineWidth=1.5;
+      cx.beginPath(); cx.moveTo(p.x-14,ay); cx.lineTo(p.x-19,ay-4);
+      cx.moveTo(p.x-14,ay); cx.lineTo(p.x-19,ay+4); cx.stroke();
+    }else{
+      cx.globalCompositeOperation='lighter';
+      cx.strokeStyle='rgba(190,235,255,.9)'; cx.lineWidth=4;
+      cx.beginPath(); cx.arc(p.x,G-38,16,-1.2,1.2); cx.stroke();
+      cx.strokeStyle='rgba(190,235,255,.35)'; cx.lineWidth=9;
+      cx.beginPath(); cx.arc(p.x-9,G-38,15,-1,1); cx.stroke();
+    }
     cx.restore();
   }
   // ── 기술 이펙트 (주인공 뒤) ──
@@ -4434,7 +4478,7 @@ function skillDetail(i){
     ${k.p&&k.p.per==='mantra'
       ?'<p class="demo-note">이 심법은 슬롯 없이도 늘 발휘되오</p>'
       :`<button class="btn wide" data-a="skslotpick" data-i="${i}">슬롯에 장착</button>`}
-    <div style="display:flex;gap:6px">
+    <div class="btnrow" style="display:flex;gap:6px">
       <button class="btn wide" data-a="gosummon" style="margin-top:6px">🌀 비급 얻기 (소환)</button>
       <button class="btn wide" data-a="cardfuse" style="margin-top:6px">🧬 비급 합성</button></div>
     <button class="btn wide" data-a="close">닫기</button>`);
@@ -4531,7 +4575,7 @@ function skillLockedInfo(i){
     ${canLearn(i)?`<button class="btn red wide" data-a="learnsk" data-i="${i}">배우기</button>`:''}
     ${SKILLS[i].r>=6
       ?`<button class="btn wide" data-a="cardfuse">🧬 신화 비급 합성하러 가기</button>`
-      :`<div style="display:flex;gap:6px">
+      :`<div class="btnrow" style="display:flex;gap:6px">
         <button class="btn wide" data-a="gosummon" style="margin-top:6px">🌀 기술 소환하러</button>
         <button class="btn wide" data-a="cardfuse" style="margin-top:6px">🧬 비급 합성</button></div>`}
     <button class="btn wide" data-a="close">닫기</button>`);
@@ -4803,7 +4847,7 @@ function compDetail(i,view){
   <div class="cdhead">
     <div class="small">${COMP_JOB[ci]}</div>
     <div class="cdname">${c.n}</div>
-    <div class="cface big">${c.e}</div>
+    <div class="cface big"><i class="cfi" style="--ci:${ci}"></i></div>
     <div class="small">Lv.${compLv(ci)}</div>
   </div>`;
 
@@ -5131,12 +5175,12 @@ function dragonModal(sel){
     h+='</div><div><div class="sect" style="margin-top:0">새 힘</div>';
     DR_ST.forEach(d=>{ h+=drRow(d,W.drNew[d[0]]); });
     h+='</div></div>';
-    h+=`<div style="display:flex;gap:6px">
+    h+=`<div class="btnrow" style="display:flex;gap:6px">
       <button class="btn wide" data-a="drkeep" style="margin-top:6px">이전 유지</button>
       <button class="btn red wide" data-a="drtake" style="margin-top:6px">새 힘 선택</button></div>`;
   }else{
     DR_ST.forEach(d=>{ h+=`<div class="card" style="padding:6px 11px">${drRow(d,slot[d[0]])}</div>`; });
-    h+=`<div style="display:flex;gap:6px">
+    h+=`<div class="btnrow" style="display:flex;gap:6px">
       <button class="btn wide ${S.yong>=10?'':'off'}" data-a="drreset" style="margin-top:6px">리셋 <b>용린 10</b></button>
       <button class="btn red wide ${S.yong>=30?'':'off'}" data-a="drhreset" style="margin-top:6px">고급 리셋 <b>용린 30</b></button></div>
     <p class="demo-note" style="margin-top:6px">리셋은 즉시 새로 굴리고, 고급 리셋은 이전과 비교해 고를 수 있소</p>`;
@@ -5720,11 +5764,11 @@ function settingsModal(){
       <div class="volrow"><span class="vic">🔊</span><input type="range" min="0" max="100" value="${Math.round((S.volS??0.6)*100)}" oninput="setVolS(this.value)"><span class="small" style="width:34px">효과음</span></div>
     </div>
     <p class="small" style="text-align:center">${S.login?(S.login.t==='google'?'🌐 Google 계정 (데모)':'👤 게스트')+' · '+S.login.name:'미로그인'}</p>
-    <div style="display:flex;gap:6px">
+    <div class="btnrow" style="display:flex;gap:6px">
       <button class="btn wide" data-a="savenow" style="margin-top:0">💾 저장</button>
       <button class="btn wide" data-a="expo" style="margin-top:0">📤 백업</button>
     </div>
-    <div style="display:flex;gap:6px">
+    <div class="btnrow" style="display:flex;gap:6px">
       <button class="btn wide" data-a="logout" style="margin-top:6px">🚪 로그아웃</button>
       <button class="btn red wide" data-a="reset" style="margin-top:6px">🗑️ 초기화</button>
     </div>
@@ -6496,7 +6540,7 @@ function offlineModal(gain,dur){
     <div class="card" style="flex:1;text-align:center;margin:0"><div style="font-size:20px">📘</div><b>${fmt(offlineExpPending)}</b></div>
   </div>
   <p class="demo-note">자동사냥 보상은 현재 사냥 층 기준으로 결정됩니다.</p>
-  <div style="display:flex;gap:6px">
+  <div class="btnrow" style="display:flex;gap:6px">
     <button class="btn wide" data-a="offtake" style="margin-top:0">보상 받기</button>
     <button class="btn red wide" data-a="offtake2" style="margin-top:0">📺 추가 보상 받기 <b>+30%</b></button>
   </div>`));
