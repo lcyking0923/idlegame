@@ -608,24 +608,24 @@ nav button .dot.on{display:block}
 body.ui-modal #modal{
   background:none;border:0;border-radius:0;box-shadow:none;box-sizing:border-box;
   border-style:solid;border-color:transparent;
-  border-width:28px 24px 28px 24px;
-  border-image:url(assets/ui/modal_frame.png) 56 48 56 48 fill / 28px 24px 28px 24px stretch;
+  border-width:28px 28px 30px 30px;
+  border-image:url(assets/ui/modal_frame.png) 56 57 60 60 fill / 28px 28px 30px 30px stretch;
   padding:2px}
 body.ui-title #modal h2{
   color:#F2CE7B;text-shadow:0 2px 3px rgba(0,0,0,.75);box-sizing:border-box;
   border-style:solid;border-color:transparent;
-  border-width:17px 32px 17px 32px;
-  border-image:url(assets/ui/modal_title.png) 34 64 34 64 fill / 17px 32px 17px 32px stretch;
+  border-width:24px 58px 27px 58px;
+  border-image:url(assets/ui/modal_title.png) 44 128 52 128 fill / 24px 58px 27px 58px stretch;
   padding:0;margin:0 0 8px}
 body.ui-btn #modal .btn.wide{
   background:none;box-shadow:none;border-radius:0;box-sizing:border-box;
   color:#FFF0D0;text-shadow:0 1px 2px rgba(0,0,0,.6);
   border-style:solid;border-color:transparent;
-  border-width:16px 28px 18px 28px;
-  border-image:url(assets/ui/btn_menu.png) 32 56 36 56 fill / 16px 28px 18px 28px stretch}
+  border-width:20px 60px 22px 60px;
+  border-image:url(assets/ui/btn_menu.png) 34 102 39 102 fill / 20px 60px 22px 60px stretch}
 body.ui-btnp #modal .btn.wide:active{
   transform:none;
-  border-image:url(assets/ui/btn_menu_press.png) 32 56 36 56 fill / 16px 28px 18px 28px stretch}
+  border-image:url(assets/ui/btn_menu_press.png) 33 102 33 102 fill / 20px 60px 22px 60px stretch}
 body.ui-vig #overlay{background:rgba(10,7,4,.78) url(assets/ui/overlay_vignette.png) center/cover no-repeat}
 body.ui-hud #questBtn,body.ui-hud #mailBtn{
   background:url(assets/ui/hud_btn.png) center/100% 100% no-repeat;
@@ -4147,13 +4147,18 @@ function slotJadeCost(i){ return [0,0,0,50,150,400,1000,2000][i]||0; } // 원작
 /* 기술 아이콘 낱장 원화 — assets/ui/sk/<번호>.png 를 넣으면 그 기술만 즉시 교체된다.
    (한 장짜리 시트 assets/ui/skill_ico.png 도 그대로 지원 — 낱장이 우선) */
 const SkOne={
-  ok:{}, _t:null,
-  probe(){
-    for(let i=0;i<SKILLS.length;i++)(n=>{
-      const im=new Image();
-      im.onload=()=>{ this.ok[n]=1; this.refresh(); };
-      im.src=av('assets/ui/sk/'+n+'.png');
-    })(i);
+  ok:{}, tried:{}, _t:null,
+  probe(list){ // 목록을 주면 그것만, 없으면 전부 (한 번 시도한 것은 다시 받지 않는다)
+    const arr=list||SKILLS.map((k,i)=>i);
+    for(const n of arr){
+      if(n<0||this.tried[n]) continue;
+      this.tried[n]=1;
+      ((m)=>{
+        const im=new Image();
+        im.onload=()=>{ this.ok[m]=1; this.refresh(); };
+        im.src=av('assets/ui/sk/'+m+'.png');
+      })(n);
+    }
   },
   refresh(){ // 여러 장이 한꺼번에 도착해도 다시 그리기는 한 번만
     clearTimeout(this._t);
@@ -4332,6 +4337,7 @@ function spBuy(i){
 
 /* ═══════════ 스킬 탭 ═══════════ */
 function buildSkill(){
+  SkOne.probe();                      // 목록을 펼칠 때 나머지 아이콘도 받는다
   let h=`<div class="togglebar">
     <button data-a="autoskill" class="${S.autoSkill?'on':''}">기술 자동 발동 ${S.autoSkill?'켬':'끔'}</button>
   </div>`;
@@ -6573,7 +6579,7 @@ if(window.ResizeObserver) new ResizeObserver(sizeCanvas).observe(cv); // CSS 높
   buildStat(); buildSkillbar(); updateHeader(); updateSceneUI(); updateQuestHud(); switchTab('char');
   SFXF.init(); // 실제 칼소리 파일 로드 시도 (없으면 합성음 폴백)
   HeroSpr.load(); // 주인공 원화 스프라이트 (없으면 벡터 검객 유지)
-  SkOne.probe();  // 기술 아이콘 낱장 원화 탐색
+  SkOne.probe(S.skEq);  // 장착한 기술 아이콘만 먼저 받는다 (나머지는 스킬 탭에서)
   /* 원화 UI 파일이 있으면 자동으로 켠다 — 없으면 조용히 지금 디자인 유지 */
   [['modal_frame','ui-modal'],['modal_title','ui-title'],
    ['btn_menu','ui-btn'],['btn_menu_press','ui-btnp'],['hud_btn','ui-hud'],
