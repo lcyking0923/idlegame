@@ -111,54 +111,73 @@ circular game HUD button base, dark bronze medallion ring with braided rope text
 
 ---
 
-# 매향 달리기 그림 — 한 장에 4컷 (권장)
+# 매향 새 디자인 — 한 장에 4컷씩
 
-한 장씩 따로 뽑으면 얼굴·옷·키가 매번 달라진다. **한 이미지 안에 4컷을 나란히** 그리게 하면
-같은 인물이 유지된다. 아래 프롬프트 하나만 넣으면 된다.
+새로 뽑은 달리기 4컷의 화풍이 기존 매향보다 훨씬 좋아, **매향을 이 화풍으로 새로 통일한다.**
+
+- 이미 받은 **달리기 4컷은 그대로 쓴다** (다시 만들 필요 없음). 이것이 새 기준이다.
+- 남은 것은 **활 쏘기 4컷**과 **얼굴 초상 1장**.
+- 배경은 계속 **자홍색 #FF00FF** 로 받는다 (제가 깨끗이 지웁니다).
+
+> ⚠️ 매향만 새 화풍이 되면 다른 동료 3명(역사·장사치·도인)과 화풍이 어긋난다.
+> 지금은 매향만 해도 되지만, 나중에 나머지도 같은 인물 고정 문구로 다시 뽑는 것을 권한다.
+
+---
+
+## 인물 고정 문구 (모든 시트 앞에 그대로)
+
+받으신 달리기 4컷 이미지를 **참고 이미지로 함께 첨부**하면 더 정확하다.
+
+```
+The character is a young Korean female archer, always facing right in side view. Black hair pulled into a high ponytail tied with a teal-green ribbon that streams behind her. Ivory white hanbok blouse with wide sleeves and a dark green collar band. A deep teal-green wrap skirt with gold vine embroidery along the hem, layered over a cream ruffled underskirt. A dark leather quiver of arrows on her back, a green sash at her waist, dark brown leather boots. She carries a wooden recurve bow. Painterly semi-realistic anime game art, detailed fabric folds, soft rim light, clean crisp edges, full body, strong readable silhouette.
+```
+
+---
+
+## 시트 A — 활 쏘기 4컷 (`매향_공격.png`)
+
+인물 고정 문구 뒤에 아래를 이어 붙인다.
+
+```
+A single wide image containing exactly 4 sprites of this SAME character in one horizontal row, evenly spaced, all at exactly the same scale, feet resting on one shared invisible ground line, heads at the same height. It is a 4-step archery attack sequence read left to right.
+
+Frame 1: standing at rest, weight settled, the bow held down at her side in one hand, calm ready expression.
+Frame 2: drawing the bow, both arms raised, bowstring pulled back to her cheek, an arrow nocked and aimed forward to the right, body braced.
+Frame 3: the instant of release, bowstring snapped straight, drawing hand flung open behind her cheek, the arrow just leaving the bow flying to the right, bow arm still extended forward.
+Frame 4: follow-through, arms lowering, body relaxing back toward the resting stance, arrow already gone.
+
+Background must be SOLID PURE MAGENTA #FF00FF, completely flat, filling every pixel around and between the figures. No panel borders, no dividing lines, no ground shadows, no glowing energy effects, no magic aura. No text, no numbers, no labels, no watermark.
+```
+
+> **`no glowing energy effects, no magic aura` 를 꼭 넣을 것.** 기존 매향의 3번째 컷이
+> 초록 기운을 크게 흘려서, 게임 크기(50px)로 줄면 칼을 휘두르는 것처럼 보였다.
+> 화살은 초록 빛덩이가 아니라 **평범한 화살**이어야 활 쏘는 동작으로 읽힌다.
+
+---
+
+## 시트 B — 얼굴 초상 (`매향_얼굴.png`)
+
+동료 목록과 상세창에 쓰는 얼굴. 한 장이면 된다.
+
+```
+A single portrait of this SAME character from the chest up, turned three-quarters toward the viewer, calm confident expression, the top of her bow visible over one shoulder. Same painterly semi-realistic anime game art. Centered, head and shoulders filling the frame.
+
+Background must be SOLID PURE MAGENTA #FF00FF, completely flat. No text, no border, no watermark.
+```
+
+---
+
+## 확인할 것
+
+- 활 쏘기 4컷의 **키·머리 높이가 서로 같은가**
+- 달리기 시트의 인물과 **같은 사람으로 보이는가** (옷 색·리본·화살통)
+- 3번 컷에 **빛나는 초록 기운이 없는가** — 평범한 화살이어야 한다
+- 배경이 **균일한 자홍색**인가 (그라데이션이면 지울 때 지저분해진다)
+
+한 컷만 어색해도 **그 컷만 다시 뽑지 말고 시트 전체를 다시 돌릴 것.**
 
 ## 넣는 법
 
-1. 아래 프롬프트를 그대로 붙여넣는다
-2. 가능하면 **`매향_참고_대기.png`** 를 이미지 참고로 함께 첨부한다 (인물이 훨씬 정확해진다)
-3. 나온 한 장을 그대로 다운로드 폴더에 **`매향_달리기.png`** 로 저장한다
-   → 제가 4컷을 잘라 아틀라스에 붙이겠습니다
-
-## 프롬프트 (한 장에 4컷)
-
-```
-A single wide image containing exactly 4 side-view game sprites of the SAME young Korean female archer, arranged in one horizontal row, evenly spaced, all drawn at exactly the same scale with their feet resting on one shared invisible ground line and their heads at the same height. It is a 4-frame running animation cycle of one character, read left to right.
-
-The character: black hair tied back with a teal-green ribbon streaming behind her, cream white jeogori jacket, long layered dark-green hanbok skirt, dark boots, a wooden bow held down in her left hand. She faces right in every frame. Painterly semi-realistic anime game art, clean crisp edges, full body, strong readable silhouette.
-
-Frame 1: right foot planted forward on the ground, left leg trailing far behind, torso leaned slightly forward, skirt swept backward.
-Frame 2: body at its lowest point, supporting knee bent deeply, other leg swinging forward, skirt pressed down, shoulders low.
-Frame 3: airborne mid-stride, both legs gathered under the body, neither foot touching the ground, skirt billowing upward, hair ribbon lifted.
-Frame 4: left foot planted forward on the ground, right leg trailing far behind, torso leaned slightly forward, skirt swept backward.
-
-Background must be SOLID PURE MAGENTA #FF00FF, completely flat, filling every pixel around and between the figures. No panel borders, no dividing lines, no drop shadows on the background, no ground shading. No text, no numbers, no labels, no watermark anywhere in the image.
-```
-
-> **자홍색(#FF00FF) 배경으로 받는 이유**: 투명 배경으로 달라고 하면 흰 배경이나 체크무늬로
-> 나오는 경우가 많다. 자홍색은 인물 색과 절대 겹치지 않아 제가 깨끗하게 지울 수 있다.
-> 이미 투명 배경으로 잘 나오는 도구를 쓰신다면 마지막 문단을
-> `transparent background, no background` 로 바꿔도 된다.
-
-## 잘 나왔는지 볼 것
-
-- 네 인물의 **키와 머리 높이가 같은가** (3번만 살짝 높으면 정상)
-- 네 명이 **같은 사람으로 보이는가** — 옷 색·머리 리본·활이 같아야 한다
-- 활을 **쏘고 있지 않은가** — 손에 들고 달리는 모습이어야 한다
-- 발 높이가 프레임마다 다른가 — 다 같으면 달리는 게 아니라 미끄러지는 것처럼 보인다
-
-마음에 안 드는 컷이 하나만 있으면 그 컷만 다시 뽑지 말고 **전체를 다시 돌리는 편이 낫다**
-(따로 뽑으면 인물이 어긋난다).
-
-## 다른 동료도 만들 때
-
-프롬프트의 `The character:` 문단만 바꾸면 된다.
-
-| 동료 | 바꿔 넣을 묘사 |
-|------|----------------|
-| 역사(力士) | a burly Korean strongman, bare muscular arms, wide dark trousers, a heavy club resting on his shoulder |
-| 장사치 | a Korean merchant man, a bundled pack on his back, a coin pouch at his waist, a straw hat |
-| 도인 | an old Korean taoist sage, long grey beard, flowing pale robe, a wooden staff in hand |
+다운로드 폴더에 `매향_공격.png`, `매향_얼굴.png` 로 저장해 주시면
+자홍색을 지우고 잘라서 아틀라스(`comps.png` + `comps.json`)를 새로 만들고,
+달리기 4컷이 이동 중에 순환하도록 연결하겠습니다.
