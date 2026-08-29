@@ -134,6 +134,33 @@ The character is a young Korean female archer, always facing right in side view.
 
 ---
 
+## 시트 A — 달리기 4컷 (다시) (`매향_달리기.png`)
+
+앞서 받은 4컷은 네 컷 모두 두 발이 떠 있어 **달리기가 아니라 점프**로 보였다.
+아래는 **네 컷 모두 한쪽 발이 땅에 닿게** 못박은 프롬프트다.
+
+```
+A single wide image containing exactly 4 sprites of this SAME character in one horizontal row, evenly spaced, all at exactly the same scale. It is a 4-frame RUNNING cycle read left to right.
+
+This is a running cycle, NOT a jump and NOT a leap. Draw one straight horizontal ground line that all four figures stand on. In every single frame one foot is firmly planted flat on that ground line and clearly carrying her weight. Never draw both feet in the air. Her head stays at almost exactly the same height in all four frames — she does not rise or float upward. Her torso stays upright with only a slight forward lean, and the skirt trails backward from forward motion rather than billowing upward.
+
+Frame 1: her right foot strikes the ground line flat in front of her, left leg stretched far back behind with the toe just lifting off, arms swinging in opposition.
+Frame 2: her right foot stays flat on the ground line taking full weight, right knee bent as the body passes over it, left knee swinging forward past the right leg, left foot still low near the ground.
+Frame 3: her left foot strikes the ground line flat in front of her, right leg stretched far back behind with the toe just lifting off, arms swinging in opposition.
+Frame 4: her left foot stays flat on the ground line taking full weight, left knee bent as the body passes over it, right knee swinging forward past the left leg, right foot still low near the ground.
+
+She carries the wooden bow down at her side in one hand while running; she is not drawing or shooting it. Background must be SOLID PURE MAGENTA #FF00FF, completely flat, filling every pixel around and between the figures. No panel borders, no dividing lines, no ground shadows, no glowing energy effects. No text, no numbers, no labels, no watermark.
+```
+
+### 잘 나왔는지 보는 법
+
+- **네 컷 모두 한 발이 바닥에 닿아 있는가** — 두 발이 뜬 컷이 있으면 다시 돌린다
+- 네 컷의 **머리 높이가 거의 같은가** — 위아래로 튀면 점프로 보인다
+- 치마가 **뒤로 날리는가** (위로 부풀면 도약처럼 보인다)
+- 발 위치가 컷마다 다른가 — 같으면 미끄러지는 것처럼 보인다
+
+---
+
 ## 시트 A — 활 쏘기 4컷 (`매향_공격.png`)
 
 인물 고정 문구 뒤에 아래를 이어 붙인다.
