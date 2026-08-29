@@ -626,6 +626,7 @@ body.ui-btn #modal .btn.wide{
 body.ui-btnp #modal .btn.wide:active{
   transform:none;
   border-image:url(assets/ui/btn_menu_press.png) 32 56 36 56 fill / 16px 28px 18px 28px stretch}
+body.ui-vig #overlay{background:rgba(10,7,4,.78) url(assets/ui/overlay_vignette.png) center/cover no-repeat}
 body.ui-hud #questBtn,body.ui-hud #mailBtn{
   background:url(assets/ui/hud_btn.png) center/100% 100% no-repeat;
   border:0;box-shadow:none}
@@ -6575,7 +6576,8 @@ if(window.ResizeObserver) new ResizeObserver(sizeCanvas).observe(cv); // CSS 높
   SkOne.probe();  // 기술 아이콘 낱장 원화 탐색
   /* 원화 UI 파일이 있으면 자동으로 켠다 — 없으면 조용히 지금 디자인 유지 */
   [['modal_frame','ui-modal'],['modal_title','ui-title'],
-   ['btn_menu','ui-btn'],['btn_menu_press','ui-btnp'],['hud_btn','ui-hud']]
+   ['btn_menu','ui-btn'],['btn_menu_press','ui-btnp'],['hud_btn','ui-hud'],
+   ['overlay_vignette','ui-vig']]
    .forEach(p=>{ const im=new Image();
      im.onload=()=>document.body.classList.add(p[1]);
      im.src=av('assets/ui/'+p[0]+'.png'); });
