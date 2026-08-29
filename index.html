@@ -255,6 +255,9 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
   border-image:url(assets/ui/chip_off.png) 25 32 26 31 fill / 8px 12px 8px 11px stretch}
 .buybar button.on{color:#3A2A0E;text-shadow:0 1px 0 rgba(255,246,214,.5);
   border-image:url(assets/ui/chip_on.png) 23 36 23 35 fill / 8px 12px 8px 11px stretch}
+/* 깨달음 — 같은 줄에 붙되 배수 칩보다 넓게, 금빛 글자로 구분 */
+.buybar .knowbtn{flex:1.8;color:#E8C97E;white-space:nowrap}
+.buybar .knowbtn b{color:#FFF0C0}
 .strow{display:flex;align-items:center;gap:7px}
 /* 흑단 판때기 — 원화를 9분할해 어떤 높이로 늘려도 모서리 단청이 안 뭉개진다 */
 .card.strow{background:none;box-shadow:none;color:var(--uiTxt);border-radius:0;
@@ -390,6 +393,8 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 /* 비급 · 스킬 상세 */
 .mastrow{display:flex;align-items:center;gap:8px}
 .mastrow .mid{flex:1;min-width:0}
+.mastrow .sub{font-size:10px;color:var(--uiSub);margin-top:4px;line-height:1.3}
+.mastrow .mxb{font-size:10px;font-weight:700;color:var(--uiGood);white-space:nowrap}
 .cardhold{display:flex;flex-wrap:wrap;gap:3px;justify-content:flex-end}
 .cardhold.mid2{justify-content:center;margin-bottom:6px}
 .cchip{font-size:9px;font-weight:700;border-radius:6px;padding:2px 6px;
@@ -428,7 +433,7 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
   background-size:calc(var(--s)*var(--gc)) calc(var(--s)*var(--gr));
   background-position:calc(var(--s)*var(--cx)*-1) calc(var(--s)*var(--cy)*-1)}
 .rel .e .ic{--s:40px}
-.slot .ic{--s:30px}
+.slot .ic{--s:44px}
 .asicon{background:none!important;border:none!important;box-shadow:none!important;transform:none!important;
   width:auto!important;height:auto!important;border-radius:0!important}
 .coin .ic{--s:18px}
@@ -445,13 +450,14 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
   background-position:calc(var(--si)*100%/6) 0}
 /* 스킬 격자 */
 .skgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:4px}
-.skcell{position:relative;border-radius:10px;padding:6px 3px 5px;text-align:center;cursor:pointer;
+.skcell{position:relative;border-radius:10px;padding:8px 3px 6px;text-align:center;cursor:pointer;
   background:linear-gradient(#241C13,#191209);border:1.5px solid var(--rc,#6E5E44)}
 .skcell.no{filter:grayscale(.8);opacity:.62}
-.skcell .ic2{width:40px;height:40px;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:24px}
-.skcell .ic2 .ga{width:40px;height:40px}
-.skcell .n{font-size:9px;font-weight:700;color:#E4D5B4;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.skcell .c{font-size:8.5px;color:var(--uiSub);min-height:11px}
+.skcell .ic2{width:56px;height:56px;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:34px}
+.skcell .ic2 .ga{width:56px;height:56px}
+.skcell .ic2 .ic{--s:52px}
+.skcell .n{font-size:11px;font-weight:700;color:#E4D5B4;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.skcell .c{font-size:10px;color:var(--uiSub);min-height:13px}
 .skcell .c .pp{color:#F2A64B;font-weight:800}
 .skcell .eb{position:absolute;top:-4px;left:-4px;background:var(--green);color:#EDF5E8;
   font-size:9px;font-weight:800;border-radius:6px;padding:1px 5px;border:1.5px solid #12301E}
@@ -546,8 +552,9 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .rar0{color:#7A8A6E}.rar1{color:#5C87B5}.rar2{color:#7A5CB5}.rar3{color:#B5722A}.rar4{color:var(--red)}.rar5{color:#C23A6E}.rar6{color:#B8842C}
 .slotrow{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:7px}
 .slot{flex:1;aspect-ratio:1;border-radius:12px;border:2px dashed var(--brown2);background:var(--ink3);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:22px;color:#8F7C5C;position:relative}
-.slot .sn{font-size:9px;font-weight:700;color:#CBB98F;line-height:1.1;margin-top:1px}
+  display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:34px;color:#8F7C5C;position:relative}
+.slot>.ga{width:64%;height:64%;flex:none}
+.slot .sn{font-size:11px;font-weight:700;color:#CBB98F;line-height:1.15;margin-top:3px}
 .slot .sn.jd{color:var(--goldL)}
 .slot.filled{border-style:solid;border-color:var(--gold2);background:#3A2C1B}
 .slot.lockd{opacity:.45}
@@ -581,8 +588,47 @@ nav button .dot.on{display:block}
 #modal{width:100%;max-width:360px;max-height:82dvh;overflow-y:auto;border-radius:14px;
   background:linear-gradient(var(--paper),var(--paper2));color:var(--brown);
   border:2px solid var(--gold2);box-shadow:0 10px 40px rgba(0,0,0,.7);padding:18px 16px}
-#modal h2{font-family:var(--serif);font-size:19px;color:#3A2A14;letter-spacing:2px;text-align:center;margin-bottom:10px}
-#modal p{font-size:13px;line-height:1.65;margin-bottom:10px}
+#modal h2{font-family:var(--serif);font-size:18px;color:#3A2A14;letter-spacing:2px;text-align:center;margin-bottom:6px}
+/* 모달 안 목록은 본화면보다 한층 더 촘촘하게 — 임무·업적 목록이 길어 스크롤이 과했다 */
+#modal .card.strow{min-height:28px;margin-bottom:2px;
+  border-width:6px 22px 10px 24px;
+  border-image:url(assets/ui/row_plate.png) 19 49 47 53 fill / 6px 22px 10px 24px stretch}
+#modal .strow .ico{width:30px;height:30px;font-size:15px}
+#modal .strow .btn{height:34px;width:82px}
+#modal .strow .nm{font-size:12px}
+#modal .subtab{margin:4px 0}
+#modal .subtab button{height:34px}
+#modal .qcard{padding:7px 10px}
+#modal .qcard .prog{height:11px;margin:4px 0}
+#modal .demo-note{margin:3px 0 1px}
+#modal p{font-size:13px;line-height:1.6;margin-bottom:6px}
+/* ── 원화 UI 자동 전환 ──
+   assets/ui/ 에 아래 파일을 넣으면 시작할 때 감지해 body에 클래스를 달고 원화로 바꾼다.
+   파일이 없으면 아무 일도 없고 지금 디자인이 그대로 남는다. (docs/UI-원화-프롬프트.md) */
+body.ui-modal #modal{
+  background:none;border:0;border-radius:0;box-shadow:none;box-sizing:border-box;
+  border-style:solid;border-color:transparent;
+  border-width:28px 24px 28px 24px;
+  border-image:url(assets/ui/modal_frame.png) 56 48 56 48 fill / 28px 24px 28px 24px stretch;
+  padding:2px}
+body.ui-title #modal h2{
+  color:#F2CE7B;text-shadow:0 2px 3px rgba(0,0,0,.75);box-sizing:border-box;
+  border-style:solid;border-color:transparent;
+  border-width:17px 32px 17px 32px;
+  border-image:url(assets/ui/modal_title.png) 34 64 34 64 fill / 17px 32px 17px 32px stretch;
+  padding:0;margin:0 0 8px}
+body.ui-btn #modal .btn.wide{
+  background:none;box-shadow:none;border-radius:0;box-sizing:border-box;
+  color:#FFF0D0;text-shadow:0 1px 2px rgba(0,0,0,.6);
+  border-style:solid;border-color:transparent;
+  border-width:16px 28px 18px 28px;
+  border-image:url(assets/ui/btn_menu.png) 32 56 36 56 fill / 16px 28px 18px 28px stretch}
+body.ui-btnp #modal .btn.wide:active{
+  transform:none;
+  border-image:url(assets/ui/btn_menu_press.png) 32 56 36 56 fill / 16px 28px 18px 28px stretch}
+body.ui-hud #questBtn,body.ui-hud #mailBtn{
+  background:url(assets/ui/hud_btn.png) center/100% 100% no-repeat;
+  border:0;box-shadow:none}
 .adbox{text-align:center}
 .adframe{background:#1E150C;color:var(--goldL);border-radius:10px;padding:26px 10px;margin:10px 0;font-family:var(--serif);font-size:15px;letter-spacing:1px}
 .adframe .cnt{font-size:30px;display:block;margin-top:6px;font-variant-numeric:tabular-nums}
@@ -1507,16 +1553,25 @@ const MobSpr={
     const id=c.id;
     const d=this.data[id];
     if(d===undefined){                       // 최초 요청 시 1회만 로드 시도
-      this.data[id]=null;
+      // 로딩이 끝날 때까지 'p'(pending)를 돌려준다. null을 돌려주면 그 사이 몇 프레임 동안
+      // 옛 벡터 그림이 스쳐 보였다(보스 첫 등장 시 특히). 파일이 없을 때만 null로 내려 벡터를 쓴다.
+      this.data[id]='p';
       fetch(av('assets/sprites/mob_'+id+'.json')).then(r=>r.json()).then(j=>{
         const im=new Image();
         im.onload=()=>{ this.data[id]={img:im,F:j.frames,sc:j.scale||2,ref:j.ref||30}; };
+        im.onerror=()=>{ this.data[id]=null; };
         im.src=av('assets/sprites/mob_'+id+'.png');
-      }).catch(()=>{});
-      return null;
+      }).catch(()=>{ this.data[id]=null; });
+      return 'p';
     }
-    if(d) d.lift=c.lift||0;
+    if(d&&d!=='p') d.lift=c.lift||0;
     return d;
+  },
+  warm(ch){ // 챕터에 나올 몹·보스 원화를 미리 받아둔다 (첫 등장 때 빈 프레임이 없도록)
+    if(this._warm===ch) return;
+    this._warm=ch;
+    ch.mobs.forEach(m=>this.get(m[3]));
+    if(ch.boss) this.get(ch.boss[3]);
   },
   pick(e,d){ // 상태 → [클립, 프레임]
     if(e.state==='die') return ['die',0];
@@ -2620,6 +2675,7 @@ const W={
 function curStageN(){ return W.mode==='dungeon'&&W.dg&&W.dg.id!=='rankup'?6*W.dg.lvl+4:S.stage; }
 function spawnPack(){
   const n=curStageN(), ch=chapterOf(W.mode==='dungeon'?S.stage:n);
+  MobSpr.warm(ch);                       // 이 챕터 원화 선행 로드
   const dgm=(W.mode==='dungeon'&&W.dg)?DG_MOB[W.dg.id]:null; // 던전은 전용 몬스터
   let cnt=1;
   if(n>3&&Math.random()<0.55) cnt++;
@@ -3818,7 +3874,8 @@ function drawMonster(e){
   const MAIN=hit?'#FFFFFF':e.c, DARK=hit?'#E8E8E8':e.c2, OUT='#12100C';
   cx.strokeStyle=OUT; cx.lineWidth=2*Math.min(s,1.6);
   cx.save(); cx.translate(x,yb); cx.scale(sq*(e.frozen>0?1:1),1/sq*(1-dieP*0.1)); cx.translate(-x,-yb);
-  if(MD){
+  if(MD==='p'){ /* 원화 로딩 중 — 옛 벡터를 대신 그리지 않는다 */ }
+  else if(MD){
     MobSpr.draw(e,MD,x,yb,SZ/MD.ref);
     if(hit){ // 피격 시 하얗게 번쩍
       cx.save(); cx.globalCompositeOperation='lighter'; cx.globalAlpha=e.hitF*0.5;
@@ -4086,7 +4143,27 @@ function slotLocked(i){
   return SLOT_GATES[i]>0&&S.maxClear<SLOT_GATES[i]&&!(S.slotBuy&&S.slotBuy[i]);
 }
 function slotJadeCost(i){ return [0,0,0,50,150,400,1000,2000][i]||0; } // 원작 에메랄드 곡선 축소판 — 뒤로 갈수록 급증
-function skIco(i){ // 스킬 아이콘 — 28종 원화(skill_ico.png)가 오면 자동 교체
+/* 기술 아이콘 낱장 원화 — assets/ui/sk/<번호>.png 를 넣으면 그 기술만 즉시 교체된다.
+   (한 장짜리 시트 assets/ui/skill_ico.png 도 그대로 지원 — 낱장이 우선) */
+const SkOne={
+  ok:{}, _t:null,
+  probe(){
+    for(let i=0;i<SKILLS.length;i++)(n=>{
+      const im=new Image();
+      im.onload=()=>{ this.ok[n]=1; this.refresh(); };
+      im.src=av('assets/ui/sk/'+n+'.png');
+    })(i);
+  },
+  refresh(){ // 여러 장이 한꺼번에 도착해도 다시 그리기는 한 번만
+    clearTimeout(this._t);
+    this._t=setTimeout(()=>{
+      if(typeof activeTab!=='undefined'&&activeTab==='skill') buildSkill();
+      updateSkillbar();
+    },120);
+  },
+};
+function skIco(i){ // 스킬 아이콘 — 낱장 원화 > 시트 원화 > 기본 아이콘
+  if(SkOne.ok[i]) return '<i class="ga" style="background-image:url('+av('assets/ui/sk/'+i+'.png')+');background-size:100% 100%"></i>';
   return W.sk28Ok?gi('sk28',i):ic('k',i,SKILLS[i].e);
 }
 function buildSkillbar(){
@@ -4175,8 +4252,8 @@ function buildStat(){
     return;
   }
   h+='<div class="buybar">'+['×1','×10','×100','최대'].map((m,i)=>
-    `<button data-a="buymode" data-i="${i}" class="${S.buyMode===i?'on':''}">${m}</button>`).join('')+'</div>';
-  h+=`<div class="togglebar"><button data-a="know">📜 깨달음 — 성장의 비결${kwReadyCnt()?' <b style="color:var(--goldL)">'+kwReadyCnt()+'</b>':''}</button></div>`;
+    `<button data-a="buymode" data-i="${i}" class="${S.buyMode===i?'on':''}">${m}</button>`).join('')
+    +`<button class="knowbtn" data-a="know">📜 깨달음${kwReadyCnt()?' <b>'+kwReadyCnt()+'</b>':''}</button></div>`;
   STATS.forEach((c,i)=>{
     if(c.un&&!c.un()) return;               // 혼신의 일격 — 치명 100% 전에는 숨긴다
     h+=`<div class="card strow">
@@ -4279,10 +4356,13 @@ function buildSkill(){
   const L=skillMastery(), gx=(S.skMx||0)%20;
   h+=`<div class="card mastrow">
     <div class="mid">
-      <div class="nm">스킬 숙련도 <span class="lv">Lv.${L}</span>
-        <span class="small" style="color:var(--uiGood)">모든 속성 데미지 +${masteryBonus()}%</span></div>
-      <div class="pbar2" style="max-width:180px"><i style="width:${gx/20*100}%"></i><b>${gx}/20</b></div>
-      <div class="sub">기술을 강화하거나 비급을 합성할 때마다 차오르오</div>
+      <div class="nm" style="display:flex;align-items:baseline;gap:5px">
+        <span>📖 스킬 숙련도</span><span class="lv">Lv.${L}</span>
+        <span style="flex:1"></span>
+        <span class="mxb">모든 속성 피해 +${fmt(masteryBonus())}%</span>
+      </div>
+      <div class="pbar2" style="margin-top:5px"><i style="width:${gx/20*100}%"></i><b>${gx}/20</b></div>
+      <div class="sub">강화·합성 20회마다 1레벨 · ${L<GR_OPEN?GR_OPEN+'레벨이면 연마가 열리오':'연마로 기술을 더 갈고닦을 수 있소'}</div>
     </div>
   </div>`;
   h+=`<div class="togglebar">
@@ -4347,10 +4427,14 @@ function skillDetail(i){
     ${k.p&&k.p.per==='mantra'
       ?'<p class="demo-note">이 심법은 슬롯 없이도 늘 발휘되오</p>'
       :`<button class="btn wide" data-a="skslotpick" data-i="${i}">슬롯에 장착</button>`}
+    <div style="display:flex;gap:6px">
+      <button class="btn wide" data-a="gosummon" style="margin-top:6px">🌀 비급 얻기 (소환)</button>
+      <button class="btn wide" data-a="cardfuse" style="margin-top:6px">🧬 비급 합성</button></div>
     <button class="btn wide" data-a="close">닫기</button>`);
 }
 function skillLearnModal(){
   let h='<h2>기술 배우기</h2><p class="small" style="text-align:center">그 기술의 비급을 모아 익히오. 신화·불멸은 영석도 드오</p>';
+  h+='<button class="btn wide" data-a="gosummon" style="margin-bottom:7px">🌀 비급 얻으러 가기 (기술 소환)</button>';
   let any=false;
   SKILLS.forEach((k,i)=>{
     if(S.skills[i]) return;
@@ -4385,6 +4469,7 @@ function cardFuseModal(){
     </div>`;
   });
   h+='<p class="demo-note">불멸 비급은 신화 비급 합성으로만 얻을 수 있소</p>';
+  h+='<button class="btn wide" data-a="gosummon">🌀 비급 얻으러 가기 (기술 소환)</button>';
   h+='<button class="btn wide" data-a="close">닫기</button>';
   showModal(h);
 }
@@ -4418,6 +4503,15 @@ function slotBuyOk(i){
   snd('reward'); toast('슬롯이 열렸소! ('+SLOT_GATES[i]+'층 선해방)');
   closeModal(); buildSkill(); buildSkillbar(); updateHeader(); save();
 }
+function gotoSkSummon(){ // 비급 얻으러 — 상점 탭 소환 화면의 '기술 소환' 배너로 점프
+  closeModal();
+  S.shopView='sum';
+  switchTab('shop');
+  setTimeout(()=>{
+    const el=[...document.querySelectorAll('#tab-shop .gachabox h3')].find(x=>x.textContent.includes('기술 소환'));
+    if(el) el.closest('.gachabox').scrollIntoView({behavior:'smooth',block:'center'});
+  },80);
+}
 function skillLockedInfo(i){
   const k=SKILLS[i], c=learnCost(i);
   showModal(`<div class="skdet">
@@ -4428,6 +4522,11 @@ function skillLockedInfo(i){
     <div class="card" style="text-align:center">비급 <b>${skCard(i)}/${c.n}</b>${c.seok?' · 영석 '+c.seok:''} 모으면 익힐 수 있소<br>
       <span class="small">${SKILLS[i].r>=6?'불멸 비급은 신화 비급 합성에서 나오오':'기술 소환·보스·합성에서 비급을 얻소'}</span></div>
     ${canLearn(i)?`<button class="btn red wide" data-a="learnsk" data-i="${i}">배우기</button>`:''}
+    ${SKILLS[i].r>=6
+      ?`<button class="btn wide" data-a="cardfuse">🧬 신화 비급 합성하러 가기</button>`
+      :`<div style="display:flex;gap:6px">
+        <button class="btn wide" data-a="gosummon" style="margin-top:6px">🌀 기술 소환하러</button>
+        <button class="btn wide" data-a="cardfuse" style="margin-top:6px">🧬 비급 합성</button></div>`}
     <button class="btn wide" data-a="close">닫기</button>`);
 }
 function slotTap(slot){
@@ -6168,6 +6267,7 @@ function act(a,i){
     case 'learnsk': learnSkill(+i); break;
     case 'cardfuse': cardFuseModal(); break;
     case 'grind': grindModal(); break;
+    case 'gosummon': gotoSkSummon(); break;
     case 'grinddo': grindDo(); break;
     case 'grindback': grindModal(); break;
     case 'grindsel': { const gi2=+i; W.grindSel=W.grindSel||new Set();
@@ -6472,6 +6572,13 @@ if(window.ResizeObserver) new ResizeObserver(sizeCanvas).observe(cv); // CSS 높
   buildStat(); buildSkillbar(); updateHeader(); updateSceneUI(); updateQuestHud(); switchTab('char');
   SFXF.init(); // 실제 칼소리 파일 로드 시도 (없으면 합성음 폴백)
   HeroSpr.load(); // 주인공 원화 스프라이트 (없으면 벡터 검객 유지)
+  SkOne.probe();  // 기술 아이콘 낱장 원화 탐색
+  /* 원화 UI 파일이 있으면 자동으로 켠다 — 없으면 조용히 지금 디자인 유지 */
+  [['modal_frame','ui-modal'],['modal_title','ui-title'],
+   ['btn_menu','ui-btn'],['btn_menu_press','ui-btnp'],['hud_btn','ui-hud']]
+   .forEach(p=>{ const im=new Image();
+     im.onload=()=>document.body.classList.add(p[1]);
+     im.src=av('assets/ui/'+p[0]+'.png'); });
   BgSpr.load(); BgSpr.loadObj(); // 배경 원화 레이어·구조물·지면
   SpSpr.load();   // 수호 영물 원화
   Fx.load();      // 이펙트 아틀라스
