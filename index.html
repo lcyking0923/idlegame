@@ -1679,7 +1679,7 @@ const CompSpr={
       if(S.maxClear+1<COMPS[i].un) continue;      // 아직 합류 전
       const arr=this.F[i]; if(!arr) continue;
       // 주인공 뒤쪽 위로 물러서게 (2.5D 깊이). 서로 겹치지 않게 간격을 벌린다
-      const x=h.x-26-i*19, gy=W.G-10-i*8;
+      const x=h.x-26-i*19, gy=W.G-i*2; // 전원 발이 지면에 — 뒤로 갈수록 2px만 올려 겹침 순서만 표현 (8px씩 올리니 공중에 떠 보였다)
       const cs=W.comps[i];
       let fi=0;
       const hasRun=arr.length>=8;             // 4~7번이 달리기 컷인 동료 (새 원화)
@@ -3018,7 +3018,7 @@ function update(dt){
       if(cs.anim>0){
         const was=cs.anim; cs.anim-=dt;
         if(was>0.26&&cs.anim<=0.26){                    // 시위를 놓는 순간
-          const cx0=h.x-26-ci*19, cy0=W.G-10-ci*8;
+          const cx0=h.x-26-ci*19, cy0=W.G-ci*2; // 그리기와 같은 지면 기준
           if(ci===0) W.projs.push({x:cx0+16,y:cy0-30,v:520,dmg:heroAtk()*0.35,el:null,t:0,arrow:true});
           else { const f3=frontEnemy(); if(f3) hitEnemy(f3,heroAtk()*0.3,{noSlash:true}); }
         }
