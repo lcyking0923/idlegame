@@ -392,6 +392,21 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
   border:1.5px solid var(--gold2);box-shadow:0 2px 5px rgba(0,0,0,.45)}
 /* 비급 · 스킬 상세 */
 .mastrow{display:flex;align-items:center;gap:8px}
+/* 남은 SP 강조 */
+.spchip{display:inline-block;background:linear-gradient(#F2CE7B,#D9A441);color:#3A2A0E;font-weight:800;
+  border-radius:10px;padding:1px 8px;margin-left:4px;font-size:11px;
+  box-shadow:0 1px 3px rgba(0,0,0,.4);animation:spglow 1.6s ease-in-out infinite}
+@keyframes spglow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.18)}}
+.tabbadge{position:absolute;top:-6px;right:-4px;min-width:17px;height:17px;line-height:17px;
+  background:var(--red);color:#FFF0DC;font-size:10px;font-weight:800;border-radius:9px;
+  padding:0 4px;border:1.5px solid #100C08;box-shadow:0 1px 3px rgba(0,0,0,.5)}
+.spbig{margin-top:6px;padding:6px 10px;border-radius:9px;font-size:13px;color:#33240F;
+  background:linear-gradient(#FBEEC8,#F2DFA8);border:1.5px solid var(--gold2)}
+.spbig b{font-size:16px;color:#8A5A08;font-variant-numeric:tabular-nums}
+/* 재화 낱개 아이콘 — assets/ui/cur/<이름>.png 가 있으면 그림, 없으면 글자 앞 표식 */
+.curj{display:inline-block;width:15px;height:15px;vertical-align:-2px;margin-right:3px;
+  background-size:100% 100%;background-repeat:no-repeat}
+.curj.em{width:auto;height:auto;background:none;margin-right:2px}
 .mastrow .mid{flex:1;min-width:0}
 .mastrow .sub{font-size:10px;color:var(--uiSub);margin-top:4px;line-height:1.3}
 .mastrow .mxb{font-size:10px;font-weight:700;color:var(--uiGood);white-space:nowrap}
@@ -551,6 +566,25 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .rel.no{filter:grayscale(1);opacity:.5}
 .rel.eq::after{content:'장착';position:absolute;top:-6px;right:-4px;background:var(--green);color:#fff;font-size:8px;font-weight:700;border-radius:8px;padding:1px 5px}
 .rar0{color:#7A8A6E}.rar1{color:#5C87B5}.rar2{color:#7A5CB5}.rar3{color:#B5722A}.rar4{color:var(--red)}.rar5{color:#C23A6E}.rar6{color:#B8842C}
+/* 소환·융합 결과 — 한지 창 위의 흑단 패로 (밝은 종이 칸은 새 창 원화와 어긋났다) */
+.pullres .rel{width:78px;min-height:88px;padding:9px 3px 7px;border-radius:10px;
+  background:linear-gradient(#241C13,#191209);
+  border:2px solid var(--rc,#6E5E44);
+  box-shadow:inset 0 1px 0 rgba(255,236,190,.07),0 2px 5px rgba(0,0,0,.35)}
+.pullres .rel .e{font-size:26px;line-height:1.2;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5))}
+.pullres .rel .e .ic{--s:44px}
+.pullres .rel .e .ga{width:46px;height:46px;margin:0 auto}
+.pullres .rel .n{font-size:10px;color:#EDE3CE;margin-top:3px}
+.pullres .rel .v{font-size:9.5px;font-weight:800}
+.pullres .rel.r0{--rc:#6E5E44}
+.pullres .rel.r1{--rc:#5C87B5;background:linear-gradient(#1C2230,#141824)}
+.pullres .rel.r2{--rc:#8A5CD0;background:linear-gradient(#231D33,#171222)}
+.pullres .rel.r3{--rc:#D08A2A;background:linear-gradient(#2A2113,#1C150B);box-shadow:0 0 10px rgba(208,138,42,.4)}
+.pullres .rel.r4{--rc:#E85040;background:linear-gradient(#2E1712,#1F0F0B);box-shadow:0 0 12px rgba(232,80,64,.5)}
+.pullres .rel.r5{--rc:#E24A86;background:linear-gradient(#2E1420,#1F0D15);box-shadow:0 0 13px rgba(226,74,134,.55)}
+.pullres .rel.r6{--rc:#F2CE7B;background:linear-gradient(#2E2410,#1F1808);box-shadow:0 0 14px rgba(242,206,123,.6)}
+.pullres .rar0{color:#A8B598}.pullres .rar1{color:#8FB8E8}.pullres .rar2{color:#C0A0F0}
+.pullres .rar3{color:#F0B060}.pullres .rar4{color:#FF8A76}.pullres .rar5{color:#FF8AB8}.pullres .rar6{color:#F2CE7B}
 .slotrow{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:7px}
 .slot{flex:1;aspect-ratio:1;border-radius:12px;border:2px dashed var(--brown2);background:var(--ink3);
   display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:34px;color:#8F7C5C;position:relative}
@@ -634,6 +668,13 @@ body.ui-vig #overlay{background:rgba(10,7,4,.78) url(assets/ui/overlay_vignette.
 body.ui-hud #questBtn,body.ui-hud #mailBtn{
   background:url(assets/ui/hud_btn.png) center/100% 100% no-repeat;
   border:0;box-shadow:none}
+/* hud_quest.png / hud_mail.png 가 있으면 이모지 대신 원화 아이콘 (고리 위에 겹침) */
+body.ui-hq #questBtn{font-size:0;
+  background:url(assets/ui/hud_quest.png) center/56% 56% no-repeat,
+             url(assets/ui/hud_btn.png) center/100% 100% no-repeat}
+body.ui-hm #mailBtn{font-size:0;
+  background:url(assets/ui/hud_mail.png) center/56% 56% no-repeat,
+             url(assets/ui/hud_btn.png) center/100% 100% no-repeat}
 .adbox{text-align:center}
 .adframe{background:#1E150C;color:var(--goldL);border-radius:10px;padding:26px 10px;margin:10px 0;font-family:var(--serif);font-size:15px;letter-spacing:1px}
 .adframe .cnt{font-size:30px;display:block;margin-top:6px;font-variant-numeric:tabular-nums}
@@ -2575,7 +2616,7 @@ function grindSkillModal(i){
   const needD=GR_DICE[k.r]*(1+lockedN), needS=1+lockedN;
   const CN=['회','초','주','보','빨','민'];
   let h=`<h2>${k.e} ${k.n} 연마</h2>
-    <p class="small" style="text-align:center">연마석 <b>${grStones(i)}</b> · 주령구 <b>${fmt(S.dice||0)}</b><br>줄을 누르면 잠가서 지킬 수 있소 (잠글수록 비용 배가)</p>`;
+    <p class="small" style="text-align:center">${curj('stone')}연마석 <b>${grStones(i)}</b> · <span class="curi sm">${gi('cur2',0)}</span>주령구 <b>${fmt(S.dice||0)}</b><br>줄을 누르면 잠가서 지킬 수 있소 (잠글수록 비용 배가)</p>`;
   for(let r=0;r<5;r++){
     const open=lv>=GR_ROW_GATES[r], o=rows[r];
     const cat=o&&GR_CATS.find(c=>c[0]===o.k);
@@ -2590,7 +2631,7 @@ function grindSkillModal(i){
   const kd=k.el==='fire'?'공격력':k.el==='water'?'체력':k.el==='earth'?'치명 피해':k.el==='wind'?'회피':'공격력';
   h+=`<div class="card" style="text-align:center"><b>보유 효과</b> <span class="small">(민트 줄 3/4/5개 — 장착 불문 상시)</span><br>
     ${tier?`<b style="color:#6FE0E8">${tier}단 발동 — ${kd} 강화 중</b>`:`<span class="small">민트(최상급) 줄 ${3-rows.filter(o=>o&&o.c===5).length}개 더 모으면 ${kd} 보유 효과</span>`}</div>`;
-  h+=`<button class="btn red wide" data-a="grindroll" data-i="${i}">🎲 굴리기 — 연마석 ${needS} · 주령구 ${needD}</button>
+  h+=`<button class="btn red wide" data-a="grindroll" data-i="${i}">🎲 굴리기 — ${curj('stone')}연마석 ${needS} · <span class="curi sm">${gi('cur2',0)}</span>주령구 ${needD}</button>
     <button class="btn wide" data-a="grindback">← 연마 목록</button>`;
   showModal(h);
 }
@@ -2720,10 +2761,12 @@ function spawnEnemy(def,boss,x,n){
 function bossGo(){
   // 실패해서 자동도전이 꺼져 있어도, 이 버튼을 누르면 다시 붙는다.
   if(W.mode!=='farm'||S.stage!==S.maxClear+1||S.kills<8){ toast('아직 요괴를 더 베어야 하오'); return; }
+  if(frontEnemy()){ W.bossDelay=0.2; toast('남은 요괴를 베는 대로 보스가 나오오'); return; }
   startBoss();
 }
 function startBoss(){
   if(S.stage!==S.maxClear+1||S.kills<8||W.mode!=='farm') return;
+  if(frontEnemy()){ W.bossDelay=0.35; return; }  // 남은 일반 몹이 사라지지 않게 — 다 벤 뒤에 등장
   W.enemies=[]; W.mode='boss'; W.bossTimer=40;
   const ch=chapterOf(S.stage);
   spawnEnemy(ch.boss,true,W.w+60,S.stage);
@@ -2909,7 +2952,8 @@ function update(dt){
   }
   // 생성
   const alive=W.enemies.filter(e=>e.state!=='die');
-  if(alive.length===0&&h.dead<=0&&W.mode!=='boss'){
+  const bossWait=W.mode==='farm'&&S.stage===S.maxClear+1&&S.kills>=8&&(S.autoBoss||W.bossDelay>0); // 보스 대기 중(자동 또는 수동 도전 눌림) — 무리 추가 금지
+  if(alive.length===0&&h.dead<=0&&W.mode!=='boss'&&!bossWait){
     W.spawnT-=dt;
     if(W.spawnT<=0){
       if(W.mode==='dungeon'){
@@ -4219,9 +4263,56 @@ const SkOne={
     this._t=setTimeout(()=>{
       if(typeof activeTab!=='undefined'&&activeTab==='skill') buildSkill();
       updateSkillbar();
+      if(W.pullRerender&&document.querySelector('#modal .pullres')) W.pullRerender(); // 열린 소환 결과도 갱신
     },120);
   },
 };
+/* 장비 낱장 원화 — assets/ui/it/<종류>/<번호>.png (w=도검 s=영물 a=장신구)
+   기술 아이콘과 같은 방식: 한 장만 넣어도 그 아이템만 바뀐다 */
+const ItemArt={
+  kinds:{w:25, s:12, a:12},
+  ok:{w:{},s:{},a:{}}, tried:{w:{},s:{},a:{}}, _t:null,
+  probe(kind,list){
+    const n=this.kinds[kind];
+    const arr=list!=null?list:Array.from({length:n},(_,i)=>i);
+    for(const i of arr){
+      if(i==null||i<0||i>=n||this.tried[kind][i]) continue;
+      this.tried[kind][i]=1;
+      ((m)=>{
+        const im=new Image();
+        im.onload=()=>{ this.ok[kind][m]=1; this.refresh(); };
+        im.src=av('assets/ui/it/'+kind+'/'+m+'.png');
+      })(i);
+    }
+  },
+  refresh(){
+    clearTimeout(this._t);
+    this._t=setTimeout(()=>{
+      if(typeof activeTab!=='undefined'&&activeTab==='equip') buildEquip();
+      if(W.pullRerender&&document.querySelector('#modal .pullres')) W.pullRerender();
+    },120);
+  },
+};
+function itIco(kind,i,em){ // kind: 'w'|'s'|'a'
+  if(ItemArt.ok[kind]&&ItemArt.ok[kind][i])
+    return '<i class="ga" style="background-image:url('+av('assets/ui/it/'+kind+'/'+i+'.png')+');background-size:100% 100%"></i>';
+  return ic(kind,i,em||'');
+}
+/* 재화 낱개 원화 — assets/ui/cur/<키>.png 를 넣으면 그 재화 표기가 그림으로 바뀐다 */
+const CurArt={
+  ok:{}, em:{seok:'🔷', yong:'🐲', stone:'🪨', sp:'📖'},
+  probe(){
+    for(const k of ['seok','yong','stone','sp'])((k2)=>{
+      const im=new Image();
+      im.onload=()=>{ this.ok[k2]=1; };
+      im.src=av('assets/ui/cur/'+k2+'.png');
+    })(k);
+  },
+};
+function curj(k){ // 비용 표기 앞에 붙이는 재화 표식
+  if(CurArt.ok[k]) return '<i class="curj" style="background-image:url('+av('assets/ui/cur/'+k+'.png')+')"></i>';
+  return '<i class="curj em">'+(CurArt.em[k]||'')+'</i>';
+}
 function skIco(i){ // 스킬 아이콘 — 낱장 원화 > 시트 원화 > 기본 아이콘
   if(SkOne.ok[i]) return '<i class="ga" style="background-image:url('+av('assets/ui/sk/'+i+'.png')+');background-size:100% 100%"></i>';
   return W.sk28Ok?gi('sk28',i):ic('k',i,SKILLS[i].e);
@@ -4271,13 +4362,13 @@ function buildStat(){
         <span class="small">${S.login?S.login.name:'무명 검객'}</span>
         <span class="small pct">${pct.toFixed(1)}%</span></div>
       <div class="expbar" style="margin:4px 0 2px"><div class="fill" style="width:${pct}%"></div></div>
-      <div class="small" style="font-variant-numeric:tabular-nums">EXP ${fmt(S.exp)} / ${fmt(expNeed(S.lv))} · SP ${S.sp}</div>
+      <div class="small" style="font-variant-numeric:tabular-nums">EXP ${fmt(S.exp)} / ${fmt(expNeed(S.lv))}${S.sp>0?` <span class="spchip">📖 SP ${fmt(S.sp)}</span>`:' · SP 0'}</div>
     </div>
     <button class="lvbtn ${canLevel()?'rdy':'off'}" data-a="levelup">LEVEL<br>UP !</button>
   </div>`;
   h+=`<div class="subtab">
     <button data-a="growview" data-i="0" class="${S.growView===0?'on':''}">강화</button>
-    <button data-a="growview" data-i="1" class="${S.growView===1?'on':''}">성장</button>
+    <button data-a="growview" data-i="1" class="${S.growView===1?'on':''}" style="position:relative">성장${S.sp>0?`<span class="tabbadge">${S.sp>99?'99+':S.sp}</span>`:''}</button>
     <button data-a="growview" data-i="2" class="${S.growView===2?'on':''}">승급</button>
   </div>`;
   if(S.growView===2){
@@ -4290,7 +4381,7 @@ function buildStat(){
       <h3>검객 수련 <span class="small">Lv.<span id="glv"></span></span></h3>
       <div class="expbar"><div class="fill" id="gexp"></div></div>
       <div style="font-size:11px;color:var(--brown2);font-variant-numeric:tabular-nums" id="gexpTxt"></div>
-      <div class="small" style="margin-top:4px">STAT POINT <b id="gsp"></b> — 레벨업마다 +3 · 무과 시험장 수련서</div>
+      <div class="spbig">📖 남은 수련점 <b id="gsp"></b><span class="small" style="margin-left:6px">레벨업 +3 · 무과 시험장 수련서</span></div>
     </div>`;
     h+=`<div class="togglebar">
       <button data-a="train">📖 수련 일지</button>
@@ -4484,7 +4575,7 @@ function skillDetail(i){
     </div>
     <button class="btn red wide ${skCard(i)>=need&&S.gold>=g?'':'off'}" data-a="enhsk" data-i="${i}">
       강화 <b>비급 ${need}장 + ${fmt(g)}냥</b></button>
-    ${canAw?`<button class="btn red wide ${S.seok>=15?'':'off'}" data-a="awsk" data-i="${i}">각성 「${SK_AW_NAME[i]}」 <b>영석 15</b></button>`:''}
+    ${canAw?`<button class="btn red wide ${S.seok>=15?'':'off'}" data-a="awsk" data-i="${i}">각성 「${SK_AW_NAME[i]}」 <b>${curj('seok')}영석 15</b></button>`:''}
     ${k.p&&k.p.per==='mantra'
       ?'<p class="demo-note">이 심법은 슬롯 없이도 늘 발휘되오</p>'
       :`<button class="btn wide" data-a="skslotpick" data-i="${i}">슬롯에 장착</button>`}
@@ -4643,13 +4734,14 @@ function eqGridCell(kind,i,lv,rar,rarMax,name,desc,eqNow,need){
     <div class="v rar${rar}">${name}</div></div>`;
   return `<div class="rel r${rar} ${frCls(rar,rarMax)} ${eqNow?'eq':''}" data-a="eq${kind}" data-i="${i}" style="cursor:pointer">
     ${isNew?'<span class="nbadge">N</span>':''}
-    <div class="e">${ic(kind==='w'?'w':kind==='ac'?'a':'s',i,'')}</div>
+    <div class="e">${itIco(kind==='w'?'w':kind==='ac'?'a':'s',i,'')}</div>
     <div class="n">${name}</div>
     <div class="v">${desc}</div>
     ${need?`<div class="pbar"><i style="width:${bar}%"></i><b>${lv}/${need}</b></div>`:''}
   </div>`;
 }
 function buildEquip(){
+  ItemArt.probe('w'); ItemArt.probe('s'); ItemArt.probe('a');
   const v=S.equipView||0;
   let h='<div class="subtab eqtab">'+EQ_TABS.map((t,i)=>
     `<button data-a="eqview" data-i="${i}" class="${v===i?'on':''}">${t}</button>`).join('')+'</div>';
@@ -4948,36 +5040,47 @@ function pull(kind,times){
       const pool=WEAPONS.map((w2,i)=>({w2,i})).filter(o=>o.w2.r===r);
       const pk=pool[Math.floor(Math.random()*pool.length)];
       S.weapons[pk.i]=(S.weapons[pk.i]||0)+1;
-      results.push({e:pk.w2.e,n:pk.w2.n,rr:Math.min(r,6),rn:RAR7[r].n});
+      results.push({e:pk.w2.e,n:pk.w2.n,rr:Math.min(r,6),rn:RAR7[r].n,wi:pk.i});
     }else if(kind==='sk'){
       const r=rollRar(SK_RAR);
       const pk=randSkOf(r);
       addSkCard(pk,1);                    // 원작: 소환은 카드를 주고, 배우기로 익힌다
-      results.push({e:SKILLS[pk].e,n:SKILLS[pk].n+' 비급',rr:Math.min(4,r),rn:SK_RAR[r].n,ski:pk});
+      results.push({e:SKILLS[pk].e,n:SKILLS[pk].n,rr:Math.min(4,r),rn:SK_RAR[r].n+' 비급',ski:pk});
     }else if(kind==='ac'){
       const r=rollRar(RAR4);
       const pool=ACCS.map((ac,i)=>({ac,i})).filter(o=>o.ac.r===r);
       const pk=pool[Math.floor(Math.random()*pool.length)];
       S.accs[pk.i]=(S.accs[pk.i]||0)+1;
       if(S.accEq<0) S.accEq=pk.i;
-      results.push({e:pk.ac.e,n:pk.ac.n,rr:r===3?4:r===2?3:r,rn:RAR4[r].n});
+      results.push({e:pk.ac.e,n:pk.ac.n,rr:r===3?4:r===2?3:r,rn:RAR4[r].n,aci:pk.i});
     }else{
       const r=rollRar(RAR4);
       const pool=SPIRITS.map((sp,i)=>({sp,i})).filter(o=>o.sp.r===r);
       const pk=pool[Math.floor(Math.random()*pool.length)];
       S.spirits[pk.i]=(S.spirits[pk.i]||0)+1;
       if(S.spEq<0) S.spEq=pk.i;
-      results.push({e:pk.sp.e,n:pk.sp.n,rr:r===3?4:r===2?3:r,rn:RAR4[r].n});
+      results.push({e:pk.sp.e,n:pk.sp.n,rr:r===3?4:r===2?3:r,rn:RAR4[r].n,spi:pk.i});
     }
   }
   snd('reward');
-  let h='<h2>소환!</h2><div class="pullres">';
-  results.forEach((r,idx)=>{
-    h+=`<div class="rel r${r.rr}" style="animation-delay:${idx*0.07}s">
-      <div class="e">${r.ski!=null?skIco(r.ski):r.e}</div><div class="n">${r.n}</div><div class="v rar${r.rr}">${r.rn}</div></div>`;
-  });
-  h+='</div><button class="btn wide" data-a="close">거두기</button>';
-  showModal(h);
+  SkOne.probe(results.map(r=>r.ski).filter(x=>x!=null)); // 뽑힌 기술 아이콘부터 받는다
+  ItemArt.probe('w',results.map(r=>r.wi));
+  ItemArt.probe('s',results.map(r=>r.spi));
+  ItemArt.probe('a',results.map(r=>r.aci));
+  const render=()=>{
+    let h='<h2>소환!</h2><div class="pullres">';
+    results.forEach((r,idx)=>{
+      h+=`<div class="rel r${r.rr}" style="animation-delay:${idx*0.07}s">
+        <div class="e">${r.ski!=null?skIco(r.ski)
+          :r.wi!=null?itIco('w',r.wi,r.e)
+          :r.spi!=null?itIco('s',r.spi,r.e)
+          :r.aci!=null?itIco('a',r.aci,r.e):r.e}</div><div class="n">${r.n}</div><div class="v rar${r.rr}">${r.rn}</div></div>`;
+    });
+    h+='</div><button class="btn wide" data-a="close">거두기</button>';
+    showModal(h);
+  };
+  W.pullRerender=render;   // 아이콘이 로딩되는 대로 SkOne.refresh가 다시 그린다
+  render();
   updateHeader();
 }
 
@@ -5169,7 +5272,7 @@ function dragonModal(sel){
   DR_GATE.forEach((g,k)=>{ if(rec>=g&&!S.dr.slots[k]) S.dr.slots[k]=drRoll(); });
   const R5=['I','II','III','IV','V'];
   let h=`<h2>잠룡(潛龍)의 힘</h2>
-    <p class="small" style="text-align:center">잠든 이무기의 힘으로 한층 강해지오 · 보유 용린 <b style="color:var(--goldL)">${S.yong}</b></p>
+    <p class="small" style="text-align:center">잠든 이무기의 힘으로 한층 강해지오 · 보유 ${curj('yong')}용린 <b style="color:var(--goldL)">${S.yong}</b></p>
     <div class="drtabs">${R5.map((r,k)=>{
       const open=rec>=DR_GATE[k];
       return `<button class="${sel===k?'on':''} ${open?'':'lk'}" ${open?`data-a="drsel" data-i="${k}"`:''}>${open?r:'🔒'}</button>`;
@@ -5191,8 +5294,8 @@ function dragonModal(sel){
   }else{
     DR_ST.forEach(d=>{ h+=`<div class="card" style="padding:6px 11px">${drRow(d,slot[d[0]])}</div>`; });
     h+=`<div class="btnrow" style="display:flex;gap:6px">
-      <button class="btn wide ${S.yong>=10?'':'off'}" data-a="drreset" style="margin-top:6px">리셋 <b>용린 10</b></button>
-      <button class="btn red wide ${S.yong>=30?'':'off'}" data-a="drhreset" style="margin-top:6px">고급 리셋 <b>용린 30</b></button></div>
+      <button class="btn wide ${S.yong>=10?'':'off'}" data-a="drreset" style="margin-top:6px">리셋 <b>${curj('yong')}용린 10</b></button>
+      <button class="btn red wide ${S.yong>=30?'':'off'}" data-a="drhreset" style="margin-top:6px">고급 리셋 <b>${curj('yong')}용린 30</b></button></div>
     <p class="demo-note" style="margin-top:6px">리셋은 즉시 새로 굴리고, 고급 리셋은 이전과 비교해 고를 수 있소</p>`;
   }
   h+='<button class="btn wide" data-a="close">닫기</button>';
@@ -5400,13 +5503,13 @@ function buildAdvent(){
       <span class="tkw">${gi('ticket',2)}</span>${S.tickets.rift}
       <span class="tkw"><i class="ga dgn"></i></span>${S.tickets.dragon}</div>
   </div>`;
-  h+='<div class="sect">심법 수련 <span style="letter-spacing:0">— 보유 영석 '+fmt(S.seok)+'</span></div>';
+  h+='<div class="sect">심법 수련 <span style="letter-spacing:0">— 보유 '+curj('seok')+'영석 '+fmt(S.seok)+'</span></div>';
   AWAKEN.forEach((a,i)=>{
     const lv=S.aw[a.id], cost=lv+1;
     h+=`<div class="card strow">
       <div class="ico">${ic('m',i,a.e)}</div>
       <div class="mid"><div class="nm">${a.n}<span class="lv">${lv}성</span></div><div class="sub">${a.d}</div></div>
-      <button class="btn ${S.seok>=cost?'':'off'}" data-a="awaken" data-i="${i}" style="width:88px;flex:none">영석 ${cost}</button>
+      <button class="btn ${S.seok>=cost?'':'off'}" data-a="awaken" data-i="${i}" style="width:88px;flex:none">${curj('seok')}영석 ${cost}</button>
     </div>`;
   });
   const dg2=daoGain();
@@ -6282,7 +6385,7 @@ function switchTab(t){
   if(t==='equip') buildEquip();
   if(t==='comp') buildComp();
   if(t==='advent') buildAdvent();
-  if(t==='shop') buildShop();
+  if(t==='shop'){ SkOne.probe(); buildShop(); } // 소환 결과에 기술 아이콘이 나오도록 미리 받는다
 }
 document.addEventListener('click',e=>{
   const el=e.target.closest('[data-a]');
@@ -6634,10 +6737,12 @@ if(window.ResizeObserver) new ResizeObserver(sizeCanvas).observe(cv); // CSS 높
   SFXF.init(); // 실제 칼소리 파일 로드 시도 (없으면 합성음 폴백)
   HeroSpr.load(); // 주인공 원화 스프라이트 (없으면 벡터 검객 유지)
   SkOne.probe(S.skEq);  // 장착한 기술 아이콘만 먼저 받는다 (나머지는 스킬 탭에서)
+  CurArt.probe();       // 재화 낱개 원화 탐색
+  ItemArt.probe('w',[S.wEq]); ItemArt.probe('s',[S.spEq]); ItemArt.probe('a',[S.accEq]);
   /* 원화 UI 파일이 있으면 자동으로 켠다 — 없으면 조용히 지금 디자인 유지 */
   [['modal_frame','ui-modal'],['modal_title','ui-title'],
    ['btn_menu','ui-btn'],['btn_menu_press','ui-btnp'],['hud_btn','ui-hud'],
-   ['overlay_vignette','ui-vig']]
+   ['overlay_vignette','ui-vig'],['hud_quest','ui-hq'],['hud_mail','ui-hm']]
    .forEach(p=>{ const im=new Image();
      im.onload=()=>document.body.classList.add(p[1]);
      im.src=av('assets/ui/'+p[0]+'.png'); });
