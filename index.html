@@ -1073,6 +1073,7 @@ function snd(kind,pan){
       [69,72,76,81,84].forEach((m,i)=>pluck(T+0.2+i*0.09,m,0.34,SFX,0.6));
       noiseHit(T,{f0:5000,f1:2000,q:0.8,a:0.01,d:0.35,g:0.18});
     }else if(kind==='lose'){
+      if(SFXF.play('lose',0.65)) return; // assets/sfx/lose1~3 파일이 있으면 그걸로
       toneHit(T,{type:'sawtooth',f0:200,f1:46,a:0.02,d:0.55,g:0.22});
       noiseHit(T,{f0:800,f1:120,q:0.8,a:0.03,d:0.5,g:0.2,type:'lowpass'});
       metalRing(T+0.1,[880,1320],0.4,0.1,null,true);
@@ -1359,11 +1360,11 @@ function musicOff(){ Music.stop(); BGM.stop(); }
 const SFXF={
   /* BGM과 같은 이유로 fetch+WebAudio 디코딩이 1차 경로 — SFX 버스 경유라 효과음 볼륨 슬라이더도 적용.
      file://에서만 <audio> 요소 폴백. 둘 다 실패하면 play()가 false를 돌려 기존 합성음이 나온다. */
-  files:{swing:[],hit:[],crit:[]}, bufs:{swing:[],hit:[],crit:[]}, inited:false, wa:false,
+  files:{swing:[],hit:[],crit:[],lose:[]}, bufs:{swing:[],hit:[],crit:[],lose:[]}, inited:false, wa:false,
   init(){
     if(this.inited) return; this.inited=true;
     this.wa=(location.protocol!=='file:'&&!!window.fetch&&!!ensureAudio());
-    for(const k of ['swing','hit','crit']){
+    for(const k of ['swing','hit','crit','lose']){
       for(let i=1;i<=3;i++){
         for(const ext of ['mp3','wav','ogg']){
           const url='assets/sfx/'+k+i+'.'+ext;
@@ -1382,9 +1383,10 @@ const SFXF={
       }
     }
   },
-  pool(kind){ // hit/crit 파일이 없으면 swing 파일로 대체
+  pool(kind){ // hit/crit 파일이 없으면 swing 파일로 대체 (사망음은 대체하지 않는다)
     const t=this.wa?this.bufs:this.files;
     if(t[kind].length) return t[kind];
+    if(kind==='lose') return null;
     if(t.swing.length) return t.swing;
     return null;
   },
@@ -1685,7 +1687,7 @@ const CompSpr={
       const hasRun=arr.length>=8;             // 4~7번이 달리기 컷인 동료 (새 원화)
       if(W.running){
         // 달리기 컷이 있으면 순환시킨다. 없으면 예전처럼 대기 자세로 따라온다.
-        fi=hasRun?4+(Math.floor(h.run*7+i*1.3)%4):0;
+        fi=hasRun?4+(Math.floor(h.run*5+i*1.3)%4):0; // 주인공 발 주기(7.5/6)와 동일한 1.25주기
       }else if(cs&&cs.anim>0){                // 제 박자로 활을 당기고 놓는다
         const k=1-cs.anim/0.52;
         // 새 원화는 4컷이 대기→당김→발사→마무리로 제대로 나뉘어 있어 그대로 쓴다.
