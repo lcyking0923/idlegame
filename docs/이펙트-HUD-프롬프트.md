@@ -150,3 +150,11 @@ a small event ribbon banner attached to the left edge, deep red to orange gradie
 ```
 a slim horizontal ebony wood notification plate with rounded ends, thin brass edge line, subtle hanji texture in the dark center, understated, Korean Joseon dynasty dark fantasy game UI asset, dancheong ornament palette (deep vermilion, jade green, indigo, gold leaf), carved ebony wood and brass, painterly hand-drawn, crisp edges, flat front view, no text, no letters, no drop shadow outside the shape, transparent background, PNG
 ```
+
+### `skill_slot.png` — 기술 칸 판
+
+전투 화면 아래 기술 9칸과 스킬 탭 슬롯에 공용 (512×512 정사각, 가운데는 아이콘 자리라 비울 것)
+
+```
+a square game skill slot frame, dark ebony wood tile with a thin brass inner rim and tiny dancheong corner dots, slightly recessed empty dark center for an icon, subtle top light, Korean Joseon dynasty dark fantasy game UI asset, dancheong ornament palette (deep vermilion, jade green, indigo, gold leaf), carved ebony wood and brass, painterly hand-drawn, crisp edges, flat front view, no text, no letters, no drop shadow outside the shape, transparent background, PNG
+```
