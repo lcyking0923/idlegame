@@ -186,7 +186,8 @@ header{flex:none;background:var(--ink2);border-bottom:2px solid var(--gold2)}
 #bossHud{position:absolute;top:72px;left:50%;transform:translateX(-50%);width:74%;text-align:center;z-index:4}
 #bossHud .bn{font-family:var(--serif);font-size:13px;color:#FFD9C2;text-shadow:0 1px 3px #000;letter-spacing:2px}
 #bossHud .bar{height:10px;border:1px solid #000;border-radius:6px;background:#2A1512;overflow:hidden;margin-top:2px}
-#bossHud .fill{height:100%;background:linear-gradient(90deg,#E06450,var(--red));width:100%}
+#bossHud .bar{background:url(assets/ui/bar_track.png) center/100% 100% no-repeat;border:0}
+#bossHud .fill{height:100%;background:url(assets/ui/bar_boss.png) left center/auto 100% repeat-x;width:100%;border-radius:5px}
 #bossHud .bt{font-size:11px;color:#FFB;font-variant-numeric:tabular-nums}
 #bossGo{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);z-index:4;
   background:linear-gradient(#E06450,var(--red));color:#FFF0DC;border:1.5px solid var(--goldL);
@@ -407,6 +408,13 @@ main{flex:1;overflow:hidden;position:relative;margin-top:5px}
 .curj{display:inline-block;width:15px;height:15px;vertical-align:-2px;margin-right:3px;
   background-size:100% 100%;background-repeat:no-repeat}
 .curj.em{width:auto;height:auto;background:none;margin-right:2px}
+/* 냥 동전·옥 원화가 있으면 CSS 도형을 원화로 교체 */
+body.ui-coin .coin{background:url(assets/ui/cur/coin.png) center/100% 100% no-repeat;box-shadow:none}
+body.ui-coin .coin::after{display:none}
+body.ui-coin .coin .ic{display:none}
+body.ui-jade .jadeic{background:url(assets/ui/cur/jade.png) center/100% 100% no-repeat;
+  transform:none;box-shadow:none;border-radius:0}
+body.ui-jade .jadeic .ic{display:none}
 .mastrow .mid{flex:1;min-width:0}
 .mastrow .sub{font-size:10px;color:var(--uiSub);margin-top:4px;line-height:1.3}
 .mastrow .mxb{font-size:10px;font-weight:700;color:var(--uiGood);white-space:nowrap}
@@ -670,6 +678,17 @@ body.ui-hud #questBtn,body.ui-hud #mailBtn{
   background:url(assets/ui/hud_btn.png) center/100% 100% no-repeat;
   border:0;box-shadow:none}
 /* hud_quest.png / hud_mail.png 가 있으면 이모지 대신 원화 아이콘 (고리 위에 겹침) */
+body.ui-sb .sbname{background:none;border:0;box-shadow:none;box-sizing:border-box;
+  border-style:solid;border-color:transparent;border-width:10px 26px 12px 26px;
+  border-image:url(assets/ui/stage_banner.png) 40 104 48 104 fill / 10px 26px 12px 26px stretch}
+body.ui-hot .sbn.hot{background:url(assets/ui/hot_banner.png) center/100% 100% no-repeat;
+  border:0;box-shadow:none;color:#FFF0D8;text-shadow:0 1px 2px rgba(0,0,0,.7)}
+body.ui-toast .toast{background:none;box-sizing:border-box;box-shadow:none;
+  border-style:solid;border-color:transparent;border-width:12px 26px 14px 26px;
+  border-image:url(assets/ui/toast_plate.png) 48 104 56 104 fill / 12px 26px 14px 26px stretch;
+  color:#F1E5C9}
+body.ui-start .startbtn{background:url(assets/ui/btn_start.png) center/100% 100% no-repeat;
+  border:0;box-shadow:none;color:#FFF0DC;text-shadow:0 1px 3px rgba(0,0,0,.8)}
 body.ui-hq #questBtn{font-size:0;
   background:url(assets/ui/hud_quest.png) center/56% 56% no-repeat,
              url(assets/ui/hud_btn.png) center/100% 100% no-repeat}
@@ -1763,7 +1782,14 @@ const Fx={
       im.src=av('assets/sprites/fx.png');
     }).catch(()=>{});
   },
-  has(nm){ return !!(this.img&&this.F&&this.F[nm]); },
+  one:{}, oneTried:{},               // 낱장 이펙트 — assets/ui/fx/<이름>.png
+  probeOne(nm){
+    if(this.oneTried[nm]) return; this.oneTried[nm]=1;
+    const im=new Image();
+    im.onload=()=>{ this.one[nm]=im; };
+    im.src=av('assets/ui/fx/'+nm+'.png');
+  },
+  has(nm){ if(this.one[nm]) return true; this.probeOne(nm); return !!(this.img&&this.F&&this.F[nm]); },
   _cnt:{},
   count(base){ // base0, base1 ... 형태로 몇 장 있는지 (애니메이션 시트용)
     if(!this.F) return 0;
@@ -1772,6 +1798,16 @@ const Fx={
   },
   draw(nm,x,y,scale,alpha,ang,add){ // 중심 기준 + 가산합성(빛)
     if(!this.has(nm)) return false;
+    if(this.one[nm]){                    // 낱장 원화 우선 (256² 기준으로 64px 정도로 축소)
+      const im=this.one[nm], sc1=(scale||1)*64/Math.max(im.width,im.height);
+      cx.save();
+      if(add!==false) cx.globalCompositeOperation='lighter';
+      cx.globalAlpha=Math.max(0,Math.min(1,alpha==null?1:alpha));
+      cx.translate(x,y); if(ang) cx.rotate(ang);
+      cx.drawImage(im,-im.width*sc1/2,-im.height*sc1/2,im.width*sc1,im.height*sc1);
+      cx.restore();
+      return true;
+    }
     const f=this.F[nm], sc=(scale||1)/this.sc;
     cx.save();
     if(add!==false) cx.globalCompositeOperation='lighter';
@@ -4301,11 +4337,14 @@ function itIco(kind,i,em){ // kind: 'w'|'s'|'a'
 }
 /* 재화 낱개 원화 — assets/ui/cur/<키>.png 를 넣으면 그 재화 표기가 그림으로 바뀐다 */
 const CurArt={
-  ok:{}, em:{seok:'🔷', yong:'🐲', stone:'🪨', sp:'📖'},
+  ok:{}, em:{seok:'🔷', yong:'🐲', stone:'🪨', sp:'📖', coin:'', jade:''},
   probe(){
-    for(const k of ['seok','yong','stone','sp'])((k2)=>{
+    for(const k of ['seok','yong','stone','sp','coin','jade'])((k2)=>{
       const im=new Image();
-      im.onload=()=>{ this.ok[k2]=1; };
+      im.onload=()=>{ this.ok[k2]=1;
+        if(k2==='coin') document.body.classList.add('ui-coin');
+        if(k2==='jade') document.body.classList.add('ui-jade');
+      };
       im.src=av('assets/ui/cur/'+k2+'.png');
     })(k);
   },
@@ -6743,7 +6782,9 @@ if(window.ResizeObserver) new ResizeObserver(sizeCanvas).observe(cv); // CSS 높
   /* 원화 UI 파일이 있으면 자동으로 켠다 — 없으면 조용히 지금 디자인 유지 */
   [['modal_frame','ui-modal'],['modal_title','ui-title'],
    ['btn_menu','ui-btn'],['btn_menu_press','ui-btnp'],['hud_btn','ui-hud'],
-   ['overlay_vignette','ui-vig'],['hud_quest','ui-hq'],['hud_mail','ui-hm']]
+   ['overlay_vignette','ui-vig'],['hud_quest','ui-hq'],['hud_mail','ui-hm'],
+   ['stage_banner','ui-sb'],['hot_banner','ui-hot'],['toast_plate','ui-toast'],
+   ['btn_start','ui-start']]
    .forEach(p=>{ const im=new Image();
      im.onload=()=>document.body.classList.add(p[1]);
      im.src=av('assets/ui/'+p[0]+'.png'); });
