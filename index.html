@@ -685,10 +685,12 @@ body.ui-sslot .skslot,body.ui-sslot #tab-skill .slot{
   background:url(assets/ui/skill_slot.png) center/100% 100% no-repeat!important;
   border:0!important;border-radius:0}
 body.ui-sslot #autoSkBtn{background:url(assets/ui/skill_slot.png) center/100% 100% no-repeat;border:0}
-body.ui-sb .sbname{background:none;border:0;box-shadow:none;box-sizing:border-box;
-  border-style:solid;border-color:transparent;border-width:16px 20px 23px 17px;
-  border-image:url(assets/ui/stage_banner.png) 40 49 58 43 fill / 16px 20px 23px 17px stretch;
-  padding:0 6px}
+body.ui-sb .sbname{background:url(assets/ui/stage_banner.png) center/100% 100% no-repeat;
+  border:0;border-radius:0;box-shadow:none;box-sizing:border-box;width:213px;height:70px;
+  padding:17px 24px 34px;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  line-height:1}
+body.ui-sb .sbname small{font-size:6.5px;line-height:1;margin-bottom:1px}
+body.ui-sb .sbname b{font-size:11px;line-height:1}
 /* 현판 원화(64px)가 옛 판(26px)보다 커서 — 아래 HUD를 현판 밑으로 내림 */
 body.ui-sb .killbar{top:72px}
 body.ui-sb #goldFloat{top:90px}
